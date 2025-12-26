@@ -1,4 +1,5 @@
 package CatanAnalysis;
+
 public class Tile {
     
     // attributes
