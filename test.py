@@ -3,15 +3,8 @@ import networkx as nx
 import numpy as np
 
 # ==========================================
-# 1. CONFIGURATION: MANUAL OVERLAY
+# 1. DATA INPUT
 # ==========================================
-# Choose which rows to combine by their file line number (0-4)
-active_rows = [4] 
-
-# ==========================================
-# 2. DATA INPUT
-# ==========================================
-# Your new data (20 columns: 19 tile values + 1 ID at the end)
 data_str = """
 1.0 1.0 0.75 0.25 0.75 0.75 0.5 0.5 0.5 1.0 1.0 0.0 1.0 0.5 1.0 1.0 0.0 0.25 1.0 3.0
 0.75 0.5 0.5 0.0 0.5 0.75 0.25 0.0 0.5 1.0 0.5 0.5 1.0 1.0 0.75 0.75 0.0 0.25 0.5 4.0
@@ -20,13 +13,12 @@ data_str = """
 0.75 0.5 0.5 0.0 0.5 0.75 0.25 0.0 0.0 0.25 0.5 0.5 0.25 1.0 0.75 0.75 0.0 0.0 0.5 2.0
 """
 
-# The names corresponding to the indices found at the end of each data row
 win_condition_names = [
     "4 Cities + LR",
-    "2 Cities + 1 Settlement + LR & LA (Extra Brick & Wood)",
-    "3 cities + 2 settlements + LR",
+    "2 Cities + 1 Settlement + LR & LA (Extra Brick/Wood)",
+    "3 Cities + 2 Settlements + LR",
     "2 Cities + 3 Settlements + LR",
-    "1 City + 3 Settlements + LR & LA"                    
+    "1 City + 3 Settlements + LR & LA"
 ]
 
 # Map Attributes
@@ -35,46 +27,15 @@ map_dice = [5, 8, 4, 2, 10, 3, 11, 6, 9, 11, 6, 12, 3, 4, 5, 9, 0, 8, 10]
 resource_names = {0: 'Brick', 1: 'Ore', 2: 'Sheep', 3: 'Wheat', 4: 'Wood', 5: 'Desert'}
 
 # Parse Data
-# We separate the first 19 values (heatmap) from the last value (win condition ID)
 heatmap_rows = []
 row_ids = []
-
 for line in data_str.strip().split('\n'):
     values = [float(x) for x in line.split()]
     heatmap_rows.append(values[:-1])  # First 19 items
     row_ids.append(int(values[-1]))   # Last item is the ID
 
 # ==========================================
-# 3. CALCULATE HEATMAP
-# ==========================================
-selected_data = [heatmap_rows[i] for i in active_rows]
-
-# Calculate Sum
-if not selected_data:
-    final_values = np.zeros(19)
-else:
-    final_values = np.sum(selected_data, axis=0)
-
-# Normalize (0 to 1)
-max_val = np.max(final_values)
-if max_val == 0: max_val = 1
-norm_values = final_values / max_val
-
-# Determine Title Name
-# If one row is selected, show its specific name. If multiple, show "Combined".
-if len(active_rows) == 1:
-    idx = active_rows[0]
-    win_id = row_ids[idx]
-    # Safety check for index out of range
-    if 0 <= win_id < len(win_condition_names):
-        display_title = win_condition_names[win_id]
-    else:
-        display_title = f"Unknown Condition (ID {win_id})"
-else:
-    display_title = "Combined Strategies Overlay"
-
-# ==========================================
-# 4. DRAWING
+# 2. GRAPH TOPOLOGY
 # ==========================================
 G = nx.Graph()
 G.add_nodes_from(range(19))
@@ -91,27 +52,58 @@ edges = [
 ]
 G.add_edges_from(edges)
 
-fig, ax = plt.subplots(figsize=(12, 12))
+# ==========================================
+# 3. PLOTTING FUNCTION
+# ==========================================
+def draw_map(ax, values, title):
+    # Normalize (0 to 1) for consistent coloring relative to the max of that map
+    max_val = max(values) if max(values) > 0 else 1
+    norm_values = [v/max_val for v in values]
+    
+    # Colors & Labels
+    node_colors = [plt.cm.coolwarm(v) for v in norm_values]
+    labels = {}
+    for i in range(19):
+        r_name = resource_names[map_resources[i]]
+        d_num = str(map_dice[i]) if map_dice[i] != 0 else ""
+        labels[i] = f"{r_name}\n{d_num}"
+    
+    # Draw
+    nx.draw_networkx_edges(G, pos, ax=ax, edge_color='#E0E0E0', width=2)
+    nx.draw_networkx_nodes(G, pos, ax=ax, node_color=node_colors, node_size=1800, edgecolors='black')
+    nx.draw_networkx_labels(G, pos, labels, ax=ax, font_size=8, font_weight='bold')
+    
+    ax.set_title(title, fontsize=10, fontweight='bold')
+    ax.axis('off')
 
-cmap = plt.cm.coolwarm 
-node_colors = [cmap(v) for v in norm_values]
+# ==========================================
+# 4. EXECUTE DRAWING
+# ==========================================
+fig, axes = plt.subplots(2, 3, figsize=(20, 12))
+axes = axes.flatten()
 
-labels = {}
-for i in range(19):
-    r_name = resource_names[map_resources[i]]
-    d_num = str(map_dice[i]) if map_dice[i] != 0 else ""
-    labels[i] = f"{r_name}\n{d_num}"
+# Plot first 5 strategies
+for i in range(5):
+    win_id = row_ids[i]
+    name = win_condition_names[win_id] if 0 <= win_id < len(win_condition_names) else f"Unknown ID {win_id}"
+    draw_map(axes[i], heatmap_rows[i], f"Strategy {i+1}: {name}")
 
-nx.draw_networkx_edges(G, pos, ax=ax, edge_color='#E0E0E0', width=2)
-nx.draw_networkx_nodes(G, pos, ax=ax, node_color=node_colors, node_size=3000, edgecolors='black')
-nx.draw_networkx_labels(G, pos, labels, ax=ax, font_size=9, font_weight='bold', font_color='black')
+# Plot Combined Overlay in the 6th slot
+combined_values = np.sum(heatmap_rows, axis=0)
+draw_map(axes[5], combined_values, "TOTAL COMBINED OVERLAY")
 
-sm = plt.cm.ScalarMappable(cmap=cmap, norm=plt.Normalize(vmin=0, vmax=max_val))
+# ==========================================
+# 5. ADD INTENSITY BAR (Colorbar)
+# ==========================================
+# Create a dummy ScalarMappable to generate the legend
+sm = plt.cm.ScalarMappable(cmap=plt.cm.coolwarm, norm=plt.Normalize(vmin=0, vmax=1))
 sm.set_array([])
-cbar = plt.colorbar(sm, ax=ax, shrink=0.7)
-cbar.set_label('Heatmap Value', fontsize=12)
 
-# Dynamic Title
-plt.title(f"Strategy: {display_title}", fontsize=16, fontweight='bold', pad=20)
-plt.axis('off')
+# Add the colorbar to the figure
+# 'ax=axes.tolist()' tells it to center the bar relative to all the subplots
+cbar = fig.colorbar(sm, ax=axes.tolist(), orientation='vertical', fraction=0.02, pad=0.04)
+cbar.set_label('Relative Importance (Intensity)', fontsize=14, labelpad=10)
+cbar.ax.tick_params(labelsize=10)
+
+plt.suptitle("Catan Strategy Heatmaps", fontsize=20, fontweight='bold')
 plt.show()

@@ -128,14 +128,15 @@ public class MapAnalysis
 
 
       /*
-      for each win scenerio, we want to create a set of different strongly connected components and rank them from the biggest to smallest.
-            then, we outpt the 2d array consiting of the same ordered win condition rank from before, but a set of ranked strongly connected components for each win condition.
+      for each win scenerio, we want to create a set (List) of different strongly connected components and rank them from the biggest to smallest.
+            then, we output the 2d array consisting of the same ordered win condition rank from before, but a set of ranked strongly connected components for each win condition.
             each strongly connected component is represented as a list of tile indices. the edges are already represented in the adjencency matrix.
+            we use DFS to find all strongly connected components on the graph for each win condition.
       */
       void StronglyConnectedComponentsSorting() {
             
-            // continue....
-
+            Tile graph = new Tile(); // create Tile object to access adjencency matrix
+            int[][] adjencencyMatrix = graph.adjencencyMatrix; // get adjencency matrix
 
       }
 
