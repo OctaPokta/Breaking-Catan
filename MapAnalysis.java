@@ -6,30 +6,6 @@ import java.util.Arrays;
 // Given a Catan game map, this class handle the connection between the map to the win conditions analysis
 public class MapAnalysis 
 {
-      // create adjencency matrix for map graph. 0 = no adjencency, 1 = adjencency
-      // for 18 tiles, the numbers are counted from top left to bottom right, left to right, top to bottom.
-      // the rotation of the board does not matter for this analysis
-      int[][] adjencencyMatrix = {
-      {0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 0
-      {1,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0}, // 1
-      {0,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0}, // 2
-      {1,0,0,0,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0}, // 3
-      {1,1,0,1,0,1,0,0,1,1,0,0,0,0,0,0,0,0,0}, // 4
-      {0,1,1,0,1,0,1,0,0,1,1,0,0,0,0,0,0,0,0}, // 5
-      {0,0,1,0,0,1,0,0,0,0,1,1,0,0,0,0,0,0,0}, // 6
-      {0,0,0,1,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0}, // 7
-      {0,0,0,1,1,0,0,1,0,1,0,0,1,1,0,0,0,0,0}, // 8
-      {0,0,0,0,1,1,0,0,1,0,1,0,0,1,1,0,0,0,0}, // 9
-      {0,0,0,0,0,1,1,0,0,1,0,1,0,0,1,1,0,0,0}, // 10
-      {0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,1,0,0,0}, // 11
-      {0,0,0,0,0,0,0,1,1,0,0,0,0,1,0,0,1,0,0}, // 12
-      {0,0,0,0,0,0,0,0,1,1,0,0,1,0,1,0,1,1,0}, // 13
-      {0,0,0,0,0,0,0,0,0,1,1,0,0,1,0,1,0,1,1}, // 14
-      {0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,0,0,0,1}, // 15
-      {0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,1,0}, // 16
-      {0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,0,1}, // 17
-      {0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,0}}; // 18    
-
       int NUM_OF_WIN_CONDITIONS; // example number of win conditions  
       private final int NUM_OF_TILES_ON_MAP = 19; // standard catan has 19 tiles including desert
       Tile[] mapTiles = new Tile[NUM_OF_TILES_ON_MAP];
