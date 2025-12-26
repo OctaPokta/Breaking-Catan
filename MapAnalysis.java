@@ -6,7 +6,6 @@ import java.util.Arrays;
 // Given a Catan game map, this class handle the connection between the map to the win conditions analysis
 public class MapAnalysis 
 {
-
       // create adjencency matrix for map graph. 0 = no adjencency, 1 = adjencency
       // for 18 tiles, the numbers are counted from top left to bottom right, left to right, top to bottom.
       // the rotation of the board does not matter for this analysis
@@ -37,7 +36,7 @@ public class MapAnalysis
       ArrayList<int[][]> winConditionRelativeTokenScore;
 
       // win condition names
-      String [] winConditionNames = {
+      private String [] winConditionNames = {
             "4 Cities + LR",
             "2 Cities + 1 Settlement + LR & LA (Extra Brick & Wood)",
             "3 cities + 2 settlements + LR",
@@ -68,6 +67,17 @@ public class MapAnalysis
             and rank the biggest "Strongly Connected Component" on the graph with the best resources and dice numbers matching what we wanted.
             at the end, we'll output the most suitable areas for the start settelments for each of the win scenarios. */
            StronglyConnectedComponentsSorting();
+
+
+            // .................
+           /*
+            Then, we want to create a Bipartite Graph between all avaliable 54 settlement locations and the 18 tiles
+            The goal is to then find the best matching pairs between the best win scenerios and for each of them to the areas we just found.
+            This way, we can find the best settlement locations that closely match the win condition scener
+            */
+
+            // Create a Bipartite Graph between all avaliable 54 settlement locations and the 18 tiles
+            int[][] BipartiteGraph = new int[54][18];
       }
 
 
@@ -138,57 +148,47 @@ public class MapAnalysis
                   }
                   System.out.println();
             }
-   
-
-
-
-
-
-
-
-
-            /*
-            Then, we want to create a Bipartite Graph between all avaliable 54 settlement locations and the 18 tiles
-            The goal is to then find the best matching pairs between the best win scenerios and for each of them to the areas we just found.
-            This way, we can find the best settlement locations that closely match the win condition scener
-            */
-
-
-
-
-            // Create a Bipartite Graph between all avaliable 54 settlement locations and the 18 tiles
-            int[][] BipartiteGraph = new int[54][18];
-
       }
-
 
 
       /*
       for each win scenerio, we want to create a set of different strongly connected components and rank them from the biggest to smallest.
-      then, we outpt the 2d array consiting of the same ordered win condition rank from before, but a set of ranked strongly connected components for each win condition.
-      each strongly connected component is represented as a list of tile indices. the edges are already represented in the adjencency matrix.
+            then, we outpt the 2d array consiting of the same ordered win condition rank from before, but a set of ranked strongly connected components for each win condition.
+            each strongly connected component is represented as a list of tile indices. the edges are already represented in the adjencency matrix.
       */
       void StronglyConnectedComponentsSorting() {
-            // implement strongly connected components analysis here
+            
+            // continue....
+
+
       }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
       // other helper methods
 
       // helper method to get closeness score based on dice difference
       private double getClosenessScore(int ddifference) {
-            switch (ddifference) {
-                  case 0:
-                        return 1.0;
-                  case 1:
-                        return 0.75;
-                  case 2:
-                        return 0.5;
-                  case 3:
-                        return 0.25;
-                  default:
-                        return 0.0;
-            }
+          return switch (ddifference) {
+              case 0 -> 1.0;
+              case 1 -> 0.75;
+              case 2 -> 0.5;
+              case 3 -> 0.25;
+              default -> 0.0;
+          };
       }
 
 
@@ -199,6 +199,7 @@ public class MapAnalysis
 
             return winConditionPerTileScores;
       }
+
 
       // Helper method to calculate the sum of a double array
       private double sum(double[] array) {
