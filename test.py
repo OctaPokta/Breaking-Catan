@@ -1,18 +1,66 @@
 import matplotlib.pyplot as plt
 import networkx as nx
-import numpy as np
+import math
+import numpy as np  # Added for array handling
 
 # ==========================================
-# 1. DATA INPUT
+# 1. PASTE YOUR JAVA OUTPUT HERE
 # ==========================================
 data_str = """
-1.0 1.0 0.75 0.25 0.75 0.75 0.5 0.5 0.5 1.0 1.0 0.0 1.0 0.5 1.0 1.0 0.0 0.25 1.0 3.0
-0.75 0.5 0.5 0.0 0.5 0.75 0.25 0.0 0.5 1.0 0.5 0.5 1.0 1.0 0.75 0.75 0.0 0.25 0.5 4.0
-0.5 1.0 0.75 0.75 0.75 0.5 1.0 0.75 0.5 1.0 1.0 0.0 1.0 0.5 0.5 0.5 0.0 0.25 0.75 1.0
-1.0 1.0 0.75 0.25 0.75 0.25 0.5 1.0 0.0 0.25 1.0 0.0 0.25 0.5 1.0 1.0 0.0 0.0 0.5 0.0
-0.75 0.5 0.5 0.0 0.5 0.75 0.25 0.0 0.0 0.25 0.5 0.5 0.25 1.0 0.75 0.75 0.0 0.0 0.5 2.0
+0.00 0.00 0.00 1.00 0.00 0.00 0.00 1.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 3
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 1.00 0.00 0.00 0.00 1.00 3
+0.00 0.00 0.00 0.00 0.00 0.00 1.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 3
+0.00 0.00 0.00 0.00 0.75 0.00 0.00 0.00 0.75 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 3
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.75 0.75 0.00 0.00 0.00 0.00 0.00 0.00 0.00 3
+0.00 0.00 0.75 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 3
+0.50 0.50 0.00 0.00 0.00 0.50 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 3
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.50 0.00 0.00 0.00 0.50 0.00 0.00 3
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.50 0.00 0.00 0.00 3
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.25 0.00 0.00 0.00 0.25 0.00 3
+0.00 0.00 0.00 0.00 1.00 1.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 4
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 1.00 0.00 0.00 0.00 4
+0.00 0.00 0.75 0.00 0.00 0.00 0.75 0.00 0.00 0.00 0.75 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 4
+0.00 0.00 0.00 0.75 0.00 0.00 0.00 0.00 0.75 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 4
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.50 0.00 0.00 0.00 0.50 4
+0.50 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 4
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.50 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 4
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.25 0.25 0.00 0.00 0.25 0.00 0.00 4
+0.00 0.25 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 4
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.25 0.00 0.00 0.00 0.00 0.00 0.00 0.00 4
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 1.00 0.00 0.00 0.00 0.00 1.00 0.00 0.00 0.00 1.00 0.00 0.00 1
+0.00 1.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 1
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 1.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 1
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 1.00 1
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.75 0.00 0.00 0.00 0.75 0.00 0.00 0.75 0.00 1
+0.00 0.00 0.75 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 1
+0.50 0.00 0.00 0.50 0.00 0.00 0.00 0.00 0.50 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 1
+0.00 0.00 0.00 0.00 0.00 0.50 0.50 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 1
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.50 0.00 0.00 0.00 1
+0.00 0.00 0.00 0.00 0.25 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 1
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.25 0.00 0.00 0.00 0.00 0.00 1
+0.00 0.00 0.00 0.00 1.00 1.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 2
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 1.00 0.00 0.00 0.00 2
+0.00 0.00 0.00 0.75 0.00 0.00 0.00 0.00 0.75 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 2
+0.00 0.00 0.00 0.00 0.00 0.00 0.75 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 2
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.50 0.00 0.00 0.00 0.50 2
+0.00 0.00 0.50 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 2
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.50 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 2
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.25 0.00 0.00 0.00 0.25 0.00 0.00 2
+0.00 0.25 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 2
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.25 0.00 0.00 0.00 0.00 0.00 0.00 0.00 2
+0.00 0.00 0.00 1.00 0.00 0.00 0.00 1.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0
+0.00 0.00 0.00 0.00 0.00 0.00 1.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 1.00 0
+0.00 0.00 0.00 0.00 0.75 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.75 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0
+0.00 0.50 0.50 0.00 0.00 0.50 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.50 0.00 0.00 0.00 0.50 0.00 0.00 0
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.50 0.50 0.00 0.00 0.00 0
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.25 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.25 0.00 0
 """
 
+# Win condition names
 win_condition_names = [
     "4 Cities + LR",
     "2 Cities + 1 Settlement + LR & LA (Extra Brick/Wood)",
@@ -21,21 +69,36 @@ win_condition_names = [
     "1 City + 3 Settlements + LR & LA"
 ]
 
-# Map Attributes
-map_resources = [4, 3, 4, 0, 4, 1, 0, 1, 2, 2, 3, 3, 2, 3, 0, 4, 5, 2, 1]
-map_dice = [5, 8, 4, 2, 10, 3, 11, 6, 9, 11, 6, 12, 3, 4, 5, 9, 0, 8, 10]
-resource_names = {0: 'Brick', 1: 'Ore', 2: 'Sheep', 3: 'Wheat', 4: 'Wood', 5: 'Desert'}
+# ==========================================
+# 2. USER SETTINGS
+# ==========================================
+# Change this number (0-4) to select which Strategy to visualize
+SELECTED_STRATEGY_ID = 0  
 
-# Parse Data
-heatmap_rows = []
-row_ids = []
-for line in data_str.strip().split('\n'):
-    values = [float(x) for x in line.split()]
-    heatmap_rows.append(values[:-1])  # First 19 items
-    row_ids.append(int(values[-1]))   # Last item is the ID
+print(f"Visualizing Groups for Strategy: {win_condition_names[SELECTED_STRATEGY_ID]}")
 
 # ==========================================
-# 2. GRAPH TOPOLOGY
+# 3. DATA PARSING
+# ==========================================
+map_resources = [2,4,2,0,0,3,4,3,1,5,2,1,4,2,1,3,4,0,3]
+map_dice = [5,11,12,9,8,4,5,8,3,0,10,9,3,6,4,10,11,2,6]
+resource_names = {0: 'Brick', 1: 'Ore', 2: 'Sheep', 3: 'Wheat', 4: 'Wood', 5: 'Desert'}
+
+filtered_rows = []
+for line in data_str.strip().split('\n'):
+    if not line.strip(): continue
+    values = [float(x) for x in line.split()]
+    
+    # The last number is the ID
+    row_id = int(values[-1])
+    
+    if row_id == SELECTED_STRATEGY_ID:
+        filtered_rows.append(values[:-1])
+
+print(f"Found {len(filtered_rows)} connected groups for this strategy.")
+
+# ==========================================
+# 4. GRAPH TOPOLOGY
 # ==========================================
 G = nx.Graph()
 G.add_nodes_from(range(19))
@@ -53,22 +116,22 @@ edges = [
 G.add_edges_from(edges)
 
 # ==========================================
-# 3. PLOTTING FUNCTION
+# 5. PLOTTING FUNCTION
 # ==========================================
 def draw_map(ax, values, title):
-    # Normalize (0 to 1) for consistent coloring relative to the max of that map
-    max_val = max(values) if max(values) > 0 else 1
-    norm_values = [v/max_val for v in values]
-    
-    # Colors & Labels
-    node_colors = [plt.cm.coolwarm(v) for v in norm_values]
+    node_colors = []
+    for v in values:
+        if v > 0:
+            node_colors.append(plt.cm.YlOrRd(v)) 
+        else:
+            node_colors.append('#f0f0f0') 
+
     labels = {}
     for i in range(19):
         r_name = resource_names[map_resources[i]]
         d_num = str(map_dice[i]) if map_dice[i] != 0 else ""
         labels[i] = f"{r_name}\n{d_num}"
     
-    # Draw
     nx.draw_networkx_edges(G, pos, ax=ax, edge_color='#E0E0E0', width=2)
     nx.draw_networkx_nodes(G, pos, ax=ax, node_color=node_colors, node_size=1800, edgecolors='black')
     nx.draw_networkx_labels(G, pos, labels, ax=ax, font_size=8, font_weight='bold')
@@ -77,33 +140,56 @@ def draw_map(ax, values, title):
     ax.axis('off')
 
 # ==========================================
-# 4. EXECUTE DRAWING
+# 6. EXECUTE DRAWING (Modified for less crowding)
 # ==========================================
-fig, axes = plt.subplots(2, 3, figsize=(20, 12))
-axes = axes.flatten()
+if len(filtered_rows) == 0:
+    print("No groups found for this strategy ID.")
+else:
+    # SETTINGS FOR CLEANER VIEW
+    # -------------------------
+    PLOTS_PER_FIGURE = 4  # Max plots per window (2x2 grid)
+    COLS = 2              # 2 Columns for wider, clearer plots
+    
+    total_plots = len(filtered_rows)
+    num_figures = math.ceil(total_plots / PLOTS_PER_FIGURE)
+    
+    for fig_idx in range(num_figures):
+        start_idx = fig_idx * PLOTS_PER_FIGURE
+        end_idx = min((fig_idx + 1) * PLOTS_PER_FIGURE, total_plots)
+        current_batch = filtered_rows[start_idx:end_idx]
+        
+        num_in_batch = len(current_batch)
+        rows = math.ceil(num_in_batch / COLS)
+        
+        # Create figure with generous spacing
+        # Width 16, Height 7 per row gives plenty of room
+        fig, axes = plt.subplots(rows, COLS, figsize=(16, 7 * rows))
+        
+        # Handle single plot case (axes is not an array) or 1D array
+        if num_in_batch == 1:
+            axes = [axes]
+        elif isinstance(axes, np.ndarray): 
+            axes = axes.flatten()
+        
+        # Plot each group in the batch
+        for i, values in enumerate(current_batch):
+            global_index = start_idx + i
+            score = max(values)
+            title = f"Group {global_index+1} (Score: {score})"
+            
+            # Draw
+            draw_map(axes[i], values, title)
+            
+        # Hide unused subplots in the last row
+        for j in range(num_in_batch, len(axes)):
+            axes[j].axis('off')
+            
+        # Title for the window
+        page_info = f" (Page {fig_idx+1}/{num_figures})" if num_figures > 1 else ""
+        plt.suptitle(f"{win_condition_names[SELECTED_STRATEGY_ID]}{page_info}", 
+                     fontsize=16, fontweight='bold', y=0.98)
+        
+        # Adjust layout to prevent overlap
+        plt.tight_layout(rect=[0, 0.02, 1, 0.95], h_pad=3.0, w_pad=2.0)
 
-# Plot first 5 strategies
-for i in range(5):
-    win_id = row_ids[i]
-    name = win_condition_names[win_id] if 0 <= win_id < len(win_condition_names) else f"Unknown ID {win_id}"
-    draw_map(axes[i], heatmap_rows[i], f"Strategy {i+1}: {name}")
-
-# Plot Combined Overlay in the 6th slot
-combined_values = np.sum(heatmap_rows, axis=0)
-draw_map(axes[5], combined_values, "TOTAL COMBINED OVERLAY")
-
-# ==========================================
-# 5. ADD INTENSITY BAR (Colorbar)
-# ==========================================
-# Create a dummy ScalarMappable to generate the legend
-sm = plt.cm.ScalarMappable(cmap=plt.cm.coolwarm, norm=plt.Normalize(vmin=0, vmax=1))
-sm.set_array([])
-
-# Add the colorbar to the figure
-# 'ax=axes.tolist()' tells it to center the bar relative to all the subplots
-cbar = fig.colorbar(sm, ax=axes.tolist(), orientation='vertical', fraction=0.02, pad=0.04)
-cbar.set_label('Relative Importance (Intensity)', fontsize=14, labelpad=10)
-cbar.ax.tick_params(labelsize=10)
-
-plt.suptitle("Catan Strategy Heatmaps", fontsize=20, fontweight='bold')
-plt.show()
+    plt.show()
