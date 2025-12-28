@@ -1,6 +1,3 @@
-Below is a comprehensive and professional README.md for your CatanAnalysis project. Since you are a Computer Science student and a Tech Lead, I have structured this to reflect high-level software architecture and algorithmic depth.
-CatanAnalysis
-
 CatanAnalysis is a specialized tool designed to determine the mathematically optimal starting positions on any given Settlers of Catan map layout. By leveraging graph theory and custom heat-mapping algorithms, the project simulates various "Win Strategies" to identify high-value territories for settlement and expansion.
 
 Overview
