@@ -70,7 +70,7 @@ win_condition_names = [
 # 2. USER SETTINGS
 # ==========================================
 # Change this number (0-4) to select which Strategy to visualize
-SELECTED_STRATEGY_ID = 0
+SELECTED_STRATEGY_ID = 1  
 
 print(f"Visualizing Groups for Strategy: {win_condition_names[SELECTED_STRATEGY_ID]}")
 

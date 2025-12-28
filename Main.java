@@ -43,8 +43,8 @@ public class Main {
     // Run map analysis here:
     // ask user to enter resources & dice number for each index (top left to bottom right)
       // 0 = brick, 1 = ore, 2 = sheep, 3 = wheat, 4 = wood, 5 = desert 
-      int[] mapResources = {4,3,4,0,4,1,0,1,2,2,3,3,2,3,0,4,5,2,1}; // example input
-      int[] mapDiceNumbers = {5,8,4,2,10,3,11,6,9,11,6,12,3,4,5,9,0,8,10}; // example input
+      int[] mapResources = {2,4,2,0,0,3,4,3,1,5,2,1,4,2,1,3,4,0,3}; // example input
+      int[] mapDiceNumbers = {5,11,12,9,8,4,5,8,3,0,10,9,3,6,4,10,11,2,6}; // example input
 
     // Create Map Analysis Object
     MapAnalysis mapAnalysis = new MapAnalysis(mapResources, mapDiceNumbers, relativeTokenScoresResults, NUM_OF_WIN_CONDITIONS);
