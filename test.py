@@ -6,11 +6,11 @@ import numpy as np
 # 1. DATA INPUT
 # ==========================================
 data_str = """
-1.0 1.0 0.75 0.25 0.75 0.75 0.5 0.5 0.5 1.0 1.0 0.0 1.0 0.5 1.0 1.0 0.0 0.25 1.0 3.0
-0.75 0.5 0.5 0.0 0.5 0.75 0.25 0.0 0.5 1.0 0.5 0.5 1.0 1.0 0.75 0.75 0.0 0.25 0.5 4.0
-0.5 1.0 0.75 0.75 0.75 0.5 1.0 0.75 0.5 1.0 1.0 0.0 1.0 0.5 0.5 0.5 0.0 0.25 0.75 1.0
-1.0 1.0 0.75 0.25 0.75 0.25 0.5 1.0 0.0 0.25 1.0 0.0 0.25 0.5 1.0 1.0 0.0 0.0 0.5 0.0
-0.75 0.5 0.5 0.0 0.5 0.75 0.25 0.0 0.0 0.25 0.5 0.5 0.25 1.0 0.75 0.75 0.0 0.0 0.5 2.0
+0.5 0.5 0.75 1.0 0.75 0.5 1.0 1.0 0.75 0.0 0.75 0.75 0.5 0.25 1.0 0.5 0.5 0.25 1.0 3.0
+0.5 0.25 0.75 0.75 1.0 1.0 0.75 0.5 0.75 0.0 0.75 0.25 0.25 0.25 0.5 1.0 0.25 0.0 0.5 4.0
+0.5 1.0 0.75 0.5 0.25 0.5 0.5 1.0 0.5 0.0 0.75 1.0 1.0 0.25 0.75 0.5 1.0 0.75 1.0 1.0
+0.0 0.25 0.5 0.75 1.0 1.0 0.75 0.5 0.75 0.0 0.0 0.25 0.25 0.0 0.5 1.0 0.25 0.0 0.5 2.0
+0.0 0.5 0.5 1.0 0.75 0.5 1.0 1.0 0.25 0.0 0.0 0.75 0.5 0.0 0.5 0.5 0.5 0.25 1.0 0.0
 """
 
 win_condition_names = [
@@ -22,8 +22,8 @@ win_condition_names = [
 ]
 
 # Map Attributes
-map_resources = [4, 3, 4, 0, 4, 1, 0, 1, 2, 2, 3, 3, 2, 3, 0, 4, 5, 2, 1]
-map_dice = [5, 8, 4, 2, 10, 3, 11, 6, 9, 11, 6, 12, 3, 4, 5, 9, 0, 8, 10]
+map_resources = [2,4,2,0,0,3,4,3,1,5,2,1,4,2,1,3,4,0,3]
+map_dice = [5,11,12,9,8,4,5,8,3,0,10,9,3,6,4,10,11,2,6]
 resource_names = {0: 'Brick', 1: 'Ore', 2: 'Sheep', 3: 'Wheat', 4: 'Wood', 5: 'Desert'}
 
 # Parse Data
@@ -61,7 +61,7 @@ def draw_map(ax, values, title):
     norm_values = [v/max_val for v in values]
     
     # Colors & Labels
-    node_colors = [plt.cm.coolwarm(v) for v in norm_values]
+    node_colors = [plt.cm.YlOrRd(v) for v in norm_values]
     labels = {}
     for i in range(19):
         r_name = resource_names[map_resources[i]]
@@ -79,28 +79,27 @@ def draw_map(ax, values, title):
 # ==========================================
 # 4. EXECUTE DRAWING
 # ==========================================
+# We have 5 strategies, so we keep 2x3 grid but hide the last one
 fig, axes = plt.subplots(2, 3, figsize=(20, 12))
 axes = axes.flatten()
 
-# Plot first 5 strategies
+# Plot the 5 strategies
 for i in range(5):
     win_id = row_ids[i]
     name = win_condition_names[win_id] if 0 <= win_id < len(win_condition_names) else f"Unknown ID {win_id}"
     draw_map(axes[i], heatmap_rows[i], f"Strategy {i+1}: {name}")
 
-# Plot Combined Overlay in the 6th slot
-combined_values = np.sum(heatmap_rows, axis=0)
-draw_map(axes[5], combined_values, "TOTAL COMBINED OVERLAY")
+# Hide the 6th slot (index 5) since we removed the combined overlay
+axes[5].axis('off')
 
 # ==========================================
 # 5. ADD INTENSITY BAR (Colorbar)
 # ==========================================
 # Create a dummy ScalarMappable to generate the legend
-sm = plt.cm.ScalarMappable(cmap=plt.cm.coolwarm, norm=plt.Normalize(vmin=0, vmax=1))
+sm = plt.cm.ScalarMappable(cmap=plt.cm.YlOrRd, norm=plt.Normalize(vmin=0, vmax=1))
 sm.set_array([])
 
 # Add the colorbar to the figure
-# 'ax=axes.tolist()' tells it to center the bar relative to all the subplots
 cbar = fig.colorbar(sm, ax=axes.tolist(), orientation='vertical', fraction=0.02, pad=0.04)
 cbar.set_label('Relative Importance (Intensity)', fontsize=14, labelpad=10)
 cbar.ax.tick_params(labelsize=10)
