@@ -44,8 +44,15 @@ public class MapAnalysis
             at the end, we'll output the most suitable areas for the start settelments for each of the win scenarios. */
             ArrayList<ArrayList<ConnectedComponentTile>>[] sortedComponentsByWinCondition = StronglyConnectedComponentsSorting(winConditionPerTileScores);
 
+            Test test = new Test();
+            test.printAnalysisAndPythonData(sortedComponentsByWinCondition, winConditionPerTileScores, winConditionNames, NUM_OF_TILES_ON_MAP);
+            
             System.out.print("done");
             // .................
+
+
+
+            
            /*
             Then, we want to create a Bipartite Graph between all avaliable 54 settlement locations and the 18 tiles
             The goal is to then find the best matching pairs between the best win scenerios and for each of them to the areas we just found.
@@ -129,7 +136,7 @@ public class MapAnalysis
             return winConditionPerTileScores;
       }
 
-
+      
       /*
       for each win scenerio, we want to create a set (List) of different strongly connected components and rank them from the biggest to smallest.
             then, we output the 2d array consisting of the same ordered win condition rank from before, but a set of ranked strongly connected components for each win condition.
@@ -149,7 +156,7 @@ public class MapAnalysis
             ArrayList<ArrayList<ConnectedComponentTile>>[] sortedComponents = new ArrayList[NUM_OF_WIN_CONDITIONS];
 
             // for each win condition scenerio:
-            for (int i = 0; i < NUM_OF_WIN_CONDITIONS-1; i++) {
+            for (int i = 0; i < NUM_OF_WIN_CONDITIONS; i++) {
                 
                   // Initialize the list for this specific win condition
                   sortedComponents[i] = new ArrayList<>();
@@ -259,5 +266,38 @@ public class MapAnalysis
 
     
    
+
+
+
+
+
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
