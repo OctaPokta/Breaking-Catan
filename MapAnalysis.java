@@ -44,8 +44,8 @@ public class MapAnalysis
             at the end, we'll output the most suitable areas for the start settelments for each of the win scenarios. */
             ArrayList<ArrayList<ConnectedComponentTile>>[] sortedComponentsByWinCondition = StronglyConnectedComponentsSorting(winConditionPerTileScores);
 
-            //Test test = new Test();
-            //test.printAnalysisAndPythonData(sortedComponentsByWinCondition, winConditionPerTileScores, winConditionNames, NUM_OF_TILES_ON_MAP);
+            Test test = new Test();
+            test.printAnalysisAndPythonData(sortedComponentsByWinCondition, winConditionPerTileScores, winConditionNames, NUM_OF_TILES_ON_MAP);
             
             System.out.print("done");
             // .................
@@ -181,7 +181,6 @@ public class MapAnalysis
                   
             }
             
-            
             return sortedComponents;
       }
 
@@ -206,8 +205,6 @@ public class MapAnalysis
                         // Run DFS to fill this list
                         DFS(adj, scores, visited, i, component, targetRanking);
                         res.add(component);
-
-                        System.out.println();
                   }
             }
 
