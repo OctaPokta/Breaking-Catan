@@ -171,7 +171,6 @@ public class MapAnalysis
                         ArrayList<ArrayList<ConnectedComponentTile>> componentsFound = getComponents(adjacencyMatrix, currentScores, ranking);
                         // sort the componentsFound list in decending order
                         componentsFound.sort((c1, c2) -> Integer.compare(c2.size(), c1.size()));
-                        
                         // Add the groups found to our main list
                         sortedComponents[i].addAll(componentsFound);
                         ranking -= 0.25;

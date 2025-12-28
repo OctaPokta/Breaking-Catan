@@ -107,7 +107,6 @@ public class WinConditions {
 
 
     System.out.println();
-    System.out.println();
     
     // Store both relative token scores in a list and return
     ArrayList<int[][]> relativeTokenScores = new ArrayList<>();
