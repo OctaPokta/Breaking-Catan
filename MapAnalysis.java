@@ -37,12 +37,12 @@ public class MapAnalysis
 
             /* Given the win conditions relative token score tables & tile resource and dice number information, this analyse the most suitable win condtiion for the current map.
             I.e. returns which win condition is the most suitable one to any "tiles area" on the map including the resource and dice number.*/
-            WinConditionTileScores();
+            double[][] winConditionPerTileScores = WinConditionTileScores();
 
             /* After running the most suitable win condition algorithm. we then want to loop each win scenerio in a sorted way
             and rank the biggest "Strongly Connected Component" on the graph with the best resources and dice numbers matching what we wanted.
             at the end, we'll output the most suitable areas for the start settelments for each of the win scenarios. */
-           StronglyConnectedComponentsSorting();
+           StronglyConnectedComponentsSorting(double[][] winConditionPerTileScores);
 
 
             // .................
@@ -57,10 +57,8 @@ public class MapAnalysis
       }
 
 
-      // calculates the optimal tiles (based on dice num & resource type) for each win condition based on the map graph connection
-      private void WinConditionTileScores() 
-      {     
-            /* 
+      // calculates the optimal tiles (based on dice num & resource type) for each win condition based on the map graph connection:
+      /* 
             the algorithm works like this:
 
             Given a matrix (num of win conditions) x (18) -18 tiles on the map & winconditions dice numbers matrix
@@ -68,18 +66,21 @@ public class MapAnalysis
 
             for each win condition scenerio:
                   for each tile on the map:
-                        if the resource on the tile & dice number matches EXACTLY the win condition relative to the score table (look up the score using resource type and dice number):
+                        if the resource on the tile & dice number matches EXACTLY the win condition relative to the score table 
+                        (look up the score using resource type and dice number):
                               then, add +1 to the score of that win condition for that tile area.
                         if the dice number in the according resource in the score table has an error range of 1:
-                              then, add +0.5 to the score of that win condition for that tile area.
+                              then, add +0.75 to the score of that win condition for that tile area.
                         if the resource on the tile & dice number has error range of 2:
-                              then, add +0.25 to the score of that win condition for that tile area
+                              then, add +0.5 to the score of that win condition for that tile area
                         if the resource on the tile & dice number has error range of 3:
-                              then, add +0.1 to the score of that win condition for that tile area.
+                              then, add +0.25 to the score of that win condition for that tile area.
 
                   After going through all matrix entries, we then sort the win conditions (i .e. rows) based on their total score across all 18 tiles.
                   The win condition with the highest score is considered the most suitable for the current given map configuration. */
             
+      private double[][] WinConditionTileScores() 
+      {     
             // set a new array, already initialized to zeros
             double[][] winConditionPerTileScores = new double[NUM_OF_WIN_CONDITIONS][NUM_OF_TILES_ON_MAP+1]; // rows: win conditions, columns: tiles on map
 
@@ -103,6 +104,7 @@ public class MapAnalysis
                         int relativeTokenScoreBottom = winConditionRelativeTokenScore.get(0)[i][tileResourceType]; // first table is for <7
                         int relativeTokenScoreUpper = winConditionRelativeTokenScore.get(1)[i][tileResourceType]; // second table is for >7
                         
+                        
                         // calculate distance between tile dice number and both relative token scores
                         int distBottom = Math.abs(tileDiceNumber - relativeTokenScoreBottom);
                         int distUpper = Math.abs(tileDiceNumber - relativeTokenScoreUpper);
@@ -124,6 +126,8 @@ public class MapAnalysis
                   }
                   System.out.println();
             }
+
+            return winConditionPerTileScores;
       }
 
 
@@ -133,10 +137,26 @@ public class MapAnalysis
             each strongly connected component is represented as a list of tile indices. the edges are already represented in the adjencency matrix.
             we use DFS to find all strongly connected components on the graph for each win condition.
       */
-      void StronglyConnectedComponentsSorting() {
+      void StronglyConnectedComponentsSorting(double[][] winConditionPerTileScores) 
+      {
             
+            // for each win condition scenerio
+            for (int i = 0; i < NUM_OF_WIN_CONDITIONS; i++) {
+                
+
+            }
+
+
+
+
             Tile graph = new Tile(); // create Tile object to access adjencency matrix
             int[][] adjencencyMatrix = graph.adjencencyMatrix; // get adjencency matrix
+
+
+
+
+
+
 
       }
 
@@ -155,7 +175,40 @@ public class MapAnalysis
 
 
 
-      // other helper methods
+      // other helper methods:
+
+      // helper method to get componenets of a graph using DFS
+      public static ArrayList<ArrayList<Integer>> getComponents(ArrayList<ArrayList<Integer>> adj) {
+        
+            // array to keep track of visited vertices
+            boolean[] visited = new boolean[adj.size()];
+            ArrayList<ArrayList<Integer>> res = new ArrayList<>();
+
+            // Loop through all vertices to handle all components
+            for (int i = 0; i < adj.size(); i++) {
+                  if (!visited[i]) {
+                        ArrayList<Integer> component = new ArrayList<>();
+                        DFS(adj, visited, i, component);
+                        res.add(component);
+                  }
+            }
+
+            return res;
+      }
+
+      //helper method for DFS finding connected componenets of a graph
+      private static void DFS(ArrayList<ArrayList<Integer>> adj, boolean[] visited, int s, ArrayList<Integer> res) {
+
+            visited[s] = true;
+            res.add(s);
+
+            // recursively visit all adjacent vertices that are not visited yet
+            for (int i : adj.get(s)) {
+                  if (!visited[i]) {
+                        DFS(adj, visited, i, res);
+                  }
+            }
+      }
 
       // helper method to get closeness score based on dice difference
       private double getClosenessScore(int ddifference) {
