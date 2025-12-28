@@ -30,7 +30,7 @@ public class MapAnalysis
                   this.mapTiles[i] = new Tile(); // create new Tile object
                   this.mapTiles[i].resourceType = mapResources[i];
                   this.mapTiles[i].diceNumber = mapDiceNumbers[i];
-                  System.out.println("Tile " + i + ": Resource Type = " + this.mapTiles[i].resourceType + ", Dice Number = " + this.mapTiles[i].diceNumber);
+                  //System.out.println("Tile " + i + ": Resource Type = " + this.mapTiles[i].resourceType + ", Dice Number = " + this.mapTiles[i].diceNumber);
             }
 
             this.winConditionRelativeTokenScore = winConditionRelativeTokenScore; // store the relative token score tables
@@ -42,10 +42,17 @@ public class MapAnalysis
             /* After running the most suitable win condition algorithm. we then want to loop each win scenerio in a sorted way
             and rank the biggest "Strongly Connected Component" on the graph with the best resources and dice numbers matching what we wanted.
             at the end, we'll output the most suitable areas for the start settelments for each of the win scenarios. */
-           StronglyConnectedComponentsSorting(double[][] winConditionPerTileScores);
+            ArrayList<ArrayList<ConnectedComponentTile>>[] sortedComponentsByWinCondition = StronglyConnectedComponentsSorting(winConditionPerTileScores);
 
-
+            //Test test = new Test();
+            //test.printAnalysisAndPythonData(sortedComponentsByWinCondition, winConditionPerTileScores, winConditionNames, NUM_OF_TILES_ON_MAP);
+            
+            System.out.println("done");
             // .................
+
+
+
+            
            /*
             Then, we want to create a Bipartite Graph between all avaliable 54 settlement locations and the 18 tiles
             The goal is to then find the best matching pairs between the best win scenerios and for each of them to the areas we just found.
@@ -57,7 +64,6 @@ public class MapAnalysis
       }
 
 
-      // calculates the optimal tiles (based on dice num & resource type) for each win condition based on the map graph connection:
       /* 
             the algorithm works like this:
 
@@ -78,7 +84,7 @@ public class MapAnalysis
 
                   After going through all matrix entries, we then sort the win conditions (i .e. rows) based on their total score across all 18 tiles.
                   The win condition with the highest score is considered the most suitable for the current given map configuration. */
-            
+      // calculates the optimal tiles (based on dice num & resource type) for each win condition based on the map graph connection:
       private double[][] WinConditionTileScores() 
       {     
             // set a new array, already initialized to zeros
@@ -130,44 +136,49 @@ public class MapAnalysis
             return winConditionPerTileScores;
       }
 
-
+      
       /*
       for each win scenerio, we want to create a set (List) of different strongly connected components and rank them from the biggest to smallest.
             then, we output the 2d array consisting of the same ordered win condition rank from before, but a set of ranked strongly connected components for each win condition.
             each strongly connected component is represented as a list of tile indices. the edges are already represented in the adjencency matrix.
             we use DFS to find all strongly connected components on the graph for each win condition.
       */
-      void StronglyConnectedComponentsSorting(double[][] winConditionPerTileScores) 
+      ArrayList<ArrayList<ConnectedComponentTile>>[] StronglyConnectedComponentsSorting(double[][] winConditionPerTileScores) 
       {
-            
-            // for each win condition scenerio
-            for (int i = 0; i < NUM_OF_WIN_CONDITIONS; i++) {
+            int numWinConditions = winConditionPerTileScores.length;
+
+            // get adjecency matrix
+            Tile graph = new Tile();
+            int[][] adjacencyMatrix = graph.adjencencyMatrix;
+
+            // create a container for the file result: used to hold strongly connected components for each win condition
+            // Structure: Array[WinCondition] -> List [Ranked Groups] -> List [Tiles in that group]
+            @SuppressWarnings("unchecked")
+            ArrayList<ArrayList<ConnectedComponentTile>>[] sortedComponents = new ArrayList[numWinConditions];
+
+            // for each win condition scenerio:
+            for (int i = 0; i < numWinConditions; i++) {
                 
+                  // Initialize the list for this specific win condition
+                  sortedComponents[i] = new ArrayList<>();
+                  // Get the specific row of scores for this win condition
+                  double[] currentScores = winConditionPerTileScores[i];
+                  // loop through all ranking types: 1, 0.75, 0.5, 0.25
+                  double ranking = 1.0;
 
+                  while (ranking > 0) {
+                        // Call the helper method with the Adjacency Matrix and Score Array
+                        ArrayList<ArrayList<ConnectedComponentTile>> componentsFound = getComponents(adjacencyMatrix, currentScores, ranking);
+                        // sort the componentsFound list in decending order
+                        componentsFound.sort((c1, c2) -> Integer.compare(c2.size(), c1.size()));
+                        
+                        // Add the groups found to our main list
+                        sortedComponents[i].addAll(componentsFound);
+                        ranking -= 0.25;
+                  }
             }
-
-
-
-
-            Tile graph = new Tile(); // create Tile object to access adjencency matrix
-            int[][] adjencencyMatrix = graph.adjencencyMatrix; // get adjencency matrix
-
-
-
-
-
-
-
+            return sortedComponents;
       }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -176,19 +187,24 @@ public class MapAnalysis
 
 
       // other helper methods:
+      
+      // Helper method to get components of a graph using DFS algorithm depending on node ranking.
+      private ArrayList<ArrayList<ConnectedComponentTile>> getComponents(int[][] adj, double[] scores, double targetRanking) {
+      
+            int numTiles = adj.length; 
+            boolean[] visited = new boolean[numTiles];
 
-      // helper method to get componenets of a graph using DFS
-      public static ArrayList<ArrayList<Integer>> getComponents(ArrayList<ArrayList<Integer>> adj) {
-        
-            // array to keep track of visited vertices
-            boolean[] visited = new boolean[adj.size()];
-            ArrayList<ArrayList<Integer>> res = new ArrayList<>();
+            // initialize the result list the new class
+            ArrayList<ArrayList<ConnectedComponentTile>> res = new ArrayList<>();
 
-            // Loop through all vertices to handle all components
-            for (int i = 0; i < adj.size(); i++) {
-                  if (!visited[i]) {
-                        ArrayList<Integer> component = new ArrayList<>();
-                        DFS(adj, visited, i, component);
+            // Loop through all tiles (0 to 18)
+            for (int i = 0; i < numTiles; i++) {
+                  // Start search if unvisited AND matches score
+                  if (!visited[i] && scores[i] == targetRanking) {
+                        // Create a new connected component tile list 
+                        ArrayList<ConnectedComponentTile> component = new ArrayList<>();
+                        // Run DFS to fill this list
+                        DFS(adj, scores, visited, i, component, targetRanking);
                         res.add(component);
                   }
             }
@@ -196,23 +212,30 @@ public class MapAnalysis
             return res;
       }
 
-      //helper method for DFS finding connected componenets of a graph
-      private static void DFS(ArrayList<ArrayList<Integer>> adj, boolean[] visited, int s, ArrayList<Integer> res) {
+      // Helper method for DFS finding connected components of a graph 
+      private void DFS(int[][] adj, double[] scores, boolean[] visited, int currentTile, ArrayList<ConnectedComponentTile> res, double targetRanking) {
 
-            visited[s] = true;
-            res.add(s);
+            visited[currentTile] = true;
 
-            // recursively visit all adjacent vertices that are not visited yet
-            for (int i : adj.get(s)) {
-                  if (!visited[i]) {
-                        DFS(adj, visited, i, res);
+            int resourceType = this.mapTiles[currentTile].resourceType;
+            int diceNumber = this.mapTiles[currentTile].diceNumber;
+            
+            res.add(new ConnectedComponentTile(currentTile, scores[currentTile], resourceType, diceNumber));
+
+            // Iterate over neighbors
+            // "neighbor" is the index of the adjacent tile
+            for (int neighbor = 0; neighbor < adj.length; neighbor++) {
+                  
+                  // Check connection, visited status, and score match
+                  if (adj[currentTile][neighbor] == 1 && !visited[neighbor] && scores[neighbor] == targetRanking) {
+                        DFS(adj, scores, visited, neighbor, res, targetRanking);
                   }
             }
       }
 
       // helper method to get closeness score based on dice difference
       private double getClosenessScore(int ddifference) {
-          return switch (ddifference) {
+            return switch (ddifference) {
               case 0 -> 1.0;
               case 1 -> 0.75;
               case 2 -> 0.5;
@@ -226,7 +249,6 @@ public class MapAnalysis
       private double[][] sortWinConditionsByScore(double[][] winConditionPerTileScores) {
             // sort win conditions based on their total score across all tiles
             Arrays.sort(winConditionPerTileScores, (row1, row2) -> Double.compare(sum(row2), sum(row1)));
-
             return winConditionPerTileScores;
       }
 
@@ -242,5 +264,38 @@ public class MapAnalysis
 
     
    
+
+
+
+
+
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
