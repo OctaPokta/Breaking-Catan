@@ -44,10 +44,10 @@ public class MapAnalysis
             at the end, we'll output the most suitable areas for the start settelments for each of the win scenarios. */
             ArrayList<ArrayList<ConnectedComponentTile>>[] sortedComponentsByWinCondition = StronglyConnectedComponentsSorting(winConditionPerTileScores);
 
-            Test test = new Test();
-            test.printAnalysisAndPythonData(sortedComponentsByWinCondition, winConditionPerTileScores, winConditionNames, NUM_OF_TILES_ON_MAP);
+            //Test test = new Test();
+            //test.printAnalysisAndPythonData(sortedComponentsByWinCondition, winConditionPerTileScores, winConditionNames, NUM_OF_TILES_ON_MAP);
             
-            System.out.print("done");
+            System.out.println("done");
             // .................
 
 
@@ -64,7 +64,6 @@ public class MapAnalysis
       }
 
 
-      // calculates the optimal tiles (based on dice num & resource type) for each win condition based on the map graph connection:
       /* 
             the algorithm works like this:
 
@@ -85,6 +84,7 @@ public class MapAnalysis
 
                   After going through all matrix entries, we then sort the win conditions (i .e. rows) based on their total score across all 18 tiles.
                   The win condition with the highest score is considered the most suitable for the current given map configuration. */
+      // calculates the optimal tiles (based on dice num & resource type) for each win condition based on the map graph connection:
       private double[][] WinConditionTileScores() 
       {     
             // set a new array, already initialized to zeros
@@ -161,32 +161,33 @@ public class MapAnalysis
                 
                   // Initialize the list for this specific win condition
                   sortedComponents[i] = new ArrayList<>();
-
                   // Get the specific row of scores for this win condition
                   double[] currentScores = winConditionPerTileScores[i];
-
                   // loop through all ranking types: 1, 0.75, 0.5, 0.25
                   double ranking = 1.0;
-                  while (ranking > 0) {
 
+                  while (ranking > 0) {
                         // Call the helper method with the Adjacency Matrix and Score Array
                         ArrayList<ArrayList<ConnectedComponentTile>> componentsFound = getComponents(adjacencyMatrix, currentScores, ranking);
-
+                        // sort the componentsFound list in decending order
+                        componentsFound.sort((c1, c2) -> Integer.compare(c2.size(), c1.size()));
+                        
                         // Add the groups found to our main list
                         sortedComponents[i].addAll(componentsFound);
-
                         ranking -= 0.25;
                   }
-
-                  
             }
-            
             return sortedComponents;
       }
 
 
-      // other helper methods:
 
+
+
+
+
+      // other helper methods:
+      
       // Helper method to get components of a graph using DFS algorithm depending on node ranking.
       private ArrayList<ArrayList<ConnectedComponentTile>> getComponents(int[][] adj, double[] scores, double targetRanking) {
       
@@ -248,7 +249,6 @@ public class MapAnalysis
       private double[][] sortWinConditionsByScore(double[][] winConditionPerTileScores) {
             // sort win conditions based on their total score across all tiles
             Arrays.sort(winConditionPerTileScores, (row1, row2) -> Double.compare(sum(row2), sum(row1)));
-
             return winConditionPerTileScores;
       }
 
