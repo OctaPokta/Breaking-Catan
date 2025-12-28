@@ -30,7 +30,7 @@ public class MapAnalysis
                   this.mapTiles[i] = new Tile(); // create new Tile object
                   this.mapTiles[i].resourceType = mapResources[i];
                   this.mapTiles[i].diceNumber = mapDiceNumbers[i];
-                  System.out.println("Tile " + i + ": Resource Type = " + this.mapTiles[i].resourceType + ", Dice Number = " + this.mapTiles[i].diceNumber);
+                  //System.out.println("Tile " + i + ": Resource Type = " + this.mapTiles[i].resourceType + ", Dice Number = " + this.mapTiles[i].diceNumber);
             }
 
             this.winConditionRelativeTokenScore = winConditionRelativeTokenScore; // store the relative token score tables
@@ -44,8 +44,8 @@ public class MapAnalysis
             at the end, we'll output the most suitable areas for the start settelments for each of the win scenarios. */
             ArrayList<ArrayList<ConnectedComponentTile>>[] sortedComponentsByWinCondition = StronglyConnectedComponentsSorting(winConditionPerTileScores);
 
-            Test test = new Test();
-            test.printAnalysisAndPythonData(sortedComponentsByWinCondition, winConditionPerTileScores, winConditionNames, NUM_OF_TILES_ON_MAP);
+            //Test test = new Test();
+            //test.printAnalysisAndPythonData(sortedComponentsByWinCondition, winConditionPerTileScores, winConditionNames, NUM_OF_TILES_ON_MAP);
             
             System.out.print("done");
             // .................
@@ -145,7 +145,7 @@ public class MapAnalysis
       */
       ArrayList<ArrayList<ConnectedComponentTile>>[] StronglyConnectedComponentsSorting(double[][] winConditionPerTileScores) 
       {
-            int NUM_OF_WIN_CONDITIONS = winConditionPerTileScores.length;
+            int numWinConditions = winConditionPerTileScores.length;
 
             // get adjecency matrix
             Tile graph = new Tile();
@@ -153,10 +153,11 @@ public class MapAnalysis
 
             // create a container for the file result: used to hold strongly connected components for each win condition
             // Structure: Array[WinCondition] -> List [Ranked Groups] -> List [Tiles in that group]
-            ArrayList<ArrayList<ConnectedComponentTile>>[] sortedComponents = new ArrayList[NUM_OF_WIN_CONDITIONS];
+            @SuppressWarnings("unchecked")
+            ArrayList<ArrayList<ConnectedComponentTile>>[] sortedComponents = new ArrayList[numWinConditions];
 
             // for each win condition scenerio:
-            for (int i = 0; i < NUM_OF_WIN_CONDITIONS; i++) {
+            for (int i = 0; i < numWinConditions; i++) {
                 
                   // Initialize the list for this specific win condition
                   sortedComponents[i] = new ArrayList<>();
