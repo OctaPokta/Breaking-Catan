@@ -26,7 +26,7 @@ public class AnalyseTownLocation {
         for (int i = 0; i < 54; i++) {
 
             int townIndex = i;
-            int townAdjustedHexagons = 0;
+            int townAdjustedHexagons;
 
             // handle 1:1 ratio
             if (i <= 17) {
