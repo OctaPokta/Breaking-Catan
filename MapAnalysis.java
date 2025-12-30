@@ -1,5 +1,7 @@
 package CatanAnalysis;
 
+import CatanAnalysis.entities.ConnectedComponentTile;
+import CatanAnalysis.entities.Tile;
 import CatanAnalysis.testing.Test;
 import java.util.ArrayList;
 import java.util.Arrays;

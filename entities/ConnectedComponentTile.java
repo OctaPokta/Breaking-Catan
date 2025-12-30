@@ -1,4 +1,4 @@
-package CatanAnalysis;
+package CatanAnalysis.entities;
 
 public class ConnectedComponentTile 
 {
