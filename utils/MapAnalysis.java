@@ -1,10 +1,10 @@
 package CatanAnalysis.utils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import CatanAnalysis.entities.ConnectedComponentTile;
 import CatanAnalysis.entities.Tile;
+import CatanAnalysis.testing.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 // Given a Catan game map, this class handle the connection between the map to the win conditions analysis
 public class MapAnalysis 
@@ -47,8 +47,8 @@ public class MapAnalysis
             at the end, we'll output the most suitable areas for the start settelments for each of the win scenarios. */
             ArrayList<ArrayList<ConnectedComponentTile>>[] sortedComponentsByWinCondition = StronglyConnectedComponentsSorting(winConditionPerTileScores);
 
-            //Test test = new Test();
-            //test.printAnalysisAndPythonData(sortedComponentsByWinCondition, winConditionPerTileScores, winConditionNames, NUM_OF_TILES_ON_MAP);
+            Test test = new Test();
+            test.printAnalysisAndPythonData(sortedComponentsByWinCondition, winConditionPerTileScores, winConditionNames, NUM_OF_TILES_ON_MAP);
       }
 
 
