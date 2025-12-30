@@ -1,8 +1,8 @@
 public class BipartiteTownsAndHexagons 
 {
     // attributes
-    public int TOWN_LOCATION; // num of town out of 54 possible town locations
-    public int TOWN_ADJUSTED_HEXAGONS; // there are only 3 types: 1:1, 1:2, 1:3 
+    public int TOWN_INDEX; // index of town out of 54 possible town locations
+    public int TOWN_ADJUSTED_HEXAGONS; // there are only 3 ratios: 1 = 1:1, 2 = 1:2, 3 = 1:3 
     
     /**
      * 54x54 Adjacency Matrix representing the connectopn of each town to another.
@@ -11,9 +11,9 @@ public class BipartiteTownsAndHexagons
      * 
      * MATRIX SORTING ORDER:
      * ---------------------
-     * Rows 00-17: Towns touching 1 Hexagon  (Group 1: Tips/Corners)      [18 Towns]
-     * Rows 18-35: Towns touching 2 Hexagons (Group 2: Coast & Desert)    [18 Towns]
-     * Rows 36-53: Towns touching 3 Hexagons (Group 3: Deep Inland)       [18 Towns] */
+     * Rows 00-17: Towns touching 1 Hexagon  (Group 1:1 Tips/Corners)      [18 Towns]
+     * Rows 18-35: Towns touching 2 Hexagons (Group 1:2 Coast & Desert)    [18 Towns]
+     * Rows 36-53: Towns touching 3 Hexagons (Group 1:3 Deep Inland)       [18 Towns] */
     public static final int[][] adjacencyMatrix4Towns = {
             {0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //  Row 0
             {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //  Row 1
@@ -72,11 +72,36 @@ public class BipartiteTownsAndHexagons
     };
 
     // constructor
-    public BipartiteTownsAndHexagons (int townLocation, int townAdjustedHexagons) {
-        TOWN_LOCATION = townLocation; // index of town
+    public BipartiteTownsAndHexagons (int townIndex, int townAdjustedHexagons) {
+        TOWN_INDEX = townIndex; // index of town
         TOWN_ADJUSTED_HEXAGONS = townAdjustedHexagons; // num of adjusted hexagons
 
     }
 
+    // function to create the 54 towns array
+    public BipartiteTownsAndHexagons[] createTownsArray() {
+
+        BipartiteTownsAndHexagons[] townsArray = new BipartiteTownsAndHexagons[54];
+
+        // loading data into array
+        for (int i = 0; i < 54; i++) {
+            this.TOWN_INDEX = i;
+
+            // handle 1:1 ratio
+            if (i <= 17) {
+                this.TOWN_ADJUSTED_HEXAGONS = 1;
+            }
+            // handle 1:2 ratio
+            else if (i > 17 && i <= 35) {
+                this.TOWN_ADJUSTED_HEXAGONS = 2;
+            }
+            // handle 1:3 ratio
+            else {
+                this.TOWN_ADJUSTED_HEXAGONS = 3;
+            }
+        }
+
+        return townsArray;
+    }
 
 }
