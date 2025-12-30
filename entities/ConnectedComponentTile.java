@@ -10,10 +10,10 @@ public class ConnectedComponentTile
 
     // constructor
     public ConnectedComponentTile (int TileIndex, double TileValue, int tileResourceType, double tileDiceNumber) {
-        TILE_INDEX = TileIndex; // graph index in adjecancy matrix
-        TILE_VALUE = TileValue; // heatmap value
-        TILE_RESOURCE_TYPE = tileResourceType; // resource type for tile
-        TILE_DICE_NUMBER = tileDiceNumber; // dice number 
+        this.TILE_INDEX = TileIndex; // graph index in adjecancy matrix
+        this.TILE_VALUE = TileValue; // heatmap value
+        this.TILE_RESOURCE_TYPE = tileResourceType; // resource type for tile
+        this.TILE_DICE_NUMBER = tileDiceNumber; // dice number 
 
     }
 }
