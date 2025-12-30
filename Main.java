@@ -1,5 +1,7 @@
 package CatanAnalysis;
 
+import CatanAnalysis.entities.ConnectedComponentTile;
+import CatanAnalysis.utils.AnalyseTownLocation;
 import CatanAnalysis.utils.MapAnalysis;
 import CatanAnalysis.utils.WinConditions;
 import java.util.ArrayList;
@@ -43,19 +45,20 @@ public class Main {
     ArrayList<int[][]> relativeTokenScoresResults = winConditions.WinConditionsCalculation(resourcesAvailability, winConditionsResources);
     
     // Run map analysis here:
+
     // ask user to enter resources & dice number for each index (top left to bottom right)
       // 0 = brick, 1 = ore, 2 = sheep, 3 = wheat, 4 = wood, 5 = desert 
       int[] mapResources = {2,4,2,0,0,3,4,3,1,5,2,1,4,2,1,3,4,0,3}; // example input
       int[] mapDiceNumbers = {5,11,12,9,8,4,5,8,3,0,10,9,3,6,4,10,11,2,6}; // example input
 
-    // Create Map Analysis Object
+    // Initiate map analysis
     MapAnalysis mapAnalysis = new MapAnalysis(mapResources, mapDiceNumbers, relativeTokenScoresResults, NUM_OF_WIN_CONDITIONS);
+    ArrayList<ArrayList<ConnectedComponentTile>>[] mapGroupData = mapAnalysis.HexagonAnalyse();
+
+    // initiate analyse of the optimal towns location
+    AnalyseTownLocation townLocation = new AnalyseTownLocation(mapGroupData);
 
 
-
-    // creating a biartite graph between each town to another
-    //BipartiteTownsAndHexagons townsArray = new BipartiteTownsAndHexagons();
-    //townsArray.createBipartiteGraph();
 
     /*
     Then, we want to create a Bipartite Graph between all avaliable 54 settlement locations and the 18 tiles
