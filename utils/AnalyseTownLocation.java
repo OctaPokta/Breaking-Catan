@@ -1,19 +1,20 @@
 package CatanAnalysis.utils;
 
-import CatanAnalysis.entities.BipartiteTownsAndHexagons;;
+import CatanAnalysis.entities.ConnectedComponentTile;
+import CatanAnalysis.entities.TownsAndHexagons;
+import java.util.ArrayList;;
 
 public class AnalyseTownLocation {
     
     // attributes
-    BipartiteTownsAndHexagons[] townArray = new BipartiteTownsAndHexagons[54]; // array to hold all 54 towns
-
+    private TownsAndHexagons[] townArray = new TownsAndHexagons[54]; // array to hold all 54 towns
+    private ArrayList<ArrayList<ConnectedComponentTile>>[] mapGroupsData;
 
     // constructor
-    public AnalyseTownLocation() {
+    public AnalyseTownLocation(ArrayList<ArrayList<ConnectedComponentTile>>[] mapGroupsData) {
 
-        // create array of all towns
-        createTownsArray();
-
+        this.mapGroupsData = mapGroupsData;
+        createTownsArray(); // load info for the townArray
     }
 
 
@@ -40,10 +41,17 @@ public class AnalyseTownLocation {
                 townAdjustedHexagons = 3;
             }
 
-            this.townArray[i] = new BipartiteTownsAndHexagons(townIndex, townAdjustedHexagons);
+            this.townArray[i] = new TownsAndHexagons(townIndex, townAdjustedHexagons);
         }
-
-
-
     }
+
+
+
+    // other functions......
+    // create the bipartite graph of - town:hexagons
+
+
+
+
+
 }
