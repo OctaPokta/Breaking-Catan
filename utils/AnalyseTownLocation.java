@@ -13,11 +13,12 @@ public class AnalyseTownLocation {
 
         // create array of all towns
         createTownsArray();
-        
+
     }
 
 
     // function to create the 54 towns array
+    // we match the data of adusted hexagons to the adjacency matrix in the "BipartiteTownsAndHexagons" class.
     private void createTownsArray() {
 
         // loading data into array
