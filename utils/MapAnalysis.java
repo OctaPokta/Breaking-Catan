@@ -1,4 +1,4 @@
-package CatanAnalysis;
+package CatanAnalysis.utils;
 
 import CatanAnalysis.entities.ConnectedComponentTile;
 import CatanAnalysis.entities.Tile;

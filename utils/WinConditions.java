@@ -1,4 +1,4 @@
-package CatanAnalysis;
+package CatanAnalysis.utils;
 
 import java.util.ArrayList;
 

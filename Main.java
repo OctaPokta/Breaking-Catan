@@ -1,5 +1,7 @@
 package CatanAnalysis;
 
+import CatanAnalysis.utils.MapAnalysis;
+import CatanAnalysis.utils.WinConditions;
 import java.util.ArrayList;
 
 
