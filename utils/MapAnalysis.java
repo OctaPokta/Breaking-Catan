@@ -1,9 +1,10 @@
 package CatanAnalysis.utils;
 
-import CatanAnalysis.entities.ConnectedComponentTile;
-import CatanAnalysis.entities.Tile;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import CatanAnalysis.entities.ConnectedComponentTile;
+import CatanAnalysis.entities.Tile;
 
 // Given a Catan game map, this class handle the connection between the map to the win conditions analysis
 public class MapAnalysis 
