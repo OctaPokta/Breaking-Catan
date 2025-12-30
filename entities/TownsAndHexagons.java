@@ -2,11 +2,11 @@ package CatanAnalysis.entities;
 
 import java.util.ArrayList;
 
-public class BipartiteTownsAndHexagons 
+public class TownsAndHexagons 
 {
     // attributes
-    public int TOWN_INDEX; // index of town out of 54 possible town locations
-    public int TOWN_ADJUSTED_HEXAGONS; // there are only 3 ratios: 1 = 1:1, 2 = 1:2, 3 = 1:3 
+    private int TOWN_INDEX; // index of town out of 54 possible town locations
+    private int TOWN_ADJUSTED_HEXAGONS; // there are only 3 ratios: 1 = 1:1, 2 = 1:2, 3 = 1:3 
     
     /**
      * 54x54 Adjacency Matrix representing the connectopn of each town to another.
@@ -76,7 +76,7 @@ public class BipartiteTownsAndHexagons
     };
 
     // constructor
-    public BipartiteTownsAndHexagons (int townIndex, int townAdjustedHexagons) {
+    public TownsAndHexagons (int townIndex, int townAdjustedHexagons) {
         this.TOWN_INDEX = townIndex; // index of town
         this.TOWN_ADJUSTED_HEXAGONS = townAdjustedHexagons; // num of adjusted hexagons
 
