@@ -10,13 +10,13 @@ import java.util.Arrays;
 public class MapAnalysis 
 {
       // attributes
-      private int NUM_OF_WIN_CONDITIONS; // example number of win conditions  
+      private final int NUM_OF_WIN_CONDITIONS; // example number of win conditions  
       private final int NUM_OF_TILES_ON_MAP = 19; // standard catan has 19 tiles including desert
-      private Tile[] mapTiles = new Tile[NUM_OF_TILES_ON_MAP];
-      private ArrayList<int[][]> winConditionRelativeTokenScore;
+      private final Tile[] mapTiles = new Tile[NUM_OF_TILES_ON_MAP];
+      private final ArrayList<int[][]> winConditionRelativeTokenScore;
 
       // win condition names
-      private String [] winConditionNames = {
+      private final String [] winConditionNames = {
             "4 Cities + LR",
             "2 Cities + 1 Settlement + LR & LA (Extra Brick & Wood)",
             "3 cities + 2 settlements + LR",
