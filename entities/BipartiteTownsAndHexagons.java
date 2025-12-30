@@ -1,3 +1,7 @@
+package CatanAnalysis.entities;
+
+import java.util.ArrayList;
+
 public class BipartiteTownsAndHexagons 
 {
     // attributes
@@ -73,35 +77,12 @@ public class BipartiteTownsAndHexagons
 
     // constructor
     public BipartiteTownsAndHexagons (int townIndex, int townAdjustedHexagons) {
-        TOWN_INDEX = townIndex; // index of town
-        TOWN_ADJUSTED_HEXAGONS = townAdjustedHexagons; // num of adjusted hexagons
+        this.TOWN_INDEX = townIndex; // index of town
+        this.TOWN_ADJUSTED_HEXAGONS = townAdjustedHexagons; // num of adjusted hexagons
 
     }
 
-    // function to create the 54 towns array
-    public BipartiteTownsAndHexagons[] createTownsArray() {
 
-        BipartiteTownsAndHexagons[] townsArray = new BipartiteTownsAndHexagons[54];
 
-        // loading data into array
-        for (int i = 0; i < 54; i++) {
-            this.TOWN_INDEX = i;
-
-            // handle 1:1 ratio
-            if (i <= 17) {
-                this.TOWN_ADJUSTED_HEXAGONS = 1;
-            }
-            // handle 1:2 ratio
-            else if (i > 17 && i <= 35) {
-                this.TOWN_ADJUSTED_HEXAGONS = 2;
-            }
-            // handle 1:3 ratio
-            else {
-                this.TOWN_ADJUSTED_HEXAGONS = 3;
-            }
-        }
-
-        return townsArray;
-    }
 
 }
