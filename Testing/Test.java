@@ -1,4 +1,4 @@
-package CatanAnalysis.Testing;
+package CatanAnalysis.testing;
 
 import CatanAnalysis.ConnectedComponentTile;
 import java.util.ArrayList;
