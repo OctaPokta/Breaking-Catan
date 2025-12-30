@@ -1,5 +1,6 @@
-package CatanAnalysis;
+package CatanAnalysis.Testing;
 
+import CatanAnalysis.ConnectedComponentTile;
 import java.util.ArrayList;
 
 public class Test {

@@ -1,5 +1,6 @@
 package CatanAnalysis;
 
+import CatanAnalysis.Testing.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 
