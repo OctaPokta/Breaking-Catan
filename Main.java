@@ -51,8 +51,20 @@ public class Main {
     // Create Map Analysis Object
     MapAnalysis mapAnalysis = new MapAnalysis(mapResources, mapDiceNumbers, relativeTokenScoresResults, NUM_OF_WIN_CONDITIONS);
 
-    // Connect map graph
 
+
+    // creating a biartite graph between each town to another
+    //BipartiteTownsAndHexagons townsArray = new BipartiteTownsAndHexagons();
+    //townsArray.createBipartiteGraph();
+
+    /*
+    Then, we want to create a Bipartite Graph between all avaliable 54 settlement locations and the 18 tiles
+    The goal is to then find the best matching pairs between the best win scenerios and for each of them to the areas we just found.
+    This way, we can find the best settlement locations that closely match the win condition scener
+    */
+
+    // Create a Bipartite Graph between all avaliable 54 settlement locations and the 18 tiles
+    int[][] BipartiteGraph = new int[54][18];
 
   }
 }
