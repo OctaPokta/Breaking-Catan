@@ -48,21 +48,6 @@ public class MapAnalysis
 
             //Test test = new Test();
             //test.printAnalysisAndPythonData(sortedComponentsByWinCondition, winConditionPerTileScores, winConditionNames, NUM_OF_TILES_ON_MAP);
-            
-            System.out.println("done");
-            // .................
-
-
-
-            
-           /*
-            Then, we want to create a Bipartite Graph between all avaliable 54 settlement locations and the 18 tiles
-            The goal is to then find the best matching pairs between the best win scenerios and for each of them to the areas we just found.
-            This way, we can find the best settlement locations that closely match the win condition scener
-            */
-
-            // Create a Bipartite Graph between all avaliable 54 settlement locations and the 18 tiles
-            int[][] BipartiteGraph = new int[54][18];
       }
 
 
