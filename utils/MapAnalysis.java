@@ -9,10 +9,11 @@ import java.util.Arrays;
 // Given a Catan game map, this class handle the connection between the map to the win conditions analysis
 public class MapAnalysis 
 {
-      int NUM_OF_WIN_CONDITIONS; // example number of win conditions  
+      // attributes
+      private int NUM_OF_WIN_CONDITIONS; // example number of win conditions  
       private final int NUM_OF_TILES_ON_MAP = 19; // standard catan has 19 tiles including desert
-      Tile[] mapTiles = new Tile[NUM_OF_TILES_ON_MAP];
-      ArrayList<int[][]> winConditionRelativeTokenScore;
+      private Tile[] mapTiles = new Tile[NUM_OF_TILES_ON_MAP];
+      private ArrayList<int[][]> winConditionRelativeTokenScore;
 
       // win condition names
       private String [] winConditionNames = {
@@ -37,8 +38,13 @@ public class MapAnalysis
             }
 
             this.winConditionRelativeTokenScore = winConditionRelativeTokenScore; // store the relative token score tables
+      }
 
-            /* Given the win conditions relative token score tables & tile resource and dice number information, this analyse the most suitable win condtiion for the current map.
+
+      // public func to initiate the map analysis, returns the sorted componenets by win condition: Array->List->List of "ConnectedComponentTile" class objects
+      public ArrayList<ArrayList<ConnectedComponentTile>>[] HexagonAnalyse() {
+
+             /* Given the win conditions relative token score tables & tile resource and dice number information, this analyse the most suitable win condtiion for the current map.
             I.e. returns which win condition is the most suitable one to any "tiles area" on the map including the resource and dice number.*/
             double[][] winConditionPerTileScores = WinConditionTileScores();
 
@@ -49,26 +55,26 @@ public class MapAnalysis
 
             Test test = new Test();
             test.printAnalysisAndPythonData(sortedComponentsByWinCondition, winConditionPerTileScores, winConditionNames, NUM_OF_TILES_ON_MAP);
+
+            return sortedComponentsByWinCondition;
       }
-
-
       /* 
-            the algorithm works like this:
+      the algorithm works like this:
 
-            Given a matrix (num of win conditions) x (18) -18 tiles on the map & winconditions dice numbers matrix
-            Initialize all values to 0
+      Given a matrix (num of win conditions) x (18) -18 tiles on the map & winconditions dice numbers matrix
+      Initialize all values to 0
 
-            for each win condition scenerio:
-                  for each tile on the map:
-                        if the resource on the tile & dice number matches EXACTLY the win condition relative to the score table 
-                        (look up the score using resource type and dice number):
-                              then, add +1 to the score of that win condition for that tile area.
-                        if the dice number in the according resource in the score table has an error range of 1:
-                              then, add +0.75 to the score of that win condition for that tile area.
-                        if the resource on the tile & dice number has error range of 2:
-                              then, add +0.5 to the score of that win condition for that tile area
-                        if the resource on the tile & dice number has error range of 3:
-                              then, add +0.25 to the score of that win condition for that tile area.
+      for each win condition scenerio:
+            for each tile on the map:
+                  if the resource on the tile & dice number matches EXACTLY the win condition relative to the score table 
+                  (look up the score using resource type and dice number):
+                        then, add +1 to the score of that win condition for that tile area.
+                  if the dice number in the according resource in the score table has an error range of 1:
+                        then, add +0.75 to the score of that win condition for that tile area.
+                  if the resource on the tile & dice number has error range of 2:
+                        then, add +0.5 to the score of that win condition for that tile area
+                  if the resource on the tile & dice number has error range of 3:
+                        then, add +0.25 to the score of that win condition for that tile area.
 
                   After going through all matrix entries, we then sort the win conditions (i .e. rows) based on their total score across all 18 tiles.
                   The win condition with the highest score is considered the most suitable for the current given map configuration. */
@@ -131,7 +137,7 @@ public class MapAnalysis
             each strongly connected component is represented as a list of tile indices. the edges are already represented in the adjencency matrix.
             we use DFS to find all strongly connected components on the graph for each win condition.
       */
-      ArrayList<ArrayList<ConnectedComponentTile>>[] StronglyConnectedComponentsSorting(double[][] winConditionPerTileScores) 
+      private ArrayList<ArrayList<ConnectedComponentTile>>[] StronglyConnectedComponentsSorting(double[][] winConditionPerTileScores) 
       {
             int numWinConditions = winConditionPerTileScores.length;
 
