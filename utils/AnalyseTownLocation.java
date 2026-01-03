@@ -22,6 +22,8 @@ public class AnalyseTownLocation {
 
         createTownsArray(); // load info for the townArray
         mapTownsToHexes(); // connect each town to the hexagon that touches it
+        setTownHexagonCounts(); // for each town, set the number of hexagon that touches it
+
         // add info about num of hexagons that tocuhes each town
         printTownHex();
         // printTiles(); // helper function for debugging
@@ -100,21 +102,10 @@ public class AnalyseTownLocation {
 
     // others:
 
-    // debug function to see the connection between each town to its adjusted hex
-    private void printTownHex() {
+    
+    // adds data to each town about the number of hexagon that touches it
+    private void setTownHexagonCounts() {
 
-        System.out.println("--- Starting Town Verification ---");
-
-        for (int i = 0; i < this.TOTAL_TOWNS; i++) {
-            
-            int totalHexagons = this.townArray[i].connectedHexagons.size();
-            
-            for (int j = 0; j < totalHexagons; j++) {
-
-                ConnectedComponentTile tile = this.townArray[i].connectedHexagons.get(j);
-                System.out.println(" Town [" + i + "] => Hexagon [" + tile.getTileIndex() + "]");
-            }
-        }
     }
 
 
@@ -141,6 +132,28 @@ public class AnalyseTownLocation {
         }
         // not found
         return null;
+    }
+
+
+    // debug methods:
+
+    // method to see the connection between each town to its adjusted hex
+    private void printTownHex() {
+
+        System.out.println("--- Starting Town Verification ---");
+
+        for (int i = 0; i < this.TOTAL_TOWNS; i++) {
+            
+            int totalHexagons = this.townArray[i].connectedHexagons.size();
+            
+            for (int j = 0; j < totalHexagons; j++) {
+
+                ConnectedComponentTile tile = this.townArray[i].connectedHexagons.get(j);
+                int attachedHexagons = this.townArray[i].TOWN_ADJUSTED_HEXAGONS;
+                
+                System.out.println(" Town [" + i + "] => Hexagon [" + tile.getTileIndex() + "]" + "\tTotal of [" + attachedHexagons + "] hexagons attached");
+            }
+        }
     }
 
 
