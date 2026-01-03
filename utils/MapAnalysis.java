@@ -12,7 +12,7 @@ public class MapAnalysis
       // attributes
       private final int NUM_OF_WIN_CONDITIONS; // example number of win conditions  
       private final int NUM_OF_TILES_ON_MAP = 19; // standard catan has 19 tiles including desert
-      private final Tile[] mapTiles = new Tile[NUM_OF_TILES_ON_MAP];
+      private final Tile[] mapTiles = new Tile[this.NUM_OF_TILES_ON_MAP];
       private final ArrayList<int[][]> winConditionRelativeTokenScore;
 
       // win condition names
@@ -32,8 +32,9 @@ public class MapAnalysis
             // initialize map tiles based on input resource and dice number arrays
             for (int i = 0; i < NUM_OF_TILES_ON_MAP; i++) {
                   this.mapTiles[i] = new Tile(); // create new Tile object
-                  this.mapTiles[i].resourceType = mapResources[i];
-                  this.mapTiles[i].diceNumber = mapDiceNumbers[i];
+                  this.mapTiles[i].RESOURCE_TYPE = mapResources[i];
+                  this.mapTiles[i].DICE_NUMBER = mapDiceNumbers[i];
+                  this.mapTiles[i].TILE_INDEX = i;
                   //System.out.println("Tile " + i + ": Resource Type = " + this.mapTiles[i].resourceType + ", Dice Number = " + this.mapTiles[i].diceNumber);
             }
 
@@ -93,8 +94,8 @@ public class MapAnalysis
                   for (int j = 0; j < NUM_OF_TILES_ON_MAP; j++) {
 
                         // get tile resource type and dice number
-                        int tileResourceType = this.mapTiles[j].resourceType;
-                        int tileDiceNumber = this.mapTiles[j].diceNumber;
+                        int tileResourceType = this.mapTiles[j].RESOURCE_TYPE;
+                        int tileDiceNumber = this.mapTiles[j].DICE_NUMBER;
 
                         if (tileResourceType == 5) {
                               continue; // skip desert tiles
@@ -174,16 +175,12 @@ public class MapAnalysis
       }
 
 
-
-
-
-
-
       // other helper methods:
       
       // Helper method to get components of a graph using DFS algorithm depending on node ranking.
       private ArrayList<ArrayList<ConnectedComponentTile>> getComponents(int[][] adj, double[] scores, double targetRanking) {
       
+            int tileIndex;
             int numTiles = adj.length; 
             boolean[] visited = new boolean[numTiles];
 
@@ -197,7 +194,8 @@ public class MapAnalysis
                         // Create a new connected component tile list 
                         ArrayList<ConnectedComponentTile> component = new ArrayList<>();
                         // Run DFS to fill this list
-                        DFS(adj, scores, visited, i, component, targetRanking);
+                        tileIndex = this.mapTiles[i].TILE_INDEX; // get tile true index
+                        DFS(adj, scores, visited, tileIndex, component, targetRanking);
                         res.add(component);
                   }
             }
@@ -206,21 +204,21 @@ public class MapAnalysis
       }
 
       // Helper method for DFS finding connected components of a graph 
-      private void DFS(int[][] adj, double[] scores, boolean[] visited, int currentTile, ArrayList<ConnectedComponentTile> res, double targetRanking) {
+      private void DFS(int[][] adj, double[] scores, boolean[] visited, int tileIndex, ArrayList<ConnectedComponentTile> res, double targetRanking) {
 
-            visited[currentTile] = true;
+            visited[tileIndex] = true;
 
-            int resourceType = this.mapTiles[currentTile].resourceType;
-            int diceNumber = this.mapTiles[currentTile].diceNumber;
+            int resourceType = this.mapTiles[tileIndex].RESOURCE_TYPE;
+            int diceNumber = this.mapTiles[tileIndex].DICE_NUMBER;
             
-            res.add(new ConnectedComponentTile(currentTile, scores[currentTile], resourceType, diceNumber));
+            res.add(new ConnectedComponentTile(tileIndex, scores[tileIndex], resourceType, diceNumber));
 
             // Iterate over neighbors
             // "neighbor" is the index of the adjacent tile
             for (int neighbor = 0; neighbor < adj.length; neighbor++) {
                   
                   // Check connection, visited status, and score match
-                  if (adj[currentTile][neighbor] == 1 && !visited[neighbor] && scores[neighbor] == targetRanking) {
+                  if (adj[tileIndex][neighbor] == 1 && !visited[neighbor] && scores[neighbor] == targetRanking) {
                         DFS(adj, scores, visited, neighbor, res, targetRanking);
                   }
             }
@@ -253,6 +251,12 @@ public class MapAnalysis
                   total += value;
             }
             return total;
+      }
+
+
+      // Helper method to return map tiles content
+      public Tile[] getMapTiles() {
+            return this.mapTiles;
       }
 
     
