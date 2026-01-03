@@ -83,6 +83,11 @@ public class TownsAndHexagons
     }
 
 
+    // set methods
+    public void setAdjustedHexagons(int numOfHexagons) {
+        this.TOWN_ADJUSTED_HEXAGONS = numOfHexagons;
+    }
+
 
 
 }
