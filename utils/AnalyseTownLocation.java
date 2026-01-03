@@ -105,7 +105,11 @@ public class AnalyseTownLocation {
     
     // adds data to each town about the number of hexagon that touches it
     private void setTownHexagonCounts() {
-
+        
+        for (int townIndex = 0; townIndex < 54; townIndex++) {
+            int numOfTotalHexagons = this.townArray[townIndex].connectedHexagons.size();
+            this.townArray[townIndex].setAdjustedHexagons(numOfTotalHexagons);
+        }
     }
 
 
@@ -150,7 +154,7 @@ public class AnalyseTownLocation {
 
                 ConnectedComponentTile tile = this.townArray[i].connectedHexagons.get(j);
                 int attachedHexagons = this.townArray[i].TOWN_ADJUSTED_HEXAGONS;
-                
+
                 System.out.println(" Town [" + i + "] => Hexagon [" + tile.getTileIndex() + "]" + "\tTotal of [" + attachedHexagons + "] hexagons attached");
             }
         }
