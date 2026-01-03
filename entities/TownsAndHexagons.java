@@ -11,13 +11,7 @@ public class TownsAndHexagons
     /**
      * 54x54 Adjacency Matrix representing the connectopn of each town to another.
      * 1 = connected by a road (edge).
-     * 0 = not connected.
-     * 
-     * MATRIX SORTING ORDER:
-     * ---------------------
-     * Rows 00-17: Towns touching 1 Hexagon  (Group 1:1 Tips/Corners)      [18 Towns]
-     * Rows 18-35: Towns touching 2 Hexagons (Group 1:2 Coast & Desert)    [18 Towns]
-     * Rows 36-53: Towns touching 3 Hexagons (Group 1:3 Deep Inland)       [18 Towns] */
+     * 0 = not connected. */
     public static final int[][] adjacencyMatrix4Towns = {
             {0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //  Row 0
             {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //  Row 1

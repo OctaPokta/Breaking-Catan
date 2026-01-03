@@ -3,17 +3,17 @@ package CatanAnalysis.entities;
 public class ConnectedComponentTile 
 {
     // attributes
-    public int TILE_INDEX;
-    public double TILE_VALUE;    
-    public int TILE_RESOURCE_TYPE; 
-    public double TILE_DICE_NUMBER;
+    public int TILE_INDEX; // graph index in adjecancy matrix
+    public double TILE_VALUE; // heatmap value
+    public int TILE_RESOURCE_TYPE; // resource type for tile
+    public double TILE_DICE_NUMBER; // dice number 
 
     // constructor
     public ConnectedComponentTile (int TileIndex, double TileValue, int tileResourceType, double tileDiceNumber) {
-        this.TILE_INDEX = TileIndex; // graph index in adjecancy matrix
-        this.TILE_VALUE = TileValue; // heatmap value
-        this.TILE_RESOURCE_TYPE = tileResourceType; // resource type for tile
-        this.TILE_DICE_NUMBER = tileDiceNumber; // dice number 
+        this.TILE_INDEX = TileIndex;
+        this.TILE_VALUE = TileValue;
+        this.TILE_RESOURCE_TYPE = tileResourceType;
+        this.TILE_DICE_NUMBER = tileDiceNumber;
 
     }
 
