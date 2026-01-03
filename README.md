@@ -54,7 +54,7 @@ For demonstration purposes, the documentation visualizes the following example s
 ## Credits
 
 * **Author:** Gal Reuveni.
-* **Publication:** *Digital Whisper*, Issue 2024.
+* **Publication:** *Digital Whisper*, Issue 2026.
 
 ---
 *Disclaimer: This project simulates optimal moves based on statistical probability and graph theory. Actual gameplay outcomes may vary based on opponent behavior and trading dynamics.*
