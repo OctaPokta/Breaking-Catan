@@ -9,10 +9,10 @@ import java.util.ArrayList;
 public class AnalyseTownLocation {
     
     // attributes
-    private final TownsAndHexagons[] townArray = new TownsAndHexagons[54]; // array to hold all 54 towns
+    private final int TOTAL_TOWNS = 54; // total number possible of town locations in the game
+    private final TownsAndHexagons[] townArray = new TownsAndHexagons[this.TOTAL_TOWNS]; // array to hold all 54 towns
     private ArrayList<ArrayList<ConnectedComponentTile>>[] mapTilesData; // array to hold all the 19 map tiles
     private final MapAnalysis mapAnalysis;
-    private final int TOTAL_TOWNS = townArray.length;
 
     // constructor
     public AnalyseTownLocation(ArrayList<ArrayList<ConnectedComponentTile>>[] mapGroupsData, MapAnalysis mapAnalysis) {
@@ -106,7 +106,7 @@ public class AnalyseTownLocation {
     // adds data to each town about the number of hexagon that touches it
     private void setTownHexagonCounts() {
         
-        for (int townIndex = 0; townIndex < 54; townIndex++) {
+        for (int townIndex = 0; townIndex < this.TOTAL_TOWNS; townIndex++) {
             int numOfTotalHexagons = this.townArray[townIndex].connectedHexagons.size();
             this.townArray[townIndex].setAdjustedHexagons(numOfTotalHexagons);
         }
