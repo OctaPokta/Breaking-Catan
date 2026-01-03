@@ -27,6 +27,20 @@ public class Tile {
       {0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,0}}; // 18    
 
     // attributes
-    public int resourceType; // 0 = brick, 1 = ore, 2 = sheep, 3 = wheat, 4 = wood, 5 = desert 
-    public int diceNumber; // dice number on map
+    public int RESOURCE_TYPE; // 0 = brick, 1 = ore, 2 = sheep, 3 = wheat, 4 = wood, 5 = desert 
+    public int DICE_NUMBER; // dice number on map
+    public int TILE_INDEX; // tile index
+
+    // get functions:
+    public int getResourceType() {
+      return this.RESOURCE_TYPE;
+    }
+
+    public int getDiceNumber() {
+      return this.DICE_NUMBER;
+    }
+
+    public int getTileIndex() {
+      return this.TILE_INDEX;
+    }
 }

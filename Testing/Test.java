@@ -1,7 +1,8 @@
 package CatanAnalysis.testing;
 
-import CatanAnalysis.entities.ConnectedComponentTile;
 import java.util.ArrayList;
+
+import CatanAnalysis.entities.ConnectedComponentTile;
 
 public class Test {
 

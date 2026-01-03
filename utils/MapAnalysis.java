@@ -2,20 +2,21 @@ package CatanAnalysis.utils;
 
 import CatanAnalysis.entities.ConnectedComponentTile;
 import CatanAnalysis.entities.Tile;
-import CatanAnalysis.testing.Test;
+import CatanAnalysis.testing.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 // Given a Catan game map, this class handle the connection between the map to the win conditions analysis
 public class MapAnalysis 
 {
-      int NUM_OF_WIN_CONDITIONS; // example number of win conditions  
+      // attributes
+      private final int NUM_OF_WIN_CONDITIONS; // example number of win conditions  
       private final int NUM_OF_TILES_ON_MAP = 19; // standard catan has 19 tiles including desert
-      Tile[] mapTiles = new Tile[NUM_OF_TILES_ON_MAP];
-      ArrayList<int[][]> winConditionRelativeTokenScore;
+      private final Tile[] mapTiles = new Tile[this.NUM_OF_TILES_ON_MAP];
+      private final ArrayList<int[][]> winConditionRelativeTokenScore;
 
       // win condition names
-      private String [] winConditionNames = {
+      private final String [] winConditionNames = {
             "4 Cities + LR",
             "2 Cities + 1 Settlement + LR & LA (Extra Brick & Wood)",
             "3 cities + 2 settlements + LR",
@@ -31,14 +32,20 @@ public class MapAnalysis
             // initialize map tiles based on input resource and dice number arrays
             for (int i = 0; i < NUM_OF_TILES_ON_MAP; i++) {
                   this.mapTiles[i] = new Tile(); // create new Tile object
-                  this.mapTiles[i].resourceType = mapResources[i];
-                  this.mapTiles[i].diceNumber = mapDiceNumbers[i];
+                  this.mapTiles[i].RESOURCE_TYPE = mapResources[i];
+                  this.mapTiles[i].DICE_NUMBER = mapDiceNumbers[i];
+                  this.mapTiles[i].TILE_INDEX = i;
                   //System.out.println("Tile " + i + ": Resource Type = " + this.mapTiles[i].resourceType + ", Dice Number = " + this.mapTiles[i].diceNumber);
             }
 
             this.winConditionRelativeTokenScore = winConditionRelativeTokenScore; // store the relative token score tables
+      }
 
-            /* Given the win conditions relative token score tables & tile resource and dice number information, this analyse the most suitable win condtiion for the current map.
+
+      // public func to initiate the map analysis, returns the sorted componenets by win condition: Array->List->List of "ConnectedComponentTile" class objects
+      public ArrayList<ArrayList<ConnectedComponentTile>>[] HexagonAnalyse() {
+
+             /* Given the win conditions relative token score tables & tile resource and dice number information, this analyse the most suitable win condtiion for the current map.
             I.e. returns which win condition is the most suitable one to any "tiles area" on the map including the resource and dice number.*/
             double[][] winConditionPerTileScores = WinConditionTileScores();
 
@@ -47,43 +54,28 @@ public class MapAnalysis
             at the end, we'll output the most suitable areas for the start settelments for each of the win scenarios. */
             ArrayList<ArrayList<ConnectedComponentTile>>[] sortedComponentsByWinCondition = StronglyConnectedComponentsSorting(winConditionPerTileScores);
 
-            //Test test = new Test();
-            //test.printAnalysisAndPythonData(sortedComponentsByWinCondition, winConditionPerTileScores, winConditionNames, NUM_OF_TILES_ON_MAP);
-            
-            System.out.println("done");
-            // .................
+            Test test = new Test();
+            test.printAnalysisAndPythonData(sortedComponentsByWinCondition, winConditionPerTileScores, winConditionNames, NUM_OF_TILES_ON_MAP);
 
-
-
-            
-           /*
-            Then, we want to create a Bipartite Graph between all avaliable 54 settlement locations and the 18 tiles
-            The goal is to then find the best matching pairs between the best win scenerios and for each of them to the areas we just found.
-            This way, we can find the best settlement locations that closely match the win condition scener
-            */
-
-            // Create a Bipartite Graph between all avaliable 54 settlement locations and the 18 tiles
-            int[][] BipartiteGraph = new int[54][18];
+            return sortedComponentsByWinCondition;
       }
-
-
       /* 
-            the algorithm works like this:
+      the algorithm works like this:
 
-            Given a matrix (num of win conditions) x (18) -18 tiles on the map & winconditions dice numbers matrix
-            Initialize all values to 0
+      Given a matrix (num of win conditions) x (18) -18 tiles on the map & winconditions dice numbers matrix
+      Initialize all values to 0
 
-            for each win condition scenerio:
-                  for each tile on the map:
-                        if the resource on the tile & dice number matches EXACTLY the win condition relative to the score table 
-                        (look up the score using resource type and dice number):
-                              then, add +1 to the score of that win condition for that tile area.
-                        if the dice number in the according resource in the score table has an error range of 1:
-                              then, add +0.75 to the score of that win condition for that tile area.
-                        if the resource on the tile & dice number has error range of 2:
-                              then, add +0.5 to the score of that win condition for that tile area
-                        if the resource on the tile & dice number has error range of 3:
-                              then, add +0.25 to the score of that win condition for that tile area.
+      for each win condition scenerio:
+            for each tile on the map:
+                  if the resource on the tile & dice number matches EXACTLY the win condition relative to the score table 
+                  (look up the score using resource type and dice number):
+                        then, add +1 to the score of that win condition for that tile area.
+                  if the dice number in the according resource in the score table has an error range of 1:
+                        then, add +0.75 to the score of that win condition for that tile area.
+                  if the resource on the tile & dice number has error range of 2:
+                        then, add +0.5 to the score of that win condition for that tile area
+                  if the resource on the tile & dice number has error range of 3:
+                        then, add +0.25 to the score of that win condition for that tile area.
 
                   After going through all matrix entries, we then sort the win conditions (i .e. rows) based on their total score across all 18 tiles.
                   The win condition with the highest score is considered the most suitable for the current given map configuration. */
@@ -91,19 +83,19 @@ public class MapAnalysis
       private double[][] WinConditionTileScores() 
       {     
             // set a new array, already initialized to zeros
-            double[][] winConditionPerTileScores = new double[NUM_OF_WIN_CONDITIONS][NUM_OF_TILES_ON_MAP+1]; // rows: win conditions, columns: tiles on map
+            double[][] winConditionPerTileScores = new double[this.NUM_OF_WIN_CONDITIONS][this.NUM_OF_TILES_ON_MAP+1]; // rows: win conditions, columns: tiles on map
 
             // for each win condition scenerio
-            for (int i = 0; i < NUM_OF_WIN_CONDITIONS; i++) {
+            for (int i = 0; i < this.NUM_OF_WIN_CONDITIONS; i++) {
 
-                  winConditionPerTileScores[i][NUM_OF_TILES_ON_MAP] = i; // store win condition index
+                  winConditionPerTileScores[i][this.NUM_OF_TILES_ON_MAP] = i; // store win condition index
 
                   // for each tile on the map
-                  for (int j = 0; j < NUM_OF_TILES_ON_MAP; j++) {
+                  for (int j = 0; j < this.NUM_OF_TILES_ON_MAP; j++) {
 
                         // get tile resource type and dice number
-                        int tileResourceType = this.mapTiles[j].resourceType;
-                        int tileDiceNumber = this.mapTiles[j].diceNumber;
+                        int tileResourceType = this.mapTiles[j].RESOURCE_TYPE;
+                        int tileDiceNumber = this.mapTiles[j].DICE_NUMBER;
 
                         if (tileResourceType == 5) {
                               continue; // skip desert tiles
@@ -129,8 +121,8 @@ public class MapAnalysis
 
             // print matrix with
             System.out.println("Win Condition Per Tile Scores Matrix:");
-            for (int i = 0; i < NUM_OF_WIN_CONDITIONS; i++) {
-                  for (int j = 0; j <= NUM_OF_TILES_ON_MAP; j++) {
+            for (int i = 0; i < this.NUM_OF_WIN_CONDITIONS; i++) {
+                  for (int j = 0; j <= this.NUM_OF_TILES_ON_MAP; j++) {
                         System.out.print(winConditionPerTileScores[i][j] + " ");
                   }
                   System.out.println();
@@ -146,7 +138,7 @@ public class MapAnalysis
             each strongly connected component is represented as a list of tile indices. the edges are already represented in the adjencency matrix.
             we use DFS to find all strongly connected components on the graph for each win condition.
       */
-      ArrayList<ArrayList<ConnectedComponentTile>>[] StronglyConnectedComponentsSorting(double[][] winConditionPerTileScores) 
+      private ArrayList<ArrayList<ConnectedComponentTile>>[] StronglyConnectedComponentsSorting(double[][] winConditionPerTileScores) 
       {
             int numWinConditions = winConditionPerTileScores.length;
 
@@ -169,7 +161,7 @@ public class MapAnalysis
                   // loop through all ranking types: 1, 0.75, 0.5, 0.25
                   double ranking = 1.0;
 
-                  while (ranking > 0) {
+                  while (ranking >= 0) {
                         // Call the helper method with the Adjacency Matrix and Score Array
                         ArrayList<ArrayList<ConnectedComponentTile>> componentsFound = getComponents(adjacencyMatrix, currentScores, ranking);
                         // sort the componentsFound list in decending order
@@ -183,16 +175,12 @@ public class MapAnalysis
       }
 
 
-
-
-
-
-
       // other helper methods:
       
       // Helper method to get components of a graph using DFS algorithm depending on node ranking.
       private ArrayList<ArrayList<ConnectedComponentTile>> getComponents(int[][] adj, double[] scores, double targetRanking) {
       
+            int tileIndex;
             int numTiles = adj.length; 
             boolean[] visited = new boolean[numTiles];
 
@@ -206,7 +194,8 @@ public class MapAnalysis
                         // Create a new connected component tile list 
                         ArrayList<ConnectedComponentTile> component = new ArrayList<>();
                         // Run DFS to fill this list
-                        DFS(adj, scores, visited, i, component, targetRanking);
+                        tileIndex = this.mapTiles[i].TILE_INDEX; // get tile true index
+                        DFS(adj, scores, visited, tileIndex, component, targetRanking);
                         res.add(component);
                   }
             }
@@ -215,21 +204,21 @@ public class MapAnalysis
       }
 
       // Helper method for DFS finding connected components of a graph 
-      private void DFS(int[][] adj, double[] scores, boolean[] visited, int currentTile, ArrayList<ConnectedComponentTile> res, double targetRanking) {
+      private void DFS(int[][] adj, double[] scores, boolean[] visited, int tileIndex, ArrayList<ConnectedComponentTile> res, double targetRanking) {
 
-            visited[currentTile] = true;
+            visited[tileIndex] = true;
 
-            int resourceType = this.mapTiles[currentTile].resourceType;
-            int diceNumber = this.mapTiles[currentTile].diceNumber;
+            int resourceType = this.mapTiles[tileIndex].RESOURCE_TYPE;
+            int diceNumber = this.mapTiles[tileIndex].DICE_NUMBER;
             
-            res.add(new ConnectedComponentTile(currentTile, scores[currentTile], resourceType, diceNumber));
+            res.add(new ConnectedComponentTile(tileIndex, scores[tileIndex], resourceType, diceNumber));
 
             // Iterate over neighbors
             // "neighbor" is the index of the adjacent tile
             for (int neighbor = 0; neighbor < adj.length; neighbor++) {
                   
                   // Check connection, visited status, and score match
-                  if (adj[currentTile][neighbor] == 1 && !visited[neighbor] && scores[neighbor] == targetRanking) {
+                  if (adj[tileIndex][neighbor] == 1 && !visited[neighbor] && scores[neighbor] == targetRanking) {
                         DFS(adj, scores, visited, neighbor, res, targetRanking);
                   }
             }
@@ -262,6 +251,12 @@ public class MapAnalysis
                   total += value;
             }
             return total;
+      }
+
+
+      // Helper method to return map tiles content
+      public Tile[] getMapTiles() {
+            return this.mapTiles;
       }
 
     
