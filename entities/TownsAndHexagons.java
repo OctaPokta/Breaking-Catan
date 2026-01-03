@@ -79,7 +79,7 @@ public class TownsAndHexagons
     public TownsAndHexagons (int townIndex, int townAdjustedHexagons) {
         this.TOWN_INDEX = townIndex; // index of town
         this.TOWN_ADJUSTED_HEXAGONS = townAdjustedHexagons; // num of adjusted hexagons
-
+        this.connectedHexagons = new ArrayList<>();
     }
 
 
