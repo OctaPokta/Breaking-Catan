@@ -13,51 +13,34 @@ public class AnalyseTownLocation {
     private ArrayList<ArrayList<ConnectedComponentTile>>[] mapTilesData; // array to hold all the 19 map tiles
     private final MapAnalysis mapAnalysis;
     private final int TOTAL_TOWNS = townArray.length;
-    private final int TOTAL_TILES = 19; // total tiles in a catan map
 
     // constructor
     public AnalyseTownLocation(ArrayList<ArrayList<ConnectedComponentTile>>[] mapGroupsData, MapAnalysis mapAnalysis) {
 
         this.mapTilesData = mapGroupsData;
         this.mapAnalysis = mapAnalysis;
-        createTownsArray(); // load info for the townArray
-        bipartiteGraph(); // create bipartite graph between hexagons and towns
 
+        createTownsArray(); // load info for the townArray
+        mapTownsToHexes(); // connect each town to the hexagon that touches it
+        // add info about num of hexagons that tocuhes each town
+        printTownHex();
         // printTiles(); // helper function for debugging
     }
 
 
     // function to create the 54 towns array
-    // we match the data of adusted hexagons to the adjacency matrix in the "BipartiteTownsAndHexagons" class.
     private void createTownsArray() {
 
         // loading data into array
         for (int i = 0; i < this.TOTAL_TOWNS; i++) {
-
-            int townIndex = i;
-            int townAdjustedHexagons;
-
-            // handle 1:1 ratio
-            if (i <= 17) {
-                townAdjustedHexagons = 1;
-            }
-            // handle 1:2 ratio
-            else if (i > 17 && i <= 35) {
-                townAdjustedHexagons = 2;
-            }
-            // handle 1:3 ratio
-            else {
-                townAdjustedHexagons = 3;
-            }
-
-            this.townArray[i] = new TownsAndHexagons(townIndex, townAdjustedHexagons);
+            this.townArray[i] = new TownsAndHexagons(i, 0);
         }
     }
 
 
     // create the bipartite graph of - town:hexagons
     // for each town index, this function connects the town to all the close hexagons that touches it 
-    private void bipartiteGraph() {
+    private void mapTownsToHexes() {
 
         // each rows represents a hexagon, from top to down, each hexagon contains the 6 town IDs that touches it
         int[][] hexToTownsMap = {
@@ -91,16 +74,20 @@ public class AnalyseTownLocation {
             {41, 45, 46, 49, 50, 53}  // Hex 18
         };
 
-        // load the hexagon data into each town using the array
+        // loop through each hexagon
         for (int hexIndex = 0; hexIndex < hexToTownsMap.length; hexIndex++) {
-            
-            int[] townIndices = hexToTownsMap[hexIndex]; // get list of all town indices for this hexagon
 
-            // loop through those towns (6 total) and add the connection
+            // get indices for each hexagon
+            int[] townIndices = hexToTownsMap[hexIndex]; 
+            // find and load the heaxgon tile object by the index
+            ConnectedComponentTile hexagon = getMapTilesIndex(hexIndex);
+
+            // add the tile 
             for (int townIndex : townIndices) {
-                this.townArray[townIndex].connectedHexagons.addLast(getMapTilesIndex(hexIndex)); // load the hexagon to each town
+                this.townArray[townIndex].connectedHexagons.add(hexagon);
             }
         }
+    
     }
 
 
@@ -113,32 +100,42 @@ public class AnalyseTownLocation {
 
     // others:
 
+    // debug function to see the connection between each town to its adjusted hex
+    private void printTownHex() {
+
+        System.out.println("--- Starting Town Verification ---");
+
+        for (int i = 0; i < this.TOTAL_TOWNS; i++) {
+            
+            int totalHexagons = this.townArray[i].connectedHexagons.size();
+            
+            for (int j = 0; j < totalHexagons; j++) {
+
+                ConnectedComponentTile tile = this.townArray[i].connectedHexagons.get(j);
+                System.out.println(" Town [" + i + "] => Hexagon [" + tile.getTileIndex() + "]");
+            }
+        }
+    }
+
 
     // given an index, it searches the tile linearly for the given index, in the connectedcomponenet array, then it returns the tile object
     private ConnectedComponentTile getMapTilesIndex(int index) {
 
-        int WIN_CONDITION_NUMBER = 4;
-        int WIN_RATE_NUMBER = 4;
-
         // win condition
-        for (int i = 0; i < WIN_CONDITION_NUMBER; i++) {
+        for (ArrayList<ArrayList<ConnectedComponentTile>> rateList : this.mapTilesData) {
             
-            // win rate
-            for (int j = 0; j < WIN_RATE_NUMBER; j++) {
+            // heatmap value
+            for (int j = 0; j < rateList.size(); j++) {
                 
-                int COMPONENT_NUM = this.mapTilesData[i].get(j).size();
+                ArrayList<ConnectedComponentTile> componentList = rateList.get(j);
+                if (componentList == null) continue;
+
                 // component
-                for (int k = 0; k < COMPONENT_NUM; k++) {
+                for (ConnectedComponentTile tile : componentList) {
                     
-                    // tiles
-                    int currIndex = this.mapTilesData[i].get(j).get(k).getTileIndex();
-
-                    if (index == currIndex) {
-                        return this.mapTilesData[i].get(j).get(k);
+                    if (tile.getTileIndex() == index) {
+                        return tile; // found the tile
                     }
-                        
-                    
-
                 }
             }
         }
