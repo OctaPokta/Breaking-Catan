@@ -1,11 +1,12 @@
 package CatanAnalysis.entities;
+import java.util.ArrayList;
 
 public class TownsAndHexagons 
 {
     // attributes
     public int TOWN_INDEX; // index of town out of 54 possible town locations
     public int TOWN_ADJUSTED_HEXAGONS; // there are only 3 ratios: 1 = 1:1, 2 = 1:2, 3 = 1:3 
-    public ConnectedComponentTile[] connectedHexagons = new ConnectedComponentTile[TOWN_ADJUSTED_HEXAGONS];
+    public ArrayList<ConnectedComponentTile> connectedHexagons; // list of all the connected hexagons of class "ConnectedComponentTile"
 
     /**
      * 54x54 Adjacency Matrix representing the connectopn of each town to another.
