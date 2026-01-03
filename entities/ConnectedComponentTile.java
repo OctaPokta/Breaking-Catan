@@ -16,4 +16,13 @@ public class ConnectedComponentTile
         this.TILE_DICE_NUMBER = tileDiceNumber; // dice number 
 
     }
+
+    // get methods:
+    public int getTileIndex() {
+        return this.TILE_INDEX;
+    }
+
+    public void printAllTiles() {
+        System.out.println("Tile Index: " + this.TILE_INDEX + " Dice: " + this.TILE_DICE_NUMBER + "ResourceType: " + this.TILE_RESOURCE_TYPE);
+    }
 }
