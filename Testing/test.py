@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import networkx as nx
 import math
-import numpy as np  # Added for array handling
+import numpy as np 
 
 # ==========================================
 # 1. PASTE YOUR JAVA OUTPUT HERE
@@ -17,6 +17,7 @@ data_str = """
 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.50 0.00 0.00 0.00 0.50 0.00 0.00 3
 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.50 0.00 0.00 0.00 3
 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.25 0.00 0.00 0.00 0.25 0.00 3
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 3
 0.00 0.00 0.00 0.00 1.00 1.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 4
 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 1.00 0.00 0.00 0.00 4
 0.00 0.00 0.75 0.00 0.00 0.00 0.75 0.00 0.00 0.00 0.75 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 4
@@ -27,6 +28,8 @@ data_str = """
 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.25 0.25 0.00 0.00 0.25 0.00 0.00 4
 0.00 0.25 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 4
 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.25 0.00 0.00 0.00 0.00 0.00 0.00 0.00 4
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 4
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 4
 0.00 0.00 0.00 0.00 0.00 0.00 0.00 1.00 0.00 0.00 0.00 0.00 1.00 0.00 0.00 0.00 1.00 0.00 0.00 1
 0.00 1.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 1
 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 1.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 1
@@ -38,6 +41,7 @@ data_str = """
 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.50 0.00 0.00 0.00 1
 0.00 0.00 0.00 0.00 0.25 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 1
 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.25 0.00 0.00 0.00 0.00 0.00 1
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 1
 0.00 0.00 0.00 0.00 1.00 1.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 2
 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 1.00 0.00 0.00 0.00 2
 0.00 0.00 0.00 0.75 0.00 0.00 0.00 0.00 0.75 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 2
@@ -48,6 +52,8 @@ data_str = """
 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.25 0.00 0.00 0.00 0.25 0.00 0.00 2
 0.00 0.25 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 2
 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.25 0.00 0.00 0.00 0.00 0.00 0.00 0.00 2
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 2
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 2
 0.00 0.00 0.00 1.00 0.00 0.00 0.00 1.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0
 0.00 0.00 0.00 0.00 0.00 0.00 1.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0
 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 1.00 0
@@ -58,9 +64,10 @@ data_str = """
 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.50 0.50 0.00 0.00 0.00 0
 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.25 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0
 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.25 0.00 0
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0
+0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0
 """
 
-# Win condition names
 win_condition_names = [
     "4 Cities + LR",
     "2 Cities + 1 Settlement + LR & LA (Extra Brick/Wood)",
@@ -73,9 +80,15 @@ win_condition_names = [
 # 2. USER SETTINGS
 # ==========================================
 # Change this number (0-4) to select which Strategy to visualize
-SELECTED_STRATEGY_ID = 1  
+SELECTED_STRATEGY_ID = 3
 
-print(f"Visualizing Groups for Strategy: {win_condition_names[SELECTED_STRATEGY_ID]}")
+# DISPLAY MODE: "combined" OR "separate"
+# "combined" = Shows ONE heatmap of all valid groups overlaid together.
+# "separate" = Shows individual plots for each group (like before).
+DISPLAY_MODE = "combined" 
+
+print(f"Visualizing Strategy: {win_condition_names[SELECTED_STRATEGY_ID]}")
+print(f"Display Mode: {DISPLAY_MODE.upper()}")
 
 # ==========================================
 # 3. DATA PARSING
@@ -118,11 +131,17 @@ G.add_edges_from(edges)
 # ==========================================
 # 5. PLOTTING FUNCTION
 # ==========================================
-def draw_map(ax, values, title):
+def draw_map(ax, values, title, is_combined=False):
+    # Normalize values for color mapping
+    # If combined, we want relative heat. If single, 1.0 is max.
+    max_val = max(values) if max(values) > 0 else 1.0
+    
     node_colors = []
     for v in values:
         if v > 0:
-            node_colors.append(plt.cm.YlOrRd(v)) 
+            # Normalize v relative to the max in this dataset for correct color intensity
+            normalized_v = v / max_val
+            node_colors.append(plt.cm.YlOrRd(normalized_v)) 
         else:
             node_colors.append('#f0f0f0') 
 
@@ -130,25 +149,47 @@ def draw_map(ax, values, title):
     for i in range(19):
         r_name = resource_names[map_resources[i]]
         d_num = str(map_dice[i]) if map_dice[i] != 0 else ""
+        
+        # If combined mode, showing the specific value might be clutter, 
+        # but showing the resource is essential.
         labels[i] = f"{r_name}\n{d_num}"
     
     nx.draw_networkx_edges(G, pos, ax=ax, edge_color='#E0E0E0', width=2)
     nx.draw_networkx_nodes(G, pos, ax=ax, node_color=node_colors, node_size=1800, edgecolors='black')
     nx.draw_networkx_labels(G, pos, labels, ax=ax, font_size=8, font_weight='bold')
     
-    ax.set_title(title, fontsize=10, fontweight='bold')
+    ax.set_title(title, fontsize=12, fontweight='bold')
     ax.axis('off')
 
 # ==========================================
-# 6. EXECUTE DRAWING (Modified for less crowding)
+# 6. EXECUTE DRAWING
 # ==========================================
 if len(filtered_rows) == 0:
     print("No groups found for this strategy ID.")
+
+elif DISPLAY_MODE == "combined":
+    # ---------------------------
+    # COMBINED HEATMAP MODE
+    # ---------------------------
+    # Sum all rows column-wise to get frequency/intensity of each tile
+    # Convert list of lists to numpy array for easy summation
+    arr = np.array(filtered_rows)
+    combined_values = np.sum(arr, axis=0)
+    
+    fig, ax = plt.subplots(figsize=(10, 8))
+    
+    title_str = f"COMBINED HEATMAP: {win_condition_names[SELECTED_STRATEGY_ID]}\n(Overlaid {len(filtered_rows)} Variations)"
+    draw_map(ax, combined_values, title_str, is_combined=True)
+    
+    plt.tight_layout()
+    plt.show()
+
 else:
-    # SETTINGS FOR CLEANER VIEW
-    # -------------------------
-    PLOTS_PER_FIGURE = 4  # Max plots per window (2x2 grid)
-    COLS = 2              # 2 Columns for wider, clearer plots
+    # ---------------------------
+    # SEPARATE PLOTS MODE (Original)
+    # ---------------------------
+    PLOTS_PER_FIGURE = 4  
+    COLS = 2              
     
     total_plots = len(filtered_rows)
     num_figures = math.ceil(total_plots / PLOTS_PER_FIGURE)
@@ -161,35 +202,26 @@ else:
         num_in_batch = len(current_batch)
         rows = math.ceil(num_in_batch / COLS)
         
-        # Create figure with generous spacing
-        # Width 16, Height 7 per row gives plenty of room
         fig, axes = plt.subplots(rows, COLS, figsize=(16, 7 * rows))
         
-        # Handle single plot case (axes is not an array) or 1D array
         if num_in_batch == 1:
             axes = [axes]
         elif isinstance(axes, np.ndarray): 
             axes = axes.flatten()
         
-        # Plot each group in the batch
         for i, values in enumerate(current_batch):
             global_index = start_idx + i
             score = max(values)
             title = f"Group {global_index+1} (Score: {score})"
-            
-            # Draw
             draw_map(axes[i], values, title)
             
-        # Hide unused subplots in the last row
         for j in range(num_in_batch, len(axes)):
             axes[j].axis('off')
             
-        # Title for the window
         page_info = f" (Page {fig_idx+1}/{num_figures})" if num_figures > 1 else ""
         plt.suptitle(f"{win_condition_names[SELECTED_STRATEGY_ID]}{page_info}", 
                      fontsize=16, fontweight='bold', y=0.98)
         
-        # Adjust layout to prevent overlap
         plt.tight_layout(rect=[0, 0.02, 1, 0.95], h_pad=3.0, w_pad=2.0)
-
+    
     plt.show()
