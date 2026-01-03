@@ -83,15 +83,15 @@ public class MapAnalysis
       private double[][] WinConditionTileScores() 
       {     
             // set a new array, already initialized to zeros
-            double[][] winConditionPerTileScores = new double[NUM_OF_WIN_CONDITIONS][NUM_OF_TILES_ON_MAP+1]; // rows: win conditions, columns: tiles on map
+            double[][] winConditionPerTileScores = new double[this.NUM_OF_WIN_CONDITIONS][this.NUM_OF_TILES_ON_MAP+1]; // rows: win conditions, columns: tiles on map
 
             // for each win condition scenerio
-            for (int i = 0; i < NUM_OF_WIN_CONDITIONS; i++) {
+            for (int i = 0; i < this.NUM_OF_WIN_CONDITIONS; i++) {
 
-                  winConditionPerTileScores[i][NUM_OF_TILES_ON_MAP] = i; // store win condition index
+                  winConditionPerTileScores[i][this.NUM_OF_TILES_ON_MAP] = i; // store win condition index
 
                   // for each tile on the map
-                  for (int j = 0; j < NUM_OF_TILES_ON_MAP; j++) {
+                  for (int j = 0; j < this.NUM_OF_TILES_ON_MAP; j++) {
 
                         // get tile resource type and dice number
                         int tileResourceType = this.mapTiles[j].RESOURCE_TYPE;
@@ -121,8 +121,8 @@ public class MapAnalysis
 
             // print matrix with
             System.out.println("Win Condition Per Tile Scores Matrix:");
-            for (int i = 0; i < NUM_OF_WIN_CONDITIONS; i++) {
-                  for (int j = 0; j <= NUM_OF_TILES_ON_MAP; j++) {
+            for (int i = 0; i < this.NUM_OF_WIN_CONDITIONS; i++) {
+                  for (int j = 0; j <= this.NUM_OF_TILES_ON_MAP; j++) {
                         System.out.print(winConditionPerTileScores[i][j] + " ");
                   }
                   System.out.println();
@@ -161,7 +161,7 @@ public class MapAnalysis
                   // loop through all ranking types: 1, 0.75, 0.5, 0.25
                   double ranking = 1.0;
 
-                  while (ranking > 0) {
+                  while (ranking >= 0) {
                         // Call the helper method with the Adjacency Matrix and Score Array
                         ArrayList<ArrayList<ConnectedComponentTile>> componentsFound = getComponents(adjacencyMatrix, currentScores, ranking);
                         // sort the componentsFound list in decending order
