@@ -4,7 +4,7 @@ import CatanAnalysis.entities.ConnectedComponentTile;
 import CatanAnalysis.entities.Tile;
 import CatanAnalysis.entities.TownsAndHexagons;
 import java.util.ArrayList;
-;
+
 
 public class AnalyseTownLocation {
     
@@ -21,9 +21,10 @@ public class AnalyseTownLocation {
         this.mapTilesData = mapGroupsData;
         this.mapAnalysis = mapAnalysis;
         this.NUM_OF_WIN_CONDITIONS = mapAnalysis.getWinConitionsNumber();
-        
+
         createTownsArray(); // load info for the townArray
-        mapTownsToHexes(); // connect each town to the hexagon that touches it
+        connectTownsToHexagons(); // connect each town to the hexagon that touches it
+        connectHexToTowns(); // connect each hexagon to the towns that touches it
         setTownHexagonCounts(); // for each town, set the number of hexagon that touches it
         rateTownLocation(); // rate each town location based on the hexagons that touches it
         // add info about num of hexagons that tocuhes each town
@@ -44,7 +45,7 @@ public class AnalyseTownLocation {
 
     // create the bipartite graph of - town:hexagons
     // for each town index, this function connects the town to all the close hexagons that touches it 
-    private void mapTownsToHexes() {
+    private void connectTownsToHexagons() {
 
         // each rows represents a hexagon, from top to down, each hexagon contains the 6 town IDs that touches it
         int[][] hexToTownsMap = {
@@ -95,11 +96,39 @@ public class AnalyseTownLocation {
     }
 
 
+    // connect Hexagon to Towns
+    private void connectHexToTowns() {
+        // loop through each town
+        for (int townIndex = 0; townIndex < this.TOTAL_TOWNS; townIndex++) {
+            // loop through each hexagon connected to the town
+            for (ConnectedComponentTile hexagon : this.townArray[townIndex].connectedHexagons) {
+                // add the town to the hexagon's connected towns list
+                hexagon.connectedTowns.add(this.townArray[townIndex]);
+            }
+        }
+    }
+    
+    
     // rates each town location based on the hexagons that touches it
     private void rateTownLocation() {
         // loop through each win condition
         for (int i = 0; i < this.NUM_OF_WIN_CONDITIONS; i++) {
             
+            // loop through each win rate
+            int numOfWinRates = this.mapTilesData[i].size();
+            for (int j = 0; j < numOfWinRates; j++) {
+
+                // loop through each coponent within the win rate
+                int numOfComponents = this.mapTilesData[i].get(j).size();
+                for (int k = 0; k < numOfComponents; k++) {
+                    
+                    // loop through each tile within the component
+                    for (ConnectedComponentTile tile : this.mapTilesData[i].get(j)) {
+                        // loop through each town connected to the hexagon tile
+                            
+                    }
+                }
+            }
         }
     }
 

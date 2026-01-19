@@ -1,5 +1,7 @@
 package CatanAnalysis.entities;
 
+import java.util.ArrayList;
+
 public class ConnectedComponentTile 
 {
     // attributes
@@ -7,6 +9,7 @@ public class ConnectedComponentTile
     public double TILE_VALUE; // heatmap value
     public int TILE_RESOURCE_TYPE; // resource type for tile
     public double TILE_DICE_NUMBER; // dice number 
+    public ArrayList<TownsAndHexagons> connectedTowns; // list of all the connected towns of class "TownsAndHexagons"
 
     // constructor
     public ConnectedComponentTile (int TileIndex, double TileValue, int tileResourceType, double tileDiceNumber) {
@@ -14,7 +17,7 @@ public class ConnectedComponentTile
         this.TILE_VALUE = TileValue;
         this.TILE_RESOURCE_TYPE = tileResourceType;
         this.TILE_DICE_NUMBER = tileDiceNumber;
-
+        this.connectedTowns = new ArrayList<>();
     }
 
     // get methods:
