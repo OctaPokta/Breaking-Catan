@@ -65,4 +65,4 @@ The algorithm is designed to be strategy-agnostic. Users can input a custom list
 
 * **Author:** Gal Reuveni
 * **Original Research:** *Breaking Catan*
-* **Publication:** *Digital Whisper*, Issue 2024
+* **Publication:** *Digital Whisper*, Issue 2026
