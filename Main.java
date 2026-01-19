@@ -41,7 +41,7 @@ public class Main {
     int NUM_OF_WIN_CONDITIONS = winConditionsResources.length;
 
     // Run Win Conditions Analysis
-    WinConditions winConditions = new WinConditions();
+    WinConditions winConditions = new WinConditions(winConditionsResources.length);
     ArrayList<int[][]> relativeTokenScoresResults = winConditions.WinConditionsCalculation(resourcesAvailability, winConditionsResources);
     
     // Run map analysis here:
@@ -56,7 +56,7 @@ public class Main {
     ArrayList<ArrayList<ConnectedComponentTile>>[] mapGroupData = mapAnalysis.HexagonAnalyse();
 
     // initiate analyse of the optimal towns location
-    AnalyseTownLocation townLocation = new AnalyseTownLocation(mapGroupData, mapAnalysis);
+    AnalyseTownLocation townLocation = new AnalyseTownLocation(mapGroupData, mapAnalysis, resourcesAvailability, winConditionsResources);
 
 
 

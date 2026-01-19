@@ -10,7 +10,7 @@ import java.util.Arrays;
 public class MapAnalysis 
 {
       // attributes
-      private final int NUM_OF_WIN_CONDITIONS; // example number of win conditions  
+      public final int NUM_OF_WIN_CONDITIONS; // example number of win conditions  
       private final int NUM_OF_TILES_ON_MAP = 19; // standard catan has 19 tiles including desert
       private final Tile[] mapTiles = new Tile[this.NUM_OF_TILES_ON_MAP];
       private final ArrayList<int[][]> winConditionRelativeTokenScore;
@@ -223,6 +223,13 @@ public class MapAnalysis
                   }
             }
       }
+
+
+      // helper method to get num of win condtions
+      public int getWinConitionsNumber() {
+            return this.NUM_OF_WIN_CONDITIONS;
+      }
+
 
       // helper method to get closeness score based on dice difference
       private double getClosenessScore(int ddifference) {

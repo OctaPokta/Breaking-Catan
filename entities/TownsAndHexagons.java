@@ -4,12 +4,14 @@ import java.util.ArrayList;
 public class TownsAndHexagons 
 {
     // attributes
+    private final int NUM_OF_RESOURCES = 5; // total resource num
+
     public int TOWN_INDEX; // index of town out of 54 possible town locations
     public int TOWN_ADJUSTED_HEXAGONS; // there are only 3 ratios: 1 = 1:1, 2 = 1:2, 3 = 1:3 
     public ArrayList<ConnectedComponentTile> connectedHexagons; // list of all the connected hexagons of class "ConnectedComponentTile"
-
+    public double FINAL_OPT_LOCATION; // final optimal location value for the town
     /**
-     * 54x54 Adjacency Matrix representing the connectopn of each town to another.
+     * 54x54 Adjacency Matrix representing the connection of each town to another.
      * 1 = connected by a road (edge).
      * 0 = not connected. */
     public static final int[][] adjacencyMatrix4Towns = {
