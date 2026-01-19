@@ -1,10 +1,20 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
+import re
 
-def process_catan_matrix_with_desert():
+# List of strategy names provided
+win_condition_names = [
+    "4 Cities + LR",
+    "2 Cities + 1 Settlement + LR & LA (Extra Brick/Wood)",
+    "3 Cities + 2 Settlements + LR",
+    "2 Cities + 3 Settlements + LR",
+    "1 City + 3 Settlements + LR & LA"
+]
+
+def create_catan_heatmap(strategy_index=0):
     # 1. Define the Original 54x54 Matrix (Raw Connectivity)
-    # This is the "Zigzag" grid structure used previously
+    # (Ensure the full matrix is pasted here for the code to run)
     raw_matrix = [
         # Row 0 (Nodes 0-2)
         [0,0,0, 1,1,0,0, 0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0,0, 0,0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0],
@@ -73,7 +83,7 @@ def process_catan_matrix_with_desert():
         [0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0,0, 0,0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0, 0,1,1,0, 0,0,0],
         [0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0,0, 0,0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0, 0,0,1,1, 0,0,0]
     ]
-    
+
     # 2. Create Graph
     G = nx.Graph()
     for i in range(len(raw_matrix)):
@@ -81,85 +91,110 @@ def process_catan_matrix_with_desert():
         for j in range(i+1, len(raw_matrix)):
             if raw_matrix[i][j] == 1:
                 G.add_edge(i, j)
-    
-    # 3. Classify Groups
-    group1 = [] # 1 Hex (Tips)
-    group2 = [] # 2 Hex (Coast + DESERT RING)
-    group3 = [] # 3 Hex (Deep Inland)
-    
-    # A. Standard Classification
-    for n in G.nodes():
-        degree = G.degree[n]
-        if degree == 2:
-            group1.append(n)
-        else: # degree > 2
-            # Check neighbors
-            is_coastal = False
-            for neighbor in G.neighbors(n):
-                if G.degree[neighbor] == 2:
-                    is_coastal = True
-                    break
-            
-            if is_coastal:
-                group2.append(n)
-            else:
-                group3.append(n)
-    
-    # B. CORRECTION FOR CENTER ("DESERT")
-    # The nodes 18, 23, 24, 29, 30, 35 form the ring around the center.
-    # We move them from Group 3 (Orange) to Group 2 (Blue).
-    # NOTE: We use sets for easy removal/addition
-    center_ring_indices = [18, 23, 24, 29, 30, 35]
-    
-    for idx in center_ring_indices:
-        if idx in group3:
-            group3.remove(idx)
-            group2.append(idx)
-    
-    # 4. Sort
-    group1.sort()
-    group2.sort()
-    group3.sort()
-    
-    sorted_nodes = group1 + group2 + group3
-    
-    # 5. Create Sorted Matrix
-    N = len(sorted_nodes)
-    sorted_matrix = np.zeros((N, N), dtype=int)
-    
-    for new_i in range(N):
-        original_u = sorted_nodes[new_i]
-        for new_j in range(N):
-            original_v = sorted_nodes[new_j]
-            if raw_matrix[original_u][original_v] == 1:
-                sorted_matrix[new_i][new_j] = 1
 
-    # 6. Print Java Code
-    print("\n\n--- JAVA CODE FOR ADJACENCY MATRIX (With Desert Correction) ---")
-    print("public static final int[][] adjacencyMatrix4Towns = {")
-    for i, row in enumerate(sorted_matrix):
-        row_str = ",".join(str(x) for x in row)
-        end_comma = "," if i < N-1 else ""
-        print(f"    {{{row_str}}}{end_comma} // Sorted Row {i}")
-    print("};")
-    
-    # 7. Visualize to Confirm
+    # 3. Parse Values (Using your provided list)
+    values_data = """ Town [0]       Final Opt Location Value: 1.3097421985726714
+ Town [1]       Final Opt Location Value: 2.2027150393725563
+ Town [2]       Final Opt Location Value: 1.7752285122639435
+ Town [3]       Final Opt Location Value: 1.3097421985726714
+ Town [4]       Final Opt Location Value: 3.5124572379452275
+ Town [5]       Final Opt Location Value: 3.9779435516365
+ Town [6]       Final Opt Location Value: 1.7752285122639435
+ Town [7]       Final Opt Location Value: 2.6194843971453428
+ Town [8]       Final Opt Location Value: 4.291234608626191
+ Town [9]       Final Opt Location Value: 5.287685750209171
+ Town [10]      Final Opt Location Value: 3.0849707108366147
+ Town [11]      Final Opt Location Value: 1.3097421985726714
+ Town [12]      Final Opt Location Value: 3.3982617678263063
+ Town [13]      Final Opt Location Value: 4.291234608626191
+ Town [14]      Final Opt Location Value: 4.394712909409286
+ Town [15]      Final Opt Location Value: 1.3097421985726714
+ Town [16]      Final Opt Location Value: 3.5124572379452275
+ Town [17]      Final Opt Location Value: 3.3982617678263063
+ Town [18]      Final Opt Location Value: 2.088519569253635
+ Town [19]      Final Opt Location Value: 4.394712909409286
+ Town [20]      Final Opt Location Value: 3.5124572379452275
+ Town [21]      Final Opt Location Value: 2.2027150393725563
+ Town [22]      Final Opt Location Value: 4.822199436517899
+ Town [23]      Final Opt Location Value: 2.088519569253635
+ Town [24]      Final Opt Location Value: 3.0849707108366147
+ Town [25]      Final Opt Location Value: 5.287685750209171
+ Town [26]      Final Opt Location Value: 2.2027150393725563
+ Town [27]      Final Opt Location Value: 2.2027150393725563
+ Town [28]      Final Opt Location Value: 5.715172277317784
+ Town [29]      Final Opt Location Value: 2.088519569253635
+ Town [30]      Final Opt Location Value: 3.550457024527887
+ Town [31]      Final Opt Location Value: 5.287685750209171
+ Town [32]      Final Opt Location Value: 2.2027150393725563
+ Town [33]      Final Opt Location Value: 4.405430078745113
+ Town [34]      Final Opt Location Value: 4.291234608626191
+ Town [35]      Final Opt Location Value: 2.5540058829449075
+ Town [36]      Final Opt Location Value: 4.860199223100558
+ Town [37]      Final Opt Location Value: 3.5124572379452275
+ Town [38]      Final Opt Location Value: 2.2027150393725563
+ Town [39]      Final Opt Location Value: 5.184207449426077
+ Town [40]      Final Opt Location Value: 4.329234395208851
+ Town [41]      Final Opt Location Value: 5.287685750209171
+ Town [42]      Final Opt Location Value: 1.3097421985726714
+ Town [43]      Final Opt Location Value: 4.405430078745113
+ Town [44]      Final Opt Location Value: 4.756720922317464
+ Town [45]      Final Opt Location Value: 5.753172063900443
+ Town [46]      Final Opt Location Value: 3.5124572379452275
+ Town [47]      Final Opt Location Value: 2.2027150393725563
+ Town [48]      Final Opt Location Value: 3.9779435516365
+ Town [49]      Final Opt Location Value: 3.9779435516365
+ Town [50]      Final Opt Location Value: 2.2027150393725563
+ Town [51]      Final Opt Location Value: 2.2027150393725563
+ Town [52]      Final Opt Location Value: 1.7752285122639435
+ Town [53]      Final Opt Location Value: 2.2027150393725563"""
+
+    node_values = {}
+    lines = values_data.strip().split('\n')
+    for line in lines:
+        line = line.strip()
+        match = re.search(r'Town \[(\d+)\]\s+Final Opt Location Value:\s+([\d\.]+)', line)
+        if match:
+            node_id = int(match.group(1))
+            val = float(match.group(2))
+            node_values[node_id] = val
+
+    values_list = [node_values.get(i, 0.0) for i in range(len(G.nodes()))]
+
+    # 4. Visualize
     pos = nx.kamada_kawai_layout(G)
-    plt.figure(figsize=(10, 10))
     
-    # Draw Group 1 (Green)
-    nx.draw_networkx_nodes(G, pos, nodelist=group1, node_color='lightgreen', node_size=300, label='1 Hex (Tips)')
-    # Draw Group 2 (Blue - Now includes Center Ring)
-    nx.draw_networkx_nodes(G, pos, nodelist=group2, node_color='skyblue', node_size=300, label='2 Hex (Coast/Desert)')
-    # Draw Group 3 (Orange - Remaining Inland)
-    nx.draw_networkx_nodes(G, pos, nodelist=group3, node_color='orange', node_size=300, label='3 Hex (Inland)')
+    # Rotate 90 degrees left: (x, y) -> (-y, x)
+    pos = {node: np.array([-coords[1], coords[0]]) for node, coords in pos.items()}
     
-    nx.draw_networkx_edges(G, pos, edge_color='gray')
-    nx.draw_networkx_labels(G, pos, font_size=8)
-    
-    plt.legend()
-    plt.title("Catan Graph (Center Ring Corrected to 2-Hex)")
+    plt.figure(figsize=(12, 10))
+    cmap = plt.cm.YlOrRd
+
+    # Draw nodes
+    nodes = nx.draw_networkx_nodes(G, pos,
+                                   node_color=values_list,
+                                   cmap=cmap,
+                                   node_size=500,
+                                   edgecolors='black')
+
+    # Draw edges
+    nx.draw_networkx_edges(G, pos, edge_color='gray', width=1.5)
+
+    # Draw labels (Node IDs)
+    nx.draw_networkx_labels(G, pos, font_size=8, font_color='black', font_weight='bold')
+
+    # Colorbar
+    sm = plt.cm.ScalarMappable(cmap=cmap, norm=plt.Normalize(vmin=min(values_list), vmax=max(values_list)))
+    sm.set_array([])
+    cbar = plt.colorbar(sm, ax=plt.gca(), label='Final Opt Location Value')
+
+    # UPDATED TITLE: Dynamically indicates what strategy is used
+    current_strategy = win_condition_names[strategy_index]
+    plt.title(f"Catan Heatmap\nStrategy: {current_strategy}", fontsize=14, fontweight='bold', pad=20)
+
+    plt.axis('off')
     plt.show()
 
 if __name__ == "__main__":
-    process_catan_matrix_with_desert()
+    # Change this index (0 to 4) to update the title based on the win_condition_names list
+    selected_strategy_index = 2
+    create_catan_heatmap(selected_strategy_index)

@@ -10,6 +10,7 @@ public class TownsAndHexagons
     public int TOWN_ADJUSTED_HEXAGONS; // there are only 3 ratios: 1 = 1:1, 2 = 1:2, 3 = 1:3 
     public ArrayList<ConnectedComponentTile> connectedHexagons; // list of all the connected hexagons of class "ConnectedComponentTile"
     public double[] OPTLOCATION = new double[this.NUM_OF_RESOURCES]; // array to hold the optimal location ratings for each town location
+    public double FINALOPTLOCATION; // final optimal location value for the town
     /**
      * 54x54 Adjacency Matrix representing the connection of each town to another.
      * 1 = connected by a road (edge).

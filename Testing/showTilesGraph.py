@@ -80,7 +80,7 @@ win_condition_names = [
 # 2. USER SETTINGS
 # ==========================================
 # Change this number (0-4) to select which Strategy to visualize
-SELECTED_STRATEGY_ID = 3
+SELECTED_STRATEGY_ID = 2
 
 # DISPLAY MODE: "combined" OR "separate"
 # "combined" = Shows ONE heatmap of all valid groups overlaid together.
