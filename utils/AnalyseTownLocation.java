@@ -10,17 +10,22 @@ public class AnalyseTownLocation {
     
     // attributes
     private final int TOTAL_TOWNS = 54; // total number possible of town locations in the game
+    private final int NUM_OF_RESOURCES = 5; // total resource num
     private final TownsAndHexagons[] townArray = new TownsAndHexagons[this.TOTAL_TOWNS]; // array to hold all 54 towns
     private ArrayList<ArrayList<ConnectedComponentTile>>[] mapTilesData; // array to hold all the 19 map tiles
     private final int NUM_OF_WIN_CONDITIONS; // number of win conditions from the map analysis
     private final MapAnalysis mapAnalysis;
-
+    private final double[][] resImportanceTable;
     // constructor
-    public AnalyseTownLocation(ArrayList<ArrayList<ConnectedComponentTile>>[] mapGroupsData, MapAnalysis mapAnalysis) {
+    public AnalyseTownLocation(ArrayList<ArrayList<ConnectedComponentTile>>[] mapGroupsData, MapAnalysis mapAnalysis, double[][] resourcesAvailability, double[][] winConditionsResources) {
 
         this.mapTilesData = mapGroupsData;
         this.mapAnalysis = mapAnalysis;
         this.NUM_OF_WIN_CONDITIONS = mapAnalysis.getWinConitionsNumber();
+
+        // load resource importance table
+        WinConditions resImportance = new WinConditions();
+        this.resImportanceTable = resImportance.importantIndex(winConditionsResources, resourcesAvailability);
 
         createTownsArray(); // load info for the townArray
         connectTownsToHexagons(); // connect each town to the hexagon that touches it
@@ -125,6 +130,11 @@ public class AnalyseTownLocation {
                     // loop through each tile within the component
                     for (ConnectedComponentTile tile : this.mapTilesData[i].get(j)) {
                         // loop through each town connected to the hexagon tile
+                        for (TownsAndHexagons town : tile.connectedTowns) {
+                            
+                            // calculate the rate value for each resource type in the OptLocation array, for each town 
+                            town.OPTLOCATION = calculateOptimalLocation(town, tile, this.resImportanceTable);
+                        }
                             
                     }
                 }
@@ -135,6 +145,16 @@ public class AnalyseTownLocation {
 
     // others:
 
+
+    // calculate the optimal location value for a given town and hexagon tile
+    private double[] calculateOptimalLocation(TownsAndHexagons town, ConnectedComponentTile tile, double[][] resImportanceTable) {
+
+        double TownOptLocationArray[] = new double[this.NUM_OF_RESOURCES]; // create optlocation array
+
+        // complete:.....
+
+        return TownOptLocationArray;
+    }
     
     // adds data to each town about the number of hexagon that touches it
     private void setTownHexagonCounts() {

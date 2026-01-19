@@ -5,8 +5,8 @@ import java.util.ArrayList;
 public class WinConditions {
 
 
-  // Calculating important index table
-  private static double[][] importantIndex(double[][] winConditionsResources, double[][] resourcesAvailability) {
+  // Calculating important index table for each win condition
+  public double[][] importantIndex(double[][] winConditionsResources, double[][] resourcesAvailability) {
     // Calculating total resources needed for each win condition on the last column of winConditionsResources & save in new array
     int sum;
     int[] oldTotal = new int[5]; // store old totals (just for reference)

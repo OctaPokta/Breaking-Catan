@@ -56,7 +56,7 @@ public class Main {
     ArrayList<ArrayList<ConnectedComponentTile>>[] mapGroupData = mapAnalysis.HexagonAnalyse();
 
     // initiate analyse of the optimal towns location
-    AnalyseTownLocation townLocation = new AnalyseTownLocation(mapGroupData, mapAnalysis);
+    AnalyseTownLocation townLocation = new AnalyseTownLocation(mapGroupData, mapAnalysis, resourcesAvailability, winConditionsResources);
 
 
 
