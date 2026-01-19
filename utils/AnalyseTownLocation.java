@@ -13,7 +13,7 @@ public class AnalyseTownLocation {
     private final int TOTAL_TILES = 19; // total number of tiles in the game
     private final int NUM_OF_RESOURCES = 5; // total resource num
     private final TownsAndHexagons[] townArray = new TownsAndHexagons[this.TOTAL_TOWNS]; // array to hold all 54 towns
-    private ArrayList<ArrayList<ConnectedComponentTile>>[] mapTilesData; // array to hold all the 19 map tiles
+    private final ArrayList<ArrayList<ConnectedComponentTile>>[] mapTilesData; // array to hold all the 19 map tiles
     private final int NUM_OF_WIN_CONDITIONS; // number of win conditions from the map analysis
     private final MapAnalysis mapAnalysis;
     private final double[][] resImportanceTable;
@@ -62,7 +62,7 @@ public class AnalyseTownLocation {
         this.townOptimalLocationValues = new double[this.NUM_OF_WIN_CONDITIONS][this.TOTAL_TOWNS]; // initialize the 2D array
 
         // load resource importance table
-        WinConditions resImportance = new WinConditions();
+        WinConditions resImportance = new WinConditions(this.NUM_OF_WIN_CONDITIONS);
         this.resImportanceTable = resImportance.importantIndex(winConditionsResources, resourcesAvailability);
 
         createTownsArray(); // load info for the townArray
