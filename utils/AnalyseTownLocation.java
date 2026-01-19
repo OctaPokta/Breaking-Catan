@@ -10,6 +10,7 @@ public class AnalyseTownLocation {
     
     // attributes
     private final int TOTAL_TOWNS = 54; // total number possible of town locations in the game
+    private final int TOTAL_TILES = 19; // total number of tiles in the game
     private final int NUM_OF_RESOURCES = 5; // total resource num
     private final TownsAndHexagons[] townArray = new TownsAndHexagons[this.TOTAL_TOWNS]; // array to hold all 54 towns
     private ArrayList<ArrayList<ConnectedComponentTile>>[] mapTilesData; // array to hold all the 19 map tiles
@@ -17,6 +18,7 @@ public class AnalyseTownLocation {
     private final MapAnalysis mapAnalysis;
     private final double[][] resImportanceTable;
     public double[][] townOptimalLocationValues; // 2D array to hold the optimal location values for each town and win condition, i = win condition, j = town index 
+    double CLUSTER_SIZE_EXPONENT = 0.5; // exponent for cluster size factor calculation, bigger value = more relaince on longer roads
     
     // each rows represents a hexagon, from top to down, each hexagon contains the 6 town IDs that touches it
     private final int[][] hexToTownsMap = {
@@ -49,7 +51,7 @@ public class AnalyseTownLocation {
         {40, 44, 45, 48, 49, 52}, // Hex 17
         {41, 45, 46, 49, 50, 53}  // Hex 18
     };
-    
+
     
     // constructor
     public AnalyseTownLocation(ArrayList<ArrayList<ConnectedComponentTile>>[] mapGroupsData, MapAnalysis mapAnalysis, double[][] resourcesAvailability, double[][] winConditionsResources) {
@@ -70,7 +72,7 @@ public class AnalyseTownLocation {
         rateTownLocation(); // rate each town location based on the hexagons that touches it
         // add info about num of hexagons that tocuhes each town
         printTownHex();
-        printFinalOptLocation(2);
+        printFinalOptLocation(3);
         // printTiles(); // helper function for debugging
     }
 
@@ -141,38 +143,32 @@ public class AnalyseTownLocation {
     private void rateTownLocation() {
 
         double winIndex; // holds the win rate index value
-        int clusterSizeFactor;
+        double clusterSizeFactor;
 
         // loop through each win condition
         for (int winConditionIndex = 0; winConditionIndex < this.NUM_OF_WIN_CONDITIONS; winConditionIndex++) {
             
-            // loop through each win rate (1, 0.75, 0.5, 0.25)
-            int numOfWinRates = this.mapTilesData[winConditionIndex].size();
-            for (int j = 0; j < numOfWinRates; j++) {
+            // loop through each win rate group within that win condition
+            for (ArrayList<ConnectedComponentTile> component : this.mapTilesData[winConditionIndex]) {
+                if (component == null || component.isEmpty()) continue;
 
-                // loop through all components within each win rate
-                int connectedComponentSum = this.mapTilesData[winConditionIndex].get(j).size();
-                for (int k = 0; k < connectedComponentSum; k++) {
+                // Logic: 1.0 = Max board size (19), approaching 0.0 = smallest cluster
+                clusterSizeFactor = (double) component.size() / this.TOTAL_TILES;
 
-                    // loop through each tile within the component
-                    for (ConnectedComponentTile tile : this.mapTilesData[winConditionIndex].get(j)) {
+                // loop through every individual tile in this specific component group
+                for (ConnectedComponentTile tile : component) {
+                    winIndex = tile.TILE_VALUE; 
 
-                        winIndex = this.mapTilesData[winConditionIndex].get(j).get(k).TILE_VALUE; // get the heatmap value
-
-                        // cluster size factor based on the number of tiles in the connected components of the same win rate type
-                        clusterSizeFactor = (connectedComponentSum - k) / connectedComponentSum;
-
-                        // loop through each town connected to the hexagon tile
-                        for (TownsAndHexagons town : tile.connectedTowns) {
-                            
-                            // calculate the rate value for each resource type in the OptLocation array, for each town 
-                            double optLocationValue = calculateOptimalLocation(town, tile, winConditionIndex, this.resImportanceTable, winIndex, clusterSizeFactor);
-                            this.townOptimalLocationValues[winConditionIndex][town.TOWN_INDEX] += optLocationValue;
-                        }
-                            
+                    // loop through each town connected to this tile
+                    for (TownsAndHexagons town : tile.connectedTowns) {
+                        // calculate the optimal location value for this town and tile
+                        double optLocationValue = calculateOptimalLocation(
+                            town, tile, winConditionIndex, 
+                            this.resImportanceTable, winIndex, clusterSizeFactor
+                        );
+                        this.townOptimalLocationValues[winConditionIndex][town.TOWN_INDEX] += optLocationValue; // accumulate the optimal location value
+                        
                     }
-
-
                 }
             }
         }
@@ -183,18 +179,18 @@ public class AnalyseTownLocation {
 
         
     // calculate the optimal location value for a given town and hexagon tile
-    private double calculateOptimalLocation(TownsAndHexagons town, ConnectedComponentTile tile, int winConditionIndex, double[][] resImportanceTable, double winIndex, int clusterSizeFactor) {
+    private double calculateOptimalLocation(TownsAndHexagons town, ConnectedComponentTile tile, int winConditionIndex, double[][] resImportanceTable, double winIndex, double clusterSizeFactor) {
 
         double finalOptLocation = 0.0;
         double[] townOptLocation = new double[this.NUM_OF_RESOURCES];
-        int optLocationLength = town.OPTLOCATION.length;
+        int optLocationLength = townOptLocation.length;
 
         // loop through each resource type
         for (int i = 0; i < optLocationLength; i++) {
 
             // define alpha, beta, gamma values
             double beta = 1.5;
-            double gamma = 0.5;
+            double gamma = this.CLUSTER_SIZE_EXPONENT;
 
             // calculate the optimal location value
             townOptLocation[i] += resImportanceTable[winConditionIndex][i] * Math.pow(winIndex, beta) * Math.pow(clusterSizeFactor, gamma); 
@@ -255,22 +251,9 @@ public class AnalyseTownLocation {
 
         System.err.println("Win Condition Index: " + winConditionIndex);
 
-        // if winConditionIndex is -1, print all towns
-        if (winConditionIndex == -1) {
-            // loop through each win condition
-            for (int i = 0; i < 10; i++) {
-                // loop through each town
-                for (int j = 0; j < 10; j++) {
-                    for (int k = 0; k < this.TOTAL_TOWNS; k++) {
-                        System.out.println(" Town [" + k + "]" + "\tFinal Opt Location Value: " + this.townArray[k].FINALOPTLOCATION);
-                    }
-                }
-            }
-        } else {
-            // loop through each town
-            for (int k = 0; k < this.TOTAL_TOWNS; k++) { 
-                System.out.println(" Town [" + k + "]" + "\tFinal Opt Location Value: " + this.townOptimalLocationValues[winConditionIndex][k]);
-            }
+        // loop through each town
+        for (int k = 0; k < this.TOTAL_TOWNS; k++) { 
+            System.out.println(" Town [" + k + "]" + "\tFinal Opt Location Value: " + this.townOptimalLocationValues[winConditionIndex][k]);
         }
         
     }

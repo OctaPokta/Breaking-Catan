@@ -93,60 +93,62 @@ def create_catan_heatmap(strategy_index=0):
                 G.add_edge(i, j)
 
     # 3. Parse Values (Using your provided list)
-    values_data = """ Town [0]       Final Opt Location Value: 1.3097421985726714
- Town [1]       Final Opt Location Value: 2.2027150393725563
- Town [2]       Final Opt Location Value: 1.7752285122639435
- Town [3]       Final Opt Location Value: 1.3097421985726714
- Town [4]       Final Opt Location Value: 3.5124572379452275
- Town [5]       Final Opt Location Value: 3.9779435516365
- Town [6]       Final Opt Location Value: 1.7752285122639435
- Town [7]       Final Opt Location Value: 2.6194843971453428
- Town [8]       Final Opt Location Value: 4.291234608626191
- Town [9]       Final Opt Location Value: 5.287685750209171
- Town [10]      Final Opt Location Value: 3.0849707108366147
- Town [11]      Final Opt Location Value: 1.3097421985726714
- Town [12]      Final Opt Location Value: 3.3982617678263063
- Town [13]      Final Opt Location Value: 4.291234608626191
- Town [14]      Final Opt Location Value: 4.394712909409286
- Town [15]      Final Opt Location Value: 1.3097421985726714
- Town [16]      Final Opt Location Value: 3.5124572379452275
- Town [17]      Final Opt Location Value: 3.3982617678263063
- Town [18]      Final Opt Location Value: 2.088519569253635
- Town [19]      Final Opt Location Value: 4.394712909409286
- Town [20]      Final Opt Location Value: 3.5124572379452275
- Town [21]      Final Opt Location Value: 2.2027150393725563
- Town [22]      Final Opt Location Value: 4.822199436517899
- Town [23]      Final Opt Location Value: 2.088519569253635
- Town [24]      Final Opt Location Value: 3.0849707108366147
- Town [25]      Final Opt Location Value: 5.287685750209171
- Town [26]      Final Opt Location Value: 2.2027150393725563
- Town [27]      Final Opt Location Value: 2.2027150393725563
- Town [28]      Final Opt Location Value: 5.715172277317784
- Town [29]      Final Opt Location Value: 2.088519569253635
- Town [30]      Final Opt Location Value: 3.550457024527887
- Town [31]      Final Opt Location Value: 5.287685750209171
- Town [32]      Final Opt Location Value: 2.2027150393725563
- Town [33]      Final Opt Location Value: 4.405430078745113
- Town [34]      Final Opt Location Value: 4.291234608626191
- Town [35]      Final Opt Location Value: 2.5540058829449075
- Town [36]      Final Opt Location Value: 4.860199223100558
- Town [37]      Final Opt Location Value: 3.5124572379452275
- Town [38]      Final Opt Location Value: 2.2027150393725563
- Town [39]      Final Opt Location Value: 5.184207449426077
- Town [40]      Final Opt Location Value: 4.329234395208851
- Town [41]      Final Opt Location Value: 5.287685750209171
- Town [42]      Final Opt Location Value: 1.3097421985726714
- Town [43]      Final Opt Location Value: 4.405430078745113
- Town [44]      Final Opt Location Value: 4.756720922317464
- Town [45]      Final Opt Location Value: 5.753172063900443
- Town [46]      Final Opt Location Value: 3.5124572379452275
- Town [47]      Final Opt Location Value: 2.2027150393725563
- Town [48]      Final Opt Location Value: 3.9779435516365
- Town [49]      Final Opt Location Value: 3.9779435516365
- Town [50]      Final Opt Location Value: 2.2027150393725563
- Town [51]      Final Opt Location Value: 2.2027150393725563
- Town [52]      Final Opt Location Value: 1.7752285122639435
- Town [53]      Final Opt Location Value: 2.2027150393725563"""
+    values_data = """
+ Town [0]       Final Opt Location Value: 0.0
+ Town [1]       Final Opt Location Value: 0.3779553478878975
+ Town [2]       Final Opt Location Value: 0.6356425943298072
+ Town [3]       Final Opt Location Value: 0.0
+ Town [4]       Final Opt Location Value: 0.3779553478878975
+ Town [5]       Final Opt Location Value: 1.0135979422177046
+ Town [6]       Final Opt Location Value: 0.6356425943298072
+ Town [7]       Final Opt Location Value: 1.0245636288796802
+ Town [8]       Final Opt Location Value: 1.6492405365475118
+ Town [9]       Final Opt Location Value: 2.284883130877319
+ Town [10]      Final Opt Location Value: 1.4971944770540675
+ Town [11]      Final Opt Location Value: 1.0245636288796802
+ Town [12]      Final Opt Location Value: 2.2958488175392944
+ Town [13]      Final Opt Location Value: 2.9205257252071264
+ Town [14]      Final Opt Location Value: 2.7684796657136816
+ Town [15]      Final Opt Location Value: 0.8615518827242603
+ Town [16]      Final Opt Location Value: 1.6602062232094874
+ Town [17]      Final Opt Location Value: 3.320412446418975
+ Town [18]      Final Opt Location Value: 2.5425703773192287
+ Town [19]      Final Opt Location Value: 2.1328370713838747
+ Town [20]      Final Opt Location Value: 1.2395072306121577
+ Town [21]      Final Opt Location Value: 0.6356425943298072
+ Town [22]      Final Opt Location Value: 2.6847698520891674
+ Town [23]      Final Opt Location Value: 2.2958488175392944
+ Town [24]      Final Opt Location Value: 1.2712851886596144
+ Town [25]      Final Opt Location Value: 1.2395072306121577
+ Town [26]      Final Opt Location Value: 0.3779553478878975
+ Town [27]      Final Opt Location Value: 0.6356425943298072
+ Town [28]      Final Opt Location Value: 2.109673412071104
+ Town [29]      Final Opt Location Value: 1.0245636288796802
+ Town [30]      Final Opt Location Value: 0.7559106957757951
+ Town [31]      Final Opt Location Value: 1.4469745057969092
+ Town [32]      Final Opt Location Value: 0.3779553478878975
+ Town [33]      Final Opt Location Value: 1.0851097831914236
+ Town [34]      Final Opt Location Value: 1.4740308177412966
+ Town [35]      Final Opt Location Value: 0.7559106957757951
+ Town [36]      Final Opt Location Value: 1.8249298536848069
+ Town [37]      Final Opt Location Value: 1.4469745057969092
+ Town [38]      Final Opt Location Value: 0.44946718886161635
+ Town [39]      Final Opt Location Value: 0.8989343777232327
+ Town [40]      Final Opt Location Value: 0.7559106957757951
+ Town [41]      Final Opt Location Value: 2.5808405494606017
+ Town [42]      Final Opt Location Value: 1.0690191579090118
+ Town [43]      Final Opt Location Value: 0.8989343777232327
+ Town [44]      Final Opt Location Value: 0.44946718886161635
+ Town [45]      Final Opt Location Value: 1.5118213915515901
+ Town [46]      Final Opt Location Value: 1.8249298536848069
+ Town [47]      Final Opt Location Value: 0.44946718886161635
+ Town [48]      Final Opt Location Value: 0.44946718886161635
+ Town [49]      Final Opt Location Value: 0.7559106957757951
+ Town [50]      Final Opt Location Value: 0.7559106957757951
+ Town [51]      Final Opt Location Value: 0.44946718886161635
+ Town [52]      Final Opt Location Value: 0.0
+ Town [53]      Final Opt Location Value: 0.7559106957757951
+ """
 
     node_values = {}
     lines = values_data.strip().split('\n')
@@ -196,5 +198,5 @@ def create_catan_heatmap(strategy_index=0):
 
 if __name__ == "__main__":
     # Change this index (0 to 4) to update the title based on the win_condition_names list
-    selected_strategy_index = 2
+    selected_strategy_index = 3
     create_catan_heatmap(selected_strategy_index)
