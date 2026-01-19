@@ -150,9 +150,8 @@ public class AnalyseTownLocation {
             
             // loop through each win rate group within that win condition
             for (ArrayList<ConnectedComponentTile> component : this.mapTilesData[winConditionIndex]) {
-                if (component == null || component.isEmpty()) continue;
 
-                // Logic: 1.0 = Max board size (19), approaching 0.0 = smallest cluster
+                // calculate cluster size factor
                 clusterSizeFactor = (double) component.size() / this.TOTAL_TILES;
 
                 // loop through every individual tile in this specific component group
@@ -162,10 +161,7 @@ public class AnalyseTownLocation {
                     // loop through each town connected to this tile
                     for (TownsAndHexagons town : tile.connectedTowns) {
                         // calculate the optimal location value for this town and tile
-                        double optLocationValue = calculateOptimalLocation(
-                            town, tile, winConditionIndex, 
-                            this.resImportanceTable, winIndex, clusterSizeFactor
-                        );
+                        double optLocationValue = calculateOptimalLocation(winConditionIndex, this.resImportanceTable, winIndex, clusterSizeFactor);
                         this.townOptimalLocationValues[winConditionIndex][town.TOWN_INDEX] += optLocationValue; // accumulate the optimal location value
                         
                     }
@@ -179,7 +175,7 @@ public class AnalyseTownLocation {
 
         
     // calculate the optimal location value for a given town and hexagon tile
-    private double calculateOptimalLocation(TownsAndHexagons town, ConnectedComponentTile tile, int winConditionIndex, double[][] resImportanceTable, double winIndex, double clusterSizeFactor) {
+    private double calculateOptimalLocation(int winConditionIndex, double[][] resImportanceTable, double winIndex, double clusterSizeFactor) {
 
         double finalOptLocation = 0.0;
         double[] townOptLocation = new double[this.NUM_OF_RESOURCES];
