@@ -12,6 +12,7 @@ public class AnalyseTownLocation {
     private final int TOTAL_TOWNS = 54; // total number possible of town locations in the game
     private final TownsAndHexagons[] townArray = new TownsAndHexagons[this.TOTAL_TOWNS]; // array to hold all 54 towns
     private ArrayList<ArrayList<ConnectedComponentTile>>[] mapTilesData; // array to hold all the 19 map tiles
+    private final int NUM_OF_WIN_CONDITIONS; // number of win conditions from the map analysis
     private final MapAnalysis mapAnalysis;
 
     // constructor
@@ -19,11 +20,12 @@ public class AnalyseTownLocation {
 
         this.mapTilesData = mapGroupsData;
         this.mapAnalysis = mapAnalysis;
-
+        this.NUM_OF_WIN_CONDITIONS = mapAnalysis.getWinConitionsNumber();
+        
         createTownsArray(); // load info for the townArray
         mapTownsToHexes(); // connect each town to the hexagon that touches it
         setTownHexagonCounts(); // for each town, set the number of hexagon that touches it
-
+        rateTownLocation(); // rate each town location based on the hexagons that touches it
         // add info about num of hexagons that tocuhes each town
         printTownHex();
         // printTiles(); // helper function for debugging
@@ -93,11 +95,13 @@ public class AnalyseTownLocation {
     }
 
 
-
-
-
-
-
+    // rates each town location based on the hexagons that touches it
+    private void rateTownLocation() {
+        // loop through each win condition
+        for (int i = 0; i < this.NUM_OF_WIN_CONDITIONS; i++) {
+            
+        }
+    }
 
 
     // others:
