@@ -8,7 +8,7 @@ import java.util.ArrayList;
 // class to analyse the optimal town locations based on the map analysis results
 public class Towns {
     
-    // attributes
+    // attributes:
     public final TownConnectionGraph[] townArray = new TownConnectionGraph[this.TOTAL_TOWNS]; // array to hold all 54 towns
     public double[][] townOptimalLocationValues; // 2D array to hold the optimal location values for each town and win condition, i = win condition, j = town index 
     public final ArrayList<ArrayList<ConnectedComponentTile>>[] mapTilesData; // array to hold all the 19 map tiles
@@ -147,7 +147,7 @@ public class Towns {
             for (ArrayList<ConnectedComponentTile> component : this.mapTilesData[winConditionIndex]) {
 
                 // calculate cluster size factor
-                clusterSizeFactor = (double) component.size() / this.TOTAL_TILES;
+                clusterSizeFactor = (double) component.size() / this.TOTAL_TILES; 
 
                 // loop through every individual tile in this specific component group
                 for (ConnectedComponentTile tile : component) {
