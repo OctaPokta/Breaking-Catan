@@ -1,8 +1,7 @@
 package CatanAnalysis.testing;
 
-import java.util.ArrayList;
-
 import CatanAnalysis.entities.ConnectedComponentTile;
+import java.util.ArrayList;
 
 public class Test {
 
@@ -91,15 +90,15 @@ public class Test {
 
       // info
       private String getResourceName(int resourceID) {
-            switch (resourceID) {
-                case 0: return "brick";
-                case 1: return "ore";
-                case 2: return "Sheep";
-                case 3: return "Wheat";
-                case 4: return "wood";
-                case 5: return "Desert";
-                default: return "Res" + resourceID;
-            }
+          return switch (resourceID) {
+              case 0 -> "brick";
+              case 1 -> "ore";
+              case 2 -> "Sheep";
+              case 3 -> "Wheat";
+              case 4 -> "wood";
+              case 5 -> "Desert";
+              default -> "Res" + resourceID;
+          };
       }
     
 }

@@ -1,12 +1,10 @@
 package CatanAnalysis;
 
-import CatanAnalysis.entities.ConnectedComponentTile;
-import CatanAnalysis.utils.AnalyseTownLocation;
-import CatanAnalysis.utils.MapAnalysis;
+import CatanAnalysis.utils.Map;
+import CatanAnalysis.utils.Towns;
 import CatanAnalysis.utils.WinConditions;
-import java.util.ArrayList;
 
-
+// Main class to run the Catan Analysis
 public class Main {
 
   public static void main(String[] args) {
@@ -42,7 +40,7 @@ public class Main {
 
     // Run Win Conditions Analysis
     WinConditions winConditions = new WinConditions(winConditionsResources.length);
-    ArrayList<int[][]> relativeTokenScoresResults = winConditions.WinConditionsCalculation(resourcesAvailability, winConditionsResources);
+    winConditions.WinConditionsCalculation(resourcesAvailability, winConditionsResources);
     
     // Run map analysis here:
 
@@ -52,22 +50,19 @@ public class Main {
       int[] mapDiceNumbers = {5,11,12,9,8,4,5,8,3,0,10,9,3,6,4,10,11,2,6}; // example input
 
     // Initiate map analysis
-    MapAnalysis mapAnalysis = new MapAnalysis(mapResources, mapDiceNumbers, relativeTokenScoresResults, NUM_OF_WIN_CONDITIONS);
-    ArrayList<ArrayList<ConnectedComponentTile>>[] mapGroupData = mapAnalysis.HexagonAnalyse();
+    Map catanMap = new Map(mapResources, mapDiceNumbers, winConditions.relativeTokenScoresResults, NUM_OF_WIN_CONDITIONS);
+    catanMap.HexagonAnalyse(); // perform hexagon analysis
 
     // initiate analyse of the optimal towns location
-    AnalyseTownLocation townLocation = new AnalyseTownLocation(mapGroupData, mapAnalysis, resourcesAvailability, winConditionsResources);
+    Towns catanTowns = new Towns(catanMap.mapGroupData, catanMap, resourcesAvailability, winConditionsResources);
+    catanTowns.connectHexToTowns(); // connect each town to the hexagon that touches it
+    catanTowns.connectTownsToHexagons(); // connect each hexagon to the towns that touches it
+    catanTowns.setTownHexagonCounts(); // for each town, set the number of hexagon that touches it
+    catanTowns.rateTownLocation(); // rate each town location based on the hexagons that touches it
 
-
-
-    /*
-    Then, we want to create a Bipartite Graph between all avaliable 54 settlement locations and the 18 tiles
-    The goal is to then find the best matching pairs between the best win scenerios and for each of them to the areas we just found.
-    This way, we can find the best settlement locations that closely match the win condition scener
-    */
-
-    // Create a Bipartite Graph between all avaliable 54 settlement locations and the 18 tiles
-    int[][] BipartiteGraph = new int[54][18];
-
+    // print results for verification
+    catanTowns.printTownHex();
+    catanTowns.printFinalOptLocation(3);
+    //catanTowns.printTiles();
   }
 }

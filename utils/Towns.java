@@ -2,20 +2,20 @@ package CatanAnalysis.utils;
 
 import CatanAnalysis.entities.ConnectedComponentTile;
 import CatanAnalysis.entities.Tile;
-import CatanAnalysis.entities.TownsAndHexagons;
+import CatanAnalysis.entities.TownConnectionGraph;
 import java.util.ArrayList;
 
-
-public class AnalyseTownLocation {
+// class to analyse the optimal town locations based on the map analysis results
+public class Towns {
     
     // attributes
     private final int TOTAL_TOWNS = 54; // total number possible of town locations in the game
     private final int TOTAL_TILES = 19; // total number of tiles in the game
     private final int NUM_OF_RESOURCES = 5; // total resource num
-    private final TownsAndHexagons[] townArray = new TownsAndHexagons[this.TOTAL_TOWNS]; // array to hold all 54 towns
+    private final TownConnectionGraph[] townArray = new TownConnectionGraph[this.TOTAL_TOWNS]; // array to hold all 54 towns
     private final ArrayList<ArrayList<ConnectedComponentTile>>[] mapTilesData; // array to hold all the 19 map tiles
     private final int NUM_OF_WIN_CONDITIONS; // number of win conditions from the map analysis
-    private final MapAnalysis mapAnalysis;
+    private final Map mapAnalysis;
     private final double[][] resImportanceTable;
     public double[][] townOptimalLocationValues; // 2D array to hold the optimal location values for each town and win condition, i = win condition, j = town index 
     double CLUSTER_SIZE_EXPONENT = 0.5; // exponent for cluster size factor calculation, bigger value = more relaince on longer roads
@@ -54,7 +54,7 @@ public class AnalyseTownLocation {
 
     
     // constructor
-    public AnalyseTownLocation(ArrayList<ArrayList<ConnectedComponentTile>>[] mapGroupsData, MapAnalysis mapAnalysis, double[][] resourcesAvailability, double[][] winConditionsResources) {
+    public Towns(ArrayList<ArrayList<ConnectedComponentTile>>[] mapGroupsData, Map mapAnalysis, double[][] resourcesAvailability, double[][] winConditionsResources) {
 
         this.mapTilesData = mapGroupsData;
         this.mapAnalysis = mapAnalysis;
@@ -64,16 +64,7 @@ public class AnalyseTownLocation {
         // load resource importance table
         WinConditions resImportance = new WinConditions(this.NUM_OF_WIN_CONDITIONS);
         this.resImportanceTable = resImportance.importantIndex(winConditionsResources, resourcesAvailability);
-
         createTownsArray(); // load info for the townArray
-        connectHexToTowns(); // connect each town to the hexagon that touches it
-        connectTownsToHexagons(); // connect each hexagon to the towns that touches it
-        setTownHexagonCounts(); // for each town, set the number of hexagon that touches it
-        rateTownLocation(); // rate each town location based on the hexagons that touches it
-        // add info about num of hexagons that tocuhes each town
-        printTownHex();
-        printFinalOptLocation(3);
-        // printTiles(); // helper function for debugging
     }
 
 
@@ -82,14 +73,14 @@ public class AnalyseTownLocation {
 
         // loading data into array
         for (int i = 0; i < this.TOTAL_TOWNS; i++) {
-            this.townArray[i] = new TownsAndHexagons(i, 0);
+            this.townArray[i] = new TownConnectionGraph(i, 0);
         }
     }
 
 
     // create the bipartite graph of - town:hexagons
     // for each town index, this function connects the town object to all the close hexagons that touches it 
-    private void connectHexToTowns() {
+    public void connectHexToTowns() {
 
         // loop through each hexagon
         for (int hexIndex = 0; hexIndex < hexToTownsMap.length; hexIndex++) {
@@ -109,7 +100,7 @@ public class AnalyseTownLocation {
 
 
     // connect Hexagon to Towns
-    private void connectTownsToHexagons() {
+    public void connectTownsToHexagons() {
         // loop through every win condition
         for (int winCon = 0; winCon < this.NUM_OF_WIN_CONDITIONS; winCon++) {
             
@@ -126,7 +117,7 @@ public class AnalyseTownLocation {
 
                     // link the town objects to this specific tile instance
                     for (int townIdx : townIndices) {
-                        TownsAndHexagons town = this.townArray[townIdx];
+                        TownConnectionGraph town = this.townArray[townIdx];
                         
                         // Add the town to the tile's list  if not already present
                         if (!tile.connectedTowns.contains(town)) {
@@ -140,7 +131,7 @@ public class AnalyseTownLocation {
     
     
     // rates each town location based on the hexagons that touches it
-    private void rateTownLocation() {
+    public void rateTownLocation() {
 
         double winIndex; // holds the win rate index value
         double clusterSizeFactor;
@@ -159,7 +150,7 @@ public class AnalyseTownLocation {
                     winIndex = tile.TILE_VALUE; 
 
                     // loop through each town connected to this tile
-                    for (TownsAndHexagons town : tile.connectedTowns) {
+                    for (TownConnectionGraph town : tile.connectedTowns) {
                         // calculate the optimal location value for this town and tile
                         double optLocationValue = calculateOptimalLocation(winConditionIndex, this.resImportanceTable, winIndex, clusterSizeFactor);
                         this.townOptimalLocationValues[winConditionIndex][town.TOWN_INDEX] += optLocationValue; // accumulate the optimal location value
@@ -202,7 +193,7 @@ public class AnalyseTownLocation {
     
 
     // adds data to each town about the number of hexagon that touches it
-    private void setTownHexagonCounts() {
+    public void setTownHexagonCounts() {
         
         for (int townIndex = 0; townIndex < this.TOTAL_TOWNS; townIndex++) {
             int numOfTotalHexagons = this.townArray[townIndex].connectedHexagons.size();
@@ -241,7 +232,7 @@ public class AnalyseTownLocation {
 
 
     // method to see the finalOptLocation value for each town
-    private void printFinalOptLocation(int winConditionIndex) {
+    public void printFinalOptLocation(int winConditionIndex) {
 
         System.out.println("--- Starting Final Optimal Location Verification ---");
 
@@ -256,7 +247,7 @@ public class AnalyseTownLocation {
 
 
     // method to see the connection between each town to its adjusted hex
-    private void printTownHex() {
+    public void printTownHex() {
 
         System.out.println("--- Starting Town Verification ---");
 
@@ -275,7 +266,7 @@ public class AnalyseTownLocation {
 
 
     // helper function used for debugging the connection between indices in ConnectedComponentTile class and Tile Class
-    private void printTiles() {
+    public void printTiles() {
 
         int WIN_CONDITION_NUMBER = 4;
         int WIN_RATE_NUMBER = 4;

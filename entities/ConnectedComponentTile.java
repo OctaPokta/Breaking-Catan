@@ -9,7 +9,7 @@ public class ConnectedComponentTile
     public double TILE_VALUE; // heatmap value
     public int TILE_RESOURCE_TYPE; // resource type for tile
     public double TILE_DICE_NUMBER; // dice number 
-    public ArrayList<TownsAndHexagons> connectedTowns; // list of all the connected towns of class "TownsAndHexagons"
+    public ArrayList<TownConnectionGraph> connectedTowns; // list of all the connected towns of class "TownsAndHexagons"
 
     // constructor
     public ConnectedComponentTile (int TileIndex, double TileValue, int tileResourceType, double tileDiceNumber) {

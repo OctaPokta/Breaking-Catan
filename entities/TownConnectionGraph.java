@@ -1,7 +1,8 @@
 package CatanAnalysis.entities;
 import java.util.ArrayList;
 
-public class TownsAndHexagons 
+// Class representing Towns and their connected Hexagons
+public class TownConnectionGraph 
 {
     // attributes
     private final int NUM_OF_RESOURCES = 5; // total resource num
@@ -9,7 +10,6 @@ public class TownsAndHexagons
     public int TOWN_INDEX; // index of town out of 54 possible town locations
     public int TOWN_ADJUSTED_HEXAGONS; // there are only 3 ratios: 1 = 1:1, 2 = 1:2, 3 = 1:3 
     public ArrayList<ConnectedComponentTile> connectedHexagons; // list of all the connected hexagons of class "ConnectedComponentTile"
-    public double FINAL_OPT_LOCATION; // final optimal location value for the town
     /**
      * 54x54 Adjacency Matrix representing the connection of each town to another.
      * 1 = connected by a road (edge).
@@ -72,7 +72,7 @@ public class TownsAndHexagons
     };
 
     // constructor
-    public TownsAndHexagons (int townIndex, int townAdjustedHexagons) {
+    public TownConnectionGraph (int townIndex, int townAdjustedHexagons) {
         this.TOWN_INDEX = townIndex; // index of town
         this.TOWN_ADJUSTED_HEXAGONS = townAdjustedHexagons; // num of adjusted hexagons
         this.connectedHexagons = new ArrayList<>();
