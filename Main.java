@@ -38,11 +38,14 @@ public class Main {
 
     int NUM_OF_WIN_CONDITIONS = winConditionsResources.length;
 
-    // Run Win Conditions Analysis
+    // (Run Win Conditions Analysis:)
     WinConditions winConditions = new WinConditions(winConditionsResources.length);
     winConditions.WinConditionsCalculation(resourcesAvailability, winConditionsResources);
+
     
-    // Run map analysis here:
+
+
+    // (Run map analysis here:)
 
     // ask user to enter resources & dice number for each index (top left to bottom right)
       // 0 = brick, 1 = ore, 2 = sheep, 3 = wheat, 4 = wood, 5 = desert 
@@ -53,12 +56,23 @@ public class Main {
     Map catanMap = new Map(mapResources, mapDiceNumbers, winConditions.relativeTokenScoresResults, NUM_OF_WIN_CONDITIONS);
     catanMap.HexagonAnalyse(); // perform hexagon analysis
 
+    
+    
+    
+    // (Run town opt location analysis here:)
+
     // initiate analyse of the optimal towns location
-    Towns catanTowns = new Towns(catanMap.mapGroupData, catanMap, resourcesAvailability, winConditionsResources);
+    Towns catanTowns = new Towns(catanMap, resourcesAvailability, winConditionsResources);
     catanTowns.connectHexToTowns(); // connect each town to the hexagon that touches it
     catanTowns.connectTownsToHexagons(); // connect each hexagon to the towns that touches it
     catanTowns.setTownHexagonCounts(); // for each town, set the number of hexagon that touches it
     catanTowns.rateTownLocation(); // rate each town location based on the hexagons that touches it
+  
+    // catanTowns.findOptTown();
+    
+
+
+
 
     // print results for verification
     catanTowns.printTownHex();

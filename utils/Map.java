@@ -17,7 +17,6 @@ public class Map
       private final int NUM_OF_TILES_ON_MAP = 19; // standard catan has 19 tiles including desert
       private final Tile[] mapTiles = new Tile[this.NUM_OF_TILES_ON_MAP];
       
-
       // win condition names
       private final String [] winConditionNames = {
             "4 Cities + LR",
@@ -26,6 +25,7 @@ public class Map
             "2 Cities + 3 Settlements + LR",
             "1 City + 3 Settlements + LR & LA"
       };
+
 
       // constructor 
       public Map(int[] mapResources, int[] mapDiceNumbers, ArrayList<int[][]> winConditionRelativeTokenScore, int NUM_OF_WIN_CONDITIONS) {
@@ -62,26 +62,6 @@ public class Map
       }
 
 
-      /* 
-      the algorithm works like this:
-
-      Given a matrix (num of win conditions) x (18) -18 tiles on the map & winconditions dice numbers matrix
-      Initialize all values to 0
-
-      for each win condition scenerio:
-            for each tile on the map:
-                  if the resource on the tile & dice number matches EXACTLY the win condition relative to the score table 
-                  (look up the score using resource type and dice number):
-                        then, add +1 to the score of that win condition for that tile area.
-                  if the dice number in the according resource in the score table has an error range of 1:
-                        then, add +0.75 to the score of that win condition for that tile area.
-                  if the resource on the tile & dice number has error range of 2:
-                        then, add +0.5 to the score of that win condition for that tile area
-                  if the resource on the tile & dice number has error range of 3:
-                        then, add +0.25 to the score of that win condition for that tile area.
-
-                  After going through all matrix entries, we then sort the win conditions (i .e. rows) based on their total score across all 18 tiles.
-                  The win condition with the highest score is considered the most suitable for the current given map configuration. */
       // calculates the optimal tiles (based on dice num & resource type) for each win condition based on the map graph connection:
       private double[][] WinConditionTileScores() 
       {     
@@ -134,13 +114,10 @@ public class Map
             return winConditionPerTileScores;
       }
 
-      
-      /*
-      for each win scenerio, we want to create a set (List) of different strongly connected components and rank them from the biggest to smallest.
-            then, we output the 2d array consisting of the same ordered win condition rank from before, but a set of ranked strongly connected components for each win condition.
-            each strongly connected component is represented as a list of tile indices. the edges are already represented in the adjencency matrix.
-            we use DFS to find all strongly connected components on the graph for each win condition.
-      */
+
+      // function to get strongly connected components sorted by size for each win condition
+      // returns: Array[WinCondition] -> List [Ranked Groups] -> List [Tiles in that group]
+      // each group is represented as a list of "ConnectedComponentTile" class objects
       private ArrayList<ArrayList<ConnectedComponentTile>>[] StronglyConnectedComponentsSorting(double[][] winConditionPerTileScores) 
       {
             int numWinConditions = winConditionPerTileScores.length;
@@ -180,6 +157,7 @@ public class Map
 
       // other helper methods:
       
+
       // Helper method to get components of a graph using DFS algorithm depending on node ranking.
       private ArrayList<ArrayList<ConnectedComponentTile>> getComponents(int[][] adj, double[] scores, double targetRanking) {
       
@@ -205,6 +183,7 @@ public class Map
 
             return res;
       }
+
 
       // Helper method for DFS finding connected components of a graph 
       private void DFS(int[][] adj, double[] scores, boolean[] visited, int tileIndex, ArrayList<ConnectedComponentTile> res, double targetRanking) {

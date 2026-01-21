@@ -9,15 +9,16 @@ import java.util.ArrayList;
 public class Towns {
     
     // attributes
+    public final TownConnectionGraph[] townArray = new TownConnectionGraph[this.TOTAL_TOWNS]; // array to hold all 54 towns
+    public double[][] townOptimalLocationValues; // 2D array to hold the optimal location values for each town and win condition, i = win condition, j = town index 
+    public final ArrayList<ArrayList<ConnectedComponentTile>>[] mapTilesData; // array to hold all the 19 map tiles
+
     private final int TOTAL_TOWNS = 54; // total number possible of town locations in the game
     private final int TOTAL_TILES = 19; // total number of tiles in the game
     private final int NUM_OF_RESOURCES = 5; // total resource num
-    private final TownConnectionGraph[] townArray = new TownConnectionGraph[this.TOTAL_TOWNS]; // array to hold all 54 towns
-    private final ArrayList<ArrayList<ConnectedComponentTile>>[] mapTilesData; // array to hold all the 19 map tiles
     private final int NUM_OF_WIN_CONDITIONS; // number of win conditions from the map analysis
     private final Map mapAnalysis;
     private final double[][] resImportanceTable;
-    public double[][] townOptimalLocationValues; // 2D array to hold the optimal location values for each town and win condition, i = win condition, j = town index 
     double CLUSTER_SIZE_EXPONENT = 0.5; // exponent for cluster size factor calculation, bigger value = more relaince on longer roads
     
     // each rows represents a hexagon, from top to down, each hexagon contains the 6 town IDs that touches it
@@ -53,10 +54,13 @@ public class Towns {
     };
 
     
-    // constructor
-    public Towns(ArrayList<ArrayList<ConnectedComponentTile>>[] mapGroupsData, Map mapAnalysis, double[][] resourcesAvailability, double[][] winConditionsResources) {
+    /* constructor:
+    @param mapAnalysis Map - Map object from the map analysis
+    @param resourcesAvailability double[][] - 2D array of resource availability
+    @param winConditionsResources double[][] - 2D array of win conditions resources */
+    public Towns(Map mapAnalysis, double[][] resourcesAvailability, double[][] winConditionsResources) {
 
-        this.mapTilesData = mapGroupsData;
+        this.mapTilesData = mapAnalysis.mapGroupData;
         this.mapAnalysis = mapAnalysis;
         this.NUM_OF_WIN_CONDITIONS = mapAnalysis.getWinConitionsNumber();
         this.townOptimalLocationValues = new double[this.NUM_OF_WIN_CONDITIONS][this.TOTAL_TOWNS]; // initialize the 2D array
