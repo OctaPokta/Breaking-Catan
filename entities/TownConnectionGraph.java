@@ -5,7 +5,6 @@ import java.util.ArrayList;
 public class TownConnectionGraph 
 {
     // attributes
-    private final int NUM_OF_RESOURCES = 5; // total resource num
 
     public int TOWN_INDEX; // index of town out of 54 possible town locations
     public int TOWN_ADJUSTED_HEXAGONS; // there are only 3 ratios: 1 = 1:1, 2 = 1:2, 3 = 1:3 
