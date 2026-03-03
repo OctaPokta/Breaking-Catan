@@ -5,7 +5,7 @@ import CatanAnalysis.entities.Tile;
 import CatanAnalysis.entities.TownConnectionGraph;
 import java.util.ArrayList;
 
-// class to analyse the optimal town locations based on the map analysis results
+// class to handle all town related data and operations, it holds the town objects and the optimal location values for each town and win condition, it also contains methods to connect the towns to the hexagons and to rate each town location based on the hexagons that touches it and the importance of the resources that those hexagons produce.
 public class Towns {
     
     // attributes:

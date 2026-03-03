@@ -2,6 +2,7 @@ package CatanAnalysis.entities;
 
 import java.util.ArrayList;
 
+// this class is used to represent the connected component of a tile, it stores the tile data and the list of all the towns that are connected to it, this is used to rate the town locations based on the hexagons that touches it and the importance of the resources that those hexagons produce.
 public class ConnectedComponentTile 
 {
     // attributes

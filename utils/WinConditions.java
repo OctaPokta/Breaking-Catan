@@ -85,7 +85,7 @@ public class WinConditions {
 
 
   // Main function to calculate win conditions
-  public void WinConditionsCalculation(double[][] resourcesAvailability, double[][] winConditionsResources) {
+  public void winConditionsCalculation(double[][] resourcesAvailability, double[][] winConditionsResources) {
 
     // Calculate important index table
     winConditionsResources = importantIndex(winConditionsResources, resourcesAvailability);
@@ -128,5 +128,6 @@ public class WinConditions {
 
     this.relativeTokenScoresResults = relativeTokenScores;
   }
+
 }
 
