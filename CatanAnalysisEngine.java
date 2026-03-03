@@ -15,6 +15,7 @@ public class CatanAnalysisEngine implements CatanHandler {
   private final int[] mapDiceNumbers;
 
   // attributes
+  private double topWinStrategy; 
   private final double[][] resourcesAvailability;
   private final double[][] winConditionsResources;
   private final int NUM_OF_WIN_CONDITIONS;
@@ -42,9 +43,8 @@ public class CatanAnalysisEngine implements CatanHandler {
   @Override
   public void pickOptTown() {
     // Safety Check: Ensure map and town data exists before analyzing towns
-    if (this.catanMap == null || this.catanTowns == null) {
-      System.out.println("Error: Map analysis must be run before picking optimal town locations.");
-      return;
+    if (this.catanMap == null) {
+      calculateOptHexData();
     }
     runTownOptLocationAnalysis();
     printResultsForVerification(); // test purposes
@@ -72,11 +72,12 @@ public class CatanAnalysisEngine implements CatanHandler {
   private void analyseHexagonsData() {
     this.catanMap = new Map(this.mapResources, this.mapDiceNumbers, winConditions.relativeTokenScoresResults, this.NUM_OF_WIN_CONDITIONS);
     this.catanMap.HexagonAnalyse(); // perform hexagon analysis
+    this.topWinStrategy = this.catanMap.topWinCondition; 
   }
 
   // used to determine the optimal town locations for all towns on the map, based on the hexagon analysis and the map status, it rates each town location based on the hexagons that touches it and the importance of the resources that those hexagons produce.
   private void runTownOptLocationAnalysis() {
-    this.catanTowns = new Towns(this.catanMap, this.resourcesAvailability, this.winConditionsResources);
+    this.catanTowns = new Towns(this.catanMap, this.resourcesAvailability, this.winConditionsResources, (int)this.topWinStrategy);
     catanTowns.connectHexToTowns(); // connect each town to the hexagon that touches it
     catanTowns.connectTownsToHexagons(); // connect each hexagon to the towns that touches it
     catanTowns.setTownHexagonCounts(); // for each town, set the number of hexagon that touches it
@@ -85,7 +86,8 @@ public class CatanAnalysisEngine implements CatanHandler {
 
   // used to find the current best town location best on the existing data
   private void pickBestTown() {
-    //todo
+    int BestTownIndex = catanTowns.getBestTownIndex(); // get the best town index based on the optimal location values
+    System.out.println("Best Town Index: " + BestTownIndex);
   }
 
   //test method to print results for verification

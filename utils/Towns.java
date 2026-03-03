@@ -13,6 +13,7 @@ public class Towns {
     public double[][] townOptimalLocationValues; // 2D array to hold the optimal location values for each town and win condition, i = win condition, j = town index 
     public final ArrayList<ArrayList<ConnectedComponentTile>>[] mapTilesData; // array to hold all the 19 map tiles
 
+    private final int topWinStrategy; // index of the top win strategy from the map analysis, used to pick the best town based on that strategy
     private final int TOTAL_TOWNS = 54; // total number possible of town locations in the game
     private final int TOTAL_TILES = 19; // total number of tiles in the game
     private final int NUM_OF_RESOURCES = 5; // total resource num
@@ -58,8 +59,9 @@ public class Towns {
     @param mapAnalysis Map - Map object from the map analysis
     @param resourcesAvailability double[][] - 2D array of resource availability
     @param winConditionsResources double[][] - 2D array of win conditions resources */
-    public Towns(Map mapAnalysis, double[][] resourcesAvailability, double[][] winConditionsResources) {
+    public Towns(Map mapAnalysis, double[][] resourcesAvailability, double[][] winConditionsResources, int topWinStrategy) {
 
+        this.topWinStrategy = topWinStrategy;
         this.mapTilesData = mapAnalysis.mapGroupData;
         this.mapAnalysis = mapAnalysis;
         this.NUM_OF_WIN_CONDITIONS = mapAnalysis.getWinConitionsNumber();
@@ -168,7 +170,23 @@ public class Towns {
 
     // others:
 
+
+    // getter best town based on strategy
+    public int getBestTownIndex() {
+
+        int topTownIndex = 0;
+        double currentValue = 0.0;
         
+        for (int i = 0; i < this.townOptimalLocationValues[0].length; i++) {
+
+            if (currentValue < this.townOptimalLocationValues[this.topWinStrategy][i]) {
+                currentValue = this.townOptimalLocationValues[this.topWinStrategy][i];
+                topTownIndex = i;
+            }
+        }
+        return topTownIndex;
+    }
+
     // calculate the optimal location value for a given town and hexagon tile
     private double calculateOptimalLocation(int winConditionIndex, double[][] resImportanceTable, double winIndex, double clusterSizeFactor) {
 

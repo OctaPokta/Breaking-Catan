@@ -12,6 +12,8 @@ public class Map
       // attributes
       public ArrayList<ArrayList<ConnectedComponentTile>>[] mapGroupData; // store the map group data result
       private final ArrayList<int[][]> winConditionRelativeTokenScore;
+      public double[][] winConditionPerTileScores;
+      public double topWinCondition; // to store the index of the top win condition after analysis
 
       public final int NUM_OF_WIN_CONDITIONS; // example number of win conditions  
       private final int NUM_OF_TILES_ON_MAP = 19; // standard catan has 19 tiles including desert
@@ -33,7 +35,7 @@ public class Map
             this.NUM_OF_WIN_CONDITIONS = NUM_OF_WIN_CONDITIONS;
 
             // initialize map tiles based on input resource and dice number arrays
-            for (int i = 0; i < NUM_OF_TILES_ON_MAP; i++) {
+            for (int i = 0; i < this.NUM_OF_TILES_ON_MAP; i++) {
                   this.mapTiles[i] = new Tile(); // create new Tile object
                   this.mapTiles[i].RESOURCE_TYPE = mapResources[i];
                   this.mapTiles[i].DICE_NUMBER = mapDiceNumbers[i];
@@ -50,29 +52,28 @@ public class Map
 
             /* Given the win conditions relative token score tables & tile resource and dice number information, this analyse the most suitable win condtiion for the current map.
             I.e. returns which win condition is the most suitable one to any "tiles area" on the map including the resource and dice number.*/
-            double[][] winConditionPerTileScores = WinConditionTileScores();
+            this.winConditionPerTileScores = WinConditionTileScores();
 
             /* After running the most suitable win condition algorithm. we then want to loop each win scenerio in a sorted way
             and rank the biggest "Strongly Connected Component" on the graph with the best resources and dice numbers matching what we wanted.
             at the end, we'll output the most suitable areas for the start settelments for each of the win scenarios. */
-            mapGroupData = StronglyConnectedComponentsSorting(winConditionPerTileScores);
+            this.mapGroupData = StronglyConnectedComponentsSorting(this.winConditionPerTileScores);
 
             Test test = new Test();
-            test.printAnalysisAndPythonData(mapGroupData, winConditionPerTileScores, winConditionNames, NUM_OF_TILES_ON_MAP);
+            test.printAnalysisAndPythonData(this.mapGroupData, this.winConditionPerTileScores, this.winConditionNames, this.NUM_OF_TILES_ON_MAP);
       }
 
 
       // calculates the optimal tiles (based on dice num & resource type) for each win condition based on the map graph connection:
       private double[][] WinConditionTileScores() 
       {     
-            // set a new array, already initialized to zeros
-            double[][] winConditionPerTileScores = new double[this.NUM_OF_WIN_CONDITIONS][this.NUM_OF_TILES_ON_MAP+1]; // rows: win conditions, columns: tiles on map
+            this.winConditionPerTileScores = new double[this.NUM_OF_WIN_CONDITIONS][this.NUM_OF_TILES_ON_MAP+1]; // rows: win conditions, columns: tiles on map
 
             // for each win condition scenerio
             for (int i = 0; i < this.NUM_OF_WIN_CONDITIONS; i++) {
 
-                  winConditionPerTileScores[i][this.NUM_OF_TILES_ON_MAP] = i; // store win condition index
-
+                  this.winConditionPerTileScores[i][this.NUM_OF_TILES_ON_MAP] = i; // store win condition index
+                  
                   // for each tile on the map
                   for (int j = 0; j < this.NUM_OF_TILES_ON_MAP; j++) {
 
@@ -95,23 +96,25 @@ public class Map
 
                         int bestDist = Math.min(distBottom, distUpper); // get best distance
 
-                        winConditionPerTileScores[i][j] += getClosenessScore(bestDist);
+                        this.winConditionPerTileScores[i][j] += getClosenessScore(bestDist);
                   }
             }
 
             // sort win conditions based on their total score across all tiles, without losing type of win condition
-            winConditionPerTileScores = sortWinConditionsByScore(winConditionPerTileScores);
+            this.winConditionPerTileScores = sortWinConditionsByScore(this.winConditionPerTileScores);
+
+            this.topWinCondition = this.winConditionPerTileScores[0][this.NUM_OF_TILES_ON_MAP]; // get the index of the top win condition after sorting
 
             // print matrix with
             System.out.println("Win Condition Per Tile Scores Matrix:");
             for (int i = 0; i < this.NUM_OF_WIN_CONDITIONS; i++) {
                   for (int j = 0; j <= this.NUM_OF_TILES_ON_MAP; j++) {
-                        System.out.print(winConditionPerTileScores[i][j] + " ");
+                        System.out.print(this.winConditionPerTileScores[i][j] + " ");
                   }
                   System.out.println();
             }
-
-            return winConditionPerTileScores;
+            
+            return this.winConditionPerTileScores;
       }
 
 

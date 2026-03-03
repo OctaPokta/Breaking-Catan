@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class WinConditions {
 
   public ArrayList<int[][]> relativeTokenScoresResults;
-  private int[] oldTotal; // to store old totals for reference
+  private final int[] oldTotal; // to store old totals for reference
   private final int TOTAL_WIN_CONDITION_NUM;
   private final int TOTAL_RESOURCES = 5; // total number of resources
 
@@ -14,6 +14,12 @@ public class WinConditions {
     this.oldTotal = new int[this.TOTAL_RESOURCES];
     this.TOTAL_WIN_CONDITION_NUM = totalWinConditionNum;
   }
+
+
+  // get top win condtiion
+ // public int getTopWinCondition(){
+  //  return this.relativeTokenScoresResults.get(0)[19];
+  //}
 
 
   // Calculating important index table for each win condition
