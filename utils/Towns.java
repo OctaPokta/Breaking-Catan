@@ -295,10 +295,9 @@ public class Towns {
 
         // tiles:
 
-        Tile[] t = new Tile[19];
-        t = this.mapAnalysis.getMapTiles();
+        Tile[] t = this.mapAnalysis.getMapTiles();
         
-        for (int i = 0; i < 19; i++) {
+        for (int i = 0; i < this.TOTAL_TILES; i++) {
 
             int tileIndex = t[i].getTileIndex();
             int diceNumber = t[i].getDiceNumber();
