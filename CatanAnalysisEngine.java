@@ -167,6 +167,8 @@ public class CatanAnalysisEngine implements CatanHandler {
   }
 
 
+  // DEBUG METHODS
+
   //test method to print results for verification
   private void consoleResults(int flags) {
 
@@ -180,8 +182,10 @@ public class CatanAnalysisEngine implements CatanHandler {
     final int TILES_DEBUG = 1 << 7; // 128 
 
     if ((flags & WIN_COND_UPP_DICE_LOW_DICE) != 0) { 
-      System.out.println(ConsoleColors.GREEN_BOLD + "Win Conditions upper dice & lower dice table:" + ConsoleColors.RESET);
-      // TODO
+      System.out.println(ConsoleColors.BLUE_BOLD + "---[Win Conditions upper dice & lower dice table]---" + ConsoleColors.RESET);
+      this.winConditions.printRelativeTokenScoreTop();
+      System.out.println();
+      this.winConditions.printRelativeTokenScoreBottom();
     }
     if ((flags & WIN_COND_STRATEGY_TABLE) != 0) { 
       System.out.println(ConsoleColors.GREEN_BOLD + "Win Conditions table per strategies:" + ConsoleColors.RESET);

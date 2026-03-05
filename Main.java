@@ -46,8 +46,9 @@ public class Main {
         int[] mapResources = { 2, 4, 2, 0, 0, 3, 4, 3, 1, 5, 2, 1, 4, 2, 1, 3, 4, 0, 3 }; // example input
         int[] mapDiceNumbers = { 5, 11, 12, 9, 8, 4, 5, 8, 3, 0, 10, 9, 3, 6, 4, 10, 11, 2, 6 }; // example input
 
-        CatanHandler catan = new CatanAnalysisEngine(resourcesAvailability, winConditionsResources, mapResources, mapDiceNumbers);
+        // RUN
 
+        CatanHandler catan = new CatanAnalysisEngine(resourcesAvailability, winConditionsResources, mapResources, mapDiceNumbers);
         
         catan.runMapAnalysis(); // run map analysis
         catan.pickOptTown(); // pick optimal town placement
