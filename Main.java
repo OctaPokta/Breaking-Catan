@@ -4,6 +4,11 @@ import CatanAnalysis.handlers.CatanHandler;
 
 public class Main {
 
+    public static final int WIN_COND = 1; // 1
+    public static final int TOWN_HEX = 1 << 1; // 2
+    public static final int FINAL_OPT = 1 << 2; // 4
+    public static final int TILES_DEBUG = 1 << 3; // 8
+
     public static void main(String[] args) {
 
         // INPUTS
@@ -41,13 +46,17 @@ public class Main {
         int[] mapResources = { 2, 4, 2, 0, 0, 3, 4, 3, 1, 5, 2, 1, 4, 2, 1, 3, 4, 0, 3 }; // example input
         int[] mapDiceNumbers = { 5, 11, 12, 9, 8, 4, 5, 8, 3, 0, 10, 9, 3, 6, 4, 10, 11, 2, 6 }; // example input
 
-        CatanHandler catan = new CatanAnalysisEngine(resourcesAvailability, winConditionsResources, mapResources,
-                mapDiceNumbers);
+        CatanHandler catan = new CatanAnalysisEngine(resourcesAvailability, winConditionsResources, mapResources, mapDiceNumbers);
 
+        
         catan.runMapAnalysis(); // run map analysis
         catan.pickOptTown(); // pick optimal town placement
-
-        catan.runConsoleResults(); // print results for verification
+        
+        catan.runInteractiveConsole(); // run interactive console for user to select debug options
+        
+        
 
     }
+
+    
 }

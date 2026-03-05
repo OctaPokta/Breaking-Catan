@@ -270,18 +270,15 @@ public class Towns {
 
     // method to see the connection between each town to its adjusted hex
     public void printTownHex() {
-
         System.out.println("--- Starting Town Verification ---");
-
         for (int i = 0; i < this.TOTAL_TOWNS; i++) {
             
             int totalHexagons = this.townArray[i].connectedHexagons.size();
             
             for (int j = 0; j < totalHexagons; j++) {
-
                 ConnectedComponentTile tile = this.townArray[i].connectedHexagons.get(j);
                 int attachedHexagons = this.townArray[i].TOWN_ADJUSTED_HEXAGONS;
-                System.out.println(" Town [" + i + "] => Hexagon [" + tile.getTileIndex() + "]" + "\tTotal of [" + attachedHexagons + "] hexagons attached");
+                System.out.println("Town [" + i + "] => Hexagon [" + tile.getTileIndex() + "]" + "\tTotal of [" + attachedHexagons + "] hexagons attached");
             }
         }
     }
