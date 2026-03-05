@@ -40,7 +40,6 @@ public class Map
                   this.mapTiles[i].RESOURCE_TYPE = mapResources[i];
                   this.mapTiles[i].DICE_NUMBER = mapDiceNumbers[i];
                   this.mapTiles[i].TILE_INDEX = i;
-                  //System.out.println("Tile " + i + ": Resource Type = " + this.mapTiles[i].resourceType + ", Dice Number = " + this.mapTiles[i].diceNumber);
             }
 
             this.winConditionRelativeTokenScore = winConditionRelativeTokenScore; // store the relative token score tables
@@ -104,15 +103,6 @@ public class Map
             this.winConditionPerTileScores = sortWinConditionsByScore(this.winConditionPerTileScores);
 
             this.topWinCondition = this.winConditionPerTileScores[0][this.NUM_OF_TILES_ON_MAP]; // get the index of the top win condition after sorting
-
-            // print matrix with
-            System.out.println("Win Condition Per Tile Scores Matrix:");
-            for (int i = 0; i < this.NUM_OF_WIN_CONDITIONS; i++) {
-                  for (int j = 0; j <= this.NUM_OF_TILES_ON_MAP; j++) {
-                        System.out.print(this.winConditionPerTileScores[i][j] + " ");
-                  }
-                  System.out.println();
-            }
             
             return this.winConditionPerTileScores;
       }
@@ -250,6 +240,19 @@ public class Map
       public Tile[] getMapTiles() {
             return this.mapTiles;
       }
+
+
+      public void printStrategiesTable() {
+            // print matrix with
+            System.out.println("Win Condition Per Tile Scores Matrix:");
+            for (int i = 0; i < this.NUM_OF_WIN_CONDITIONS; i++) {
+                  for (int j = 0; j <= this.NUM_OF_TILES_ON_MAP; j++) {
+                        System.out.print(this.winConditionPerTileScores[i][j] + " ");
+                  }
+                  System.out.println();
+            }
+      }
+
 
       
 }

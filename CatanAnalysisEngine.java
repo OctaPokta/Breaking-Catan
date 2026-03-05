@@ -81,6 +81,7 @@ public class CatanAnalysisEngine implements CatanHandler {
           selectionFlags = parseSelectionInput(input, selectionFlags, optionMap);
         }
       }
+      System.out.println("");
       runConsoleResults(selectionFlags);
     }
   }
@@ -117,9 +118,8 @@ public class CatanAnalysisEngine implements CatanHandler {
  
   @Override
   public void pickOptTown() {
-    // Safety Check: Ensure map and town data exists before analyzing towns
     if (this.catanMap == null) {
-      calculateOptHexData();
+      calculateOptHexData(); // note: this is a safety check to ensure that the hex data is calculated before picking optimal town, but ideally this should be structured better to avoid such dependencies.
     }
     runTownOptLocationAnalysis();
     pickBestTown();
@@ -183,13 +183,17 @@ public class CatanAnalysisEngine implements CatanHandler {
 
     if ((flags & WIN_COND_UPP_DICE_LOW_DICE) != 0) { 
       System.out.println(ConsoleColors.BLUE_BOLD + "---[Win Conditions upper dice & lower dice table]---" + ConsoleColors.RESET);
+      System.out.println();
       this.winConditions.printRelativeTokenScoreTop();
       System.out.println();
       this.winConditions.printRelativeTokenScoreBottom();
+      System.out.println();
     }
     if ((flags & WIN_COND_STRATEGY_TABLE) != 0) { 
-      System.out.println(ConsoleColors.GREEN_BOLD + "Win Conditions table per strategies:" + ConsoleColors.RESET);
-      // TODO
+      System.out.println(ConsoleColors.BLUE_BOLD + "---[Win Conditions table per strategies]---" + ConsoleColors.RESET);
+      System.out.println();
+      this.catanMap.printStrategiesTable();
+      System.out.println();
     }
     if ((flags & HEATMAP_CLUSTER_PROP) != 0) { 
       System.out.println(ConsoleColors.GREEN_BOLD + "Showing heatmaps cluster proprity based on strategy, per each tile:" + ConsoleColors.RESET);
