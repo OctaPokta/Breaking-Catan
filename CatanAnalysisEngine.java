@@ -3,6 +3,7 @@
 package CatanAnalysis;
 
 import CatanAnalysis.handlers.CatanHandler;
+import CatanAnalysis.handlers.ConsoleColors;
 import CatanAnalysis.utils.Map;
 import CatanAnalysis.utils.Towns;
 import CatanAnalysis.utils.WinConditions;
@@ -34,7 +35,13 @@ public class CatanAnalysisEngine implements CatanHandler {
     this.mapDiceNumbers = mapDiceNumbers;
   }
 
+  // INTERFACE METHODS
   
+  @Override
+  public void runConsoleResults() {
+      consoleResults();
+  }
+
   @Override
   public void runMapAnalysis() {
     calculateOptHexData(); 
@@ -47,14 +54,15 @@ public class CatanAnalysisEngine implements CatanHandler {
       calculateOptHexData();
     }
     runTownOptLocationAnalysis();
-    printResultsForVerification(); // test purposes
     pickBestTown();
   }
 
-  
-  public void startRoadEngine() {
+  @Override
+  public void pickOptRoad() {
     // WIP...
   }
+
+  // MAIN METHODS
 
   // used to calculate opt hexs data on the board with a given map status
   private void calculateOptHexData() {
@@ -91,10 +99,15 @@ public class CatanAnalysisEngine implements CatanHandler {
   }
 
   //test method to print results for verification
-  private void printResultsForVerification() {
+  private void consoleResults() {
     // print results for verification
-    catanTowns.printTownHex();
-    catanTowns.printFinalOptLocation(3);
+    System.out.println(ConsoleColors.GREEN_BOLD + "Win Conditions Analysis Results:" + ConsoleColors.RESET);
+
+    //System.out.println("connection between each town to its adjusted hex");
+    //catanTowns.printTownHex();
+    //System.out.println("sas");
+    //catanTowns.printFinalOptLocation(3);
+    //System.out.println("sas");
     //catanTowns.printTiles();
   }
   
