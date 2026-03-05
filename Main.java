@@ -14,21 +14,6 @@ public class Main {
         // INPUTS
 
         /*
-         * Resources Avalibality:
-         * brick | ore | sheep | wheat | wood | desert
-         * j corrosponds to: Number of Tiles | Area Coverage %
-         * i corrosponds to: Resource index
-         */
-        double[][] resourcesAvailability = {
-                { 3, 15.8 }, // brick
-                { 3, 15.8 }, // ore
-                { 4, 21.1 }, // sheep
-                { 4, 21.1 }, // wheat
-                { 4, 21.1 }, // wood
-                { 1, 5.3 } // desert
-        };
-
-        /*
          * win conditions table:
          * each row determines the resource importance for a specific win condition, the
          * last column is the total sum (later used for weighted need calculation)
@@ -36,11 +21,11 @@ public class Main {
          * i corrosponds to: Condition index
          */
         double[][] winConditionsResources = {
-                { 11, 12, 4, 12, 11, 0 }, // 4 Cities + LR
-                { 9, 11, 8, 12, 9, 0 }, // 2 cities + 1 Settlement + LR & LA (Extra Brick & Wood)
-                { 14, 9, 5, 11, 14, 0 }, // 3 cities + 2 settlements + LR
-                { 13, 11, 10, 14, 13, 0 }, // 2 Cities + 3 Settlements + LR
-                { 14, 8, 10, 12, 14, 0 } // 1 City + 3 Settlements + LR & LA
+            { 11, 12, 4, 12, 11, 0 }, // 4 Cities + LR
+            { 9, 11, 8, 12, 9, 0 }, // 2 cities + 1 Settlement + LR & LA (Extra Brick & Wood)
+            { 14, 9, 5, 11, 14, 0 }, // 3 cities + 2 settlements + LR
+            { 13, 11, 10, 14, 13, 0 }, // 2 Cities + 3 Settlements + LR
+            { 14, 8, 10, 12, 14, 0 } // 1 City + 3 Settlements + LR & LA
         };
 
         int[] mapResources = { 2, 4, 2, 0, 0, 3, 4, 3, 1, 5, 2, 1, 4, 2, 1, 3, 4, 0, 3 }; // example input
@@ -48,10 +33,13 @@ public class Main {
 
         // RUN
 
-        CatanHandler catan = new CatanAnalysisEngine(resourcesAvailability, winConditionsResources, mapResources, mapDiceNumbers);
-        
+        CatanHandler catan = new CatanAnalysisEngine(winConditionsResources, mapResources, mapDiceNumbers);
+
         catan.runMapAnalysis(); // run map analysis
         catan.pickOptTown(); // pick optimal town placement
+        
+        // pick best road placement
+        // pick the second town
         
         catan.runInteractiveConsole(); // run interactive console for user to select debug options
         

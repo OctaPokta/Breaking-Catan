@@ -9,8 +9,23 @@ import CatanAnalysis.utils.Towns;
 import CatanAnalysis.utils.WinConditions;
 import java.util.Scanner;
 
-// Main class to run the Catan Analysis
+// Engine class to run the Catan Analysis
 public class CatanAnalysisEngine implements CatanHandler {
+
+  /*
+  * Resources Avalibality:
+  * brick | ore | sheep | wheat | wood | desert
+  * j corrosponds to: Number of Tiles | Area Coverage %
+  * i corrosponds to: Resource index
+  */
+  private final double[][] resourcesAvailability = {
+    { 3, 15.8 }, // brick
+    { 3, 15.8 }, // ore
+    { 4, 21.1 }, // sheep
+    { 4, 21.1 }, // wheat
+    { 4, 21.1 }, // wood
+    { 1, 5.3 } // desert
+  };
 
   // 0 = brick, 1 = ore, 2 = sheep, 3 = wheat, 4 = wood, 5 = desert 
   private final int[] mapResources;
@@ -18,7 +33,6 @@ public class CatanAnalysisEngine implements CatanHandler {
 
   // attributes
   private double topWinStrategy; 
-  private final double[][] resourcesAvailability;
   private final double[][] winConditionsResources;
   private final int NUM_OF_WIN_CONDITIONS;
   WinConditions winConditions; // to store win conditions analysis results
@@ -26,10 +40,9 @@ public class CatanAnalysisEngine implements CatanHandler {
   Towns catanTowns; // to store town analysis results
 
   // constructor
-  public CatanAnalysisEngine(double[][] resourcesAvailability, double[][] winConditionsResources, int[] mapResources, int[] mapDiceNumbers) {
+  public CatanAnalysisEngine(double[][] winConditionsResources, int[] mapResources, int[] mapDiceNumbers) {
 
     // user input
-    this.resourcesAvailability = resourcesAvailability;
     this.winConditionsResources = winConditionsResources;
     this.NUM_OF_WIN_CONDITIONS = winConditionsResources.length;
     this.mapResources = mapResources;
