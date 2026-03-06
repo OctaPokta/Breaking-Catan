@@ -64,6 +64,7 @@ public class CatanAnalysisEngine implements CatanHandler {
       optionMap.put(6, 32); // option 6 -> flag 32 
       optionMap.put(7, 64);   
       optionMap.put(8, 128);   
+      optionMap.put(0, 0); // option 0 -> flag 0 (select all)
       
       int selectionFlags = 0;
       boolean readyToRun = false;
@@ -72,10 +73,10 @@ public class CatanAnalysisEngine implements CatanHandler {
       System.out.println("Select options to add to the queue:");
       System.out.println("1: Win Conditions upper dice & lower dice table:\n2: Win Conditions table per strategies:\n3: Showing heatmaps cluster proprity based on strategy, per each tile:\n4: Debugging used for Python visualization:");
       System.out.println("5: Win Conditions\n6: Town Hexes\n7: Final Opt\n8: Tiles");
-      System.out.println("Commands: 'r' to reset | [Empty Enter] to Run | 'q' to quit");
+      System.out.println("Commands: 'r' to reset | [Empty Enter] to Run | 'q' to quit | '0' to select all");
 
       while (!readyToRun) {
-        System.out.print("Current Selection [" + selectionFlags + "] > ");
+        System.out.print("Current Selection [" + (selectionFlags + 1) + "] > ");
         String input = scanner.nextLine().trim().toLowerCase();
 
         if (input.isEmpty()) {
@@ -90,6 +91,9 @@ public class CatanAnalysisEngine implements CatanHandler {
         } else if (input.equals("q")) {
           System.out.println("Exiting...");
           return;
+        } else if (input.equals("0")) {
+          selectionFlags = 1 | 2 | 4 | 8 | 16 | 32 | 64 | 128;
+          System.out.println("All options selected.");
         } else {
           selectionFlags = parseSelectionInput(input, selectionFlags, optionMap);
         }
@@ -110,18 +114,13 @@ public class CatanAnalysisEngine implements CatanHandler {
         if (optionMap.containsKey(val)) {
           flags |= optionMap.get(val);
         } else {
-          System.out.println("Error: [" + val + "] is not a valid option. Use 1, 2, 3, or 4.");
+          System.out.println("Error: [" + val + "] is not a valid option.");
         }
       } catch (NumberFormatException e) {
         System.out.println("Error: '" + part + "' is not a number.");
       }
     }
     return flags;
-  }
-  
-  @Override
-  public void runConsoleResults(int testingParameter) {
-    consoleResults(testingParameter);
   }
 
   @Override
@@ -183,8 +182,10 @@ public class CatanAnalysisEngine implements CatanHandler {
   // DEBUG METHODS
 
   //test method to print results for verification
-  private void consoleResults(int flags) {
+  @Override
+  public void runConsoleResults(int flags) {
 
+    final int SELECT_ALL = 0; // special flag to select all options
     final int WIN_COND_UPP_DICE_LOW_DICE = 1; // 1
     final int WIN_COND_STRATEGY_TABLE = 1 << 1; // 2
     final int HEATMAP_CLUSTER_PROP = 1 << 2; // 4
@@ -194,6 +195,11 @@ public class CatanAnalysisEngine implements CatanHandler {
     final int FINAL_OPT = 1 << 6; // 64
     final int TILES_DEBUG = 1 << 7; // 128 
 
+    // if SELECT_ALL is selected, set flags to include all options
+    if (flags == SELECT_ALL) {
+      flags = WIN_COND_UPP_DICE_LOW_DICE | WIN_COND_STRATEGY_TABLE | HEATMAP_CLUSTER_PROP | PYTHON_DEBUG | WIN_COND | TOWN_HEX | FINAL_OPT | TILES_DEBUG;
+    }
+    // win condition upper dice and lower dice tables
     if ((flags & WIN_COND_UPP_DICE_LOW_DICE) != 0) { 
       System.out.println(ConsoleColors.BLUE_BOLD + "---[Win Conditions upper dice & lower dice table]---" + ConsoleColors.RESET);
       System.out.println();
@@ -202,34 +208,41 @@ public class CatanAnalysisEngine implements CatanHandler {
       this.winConditions.printRelativeTokenScoreBottom();
       System.out.println();
     }
+    // win condition table per strategy
     if ((flags & WIN_COND_STRATEGY_TABLE) != 0) { 
       System.out.println(ConsoleColors.BLUE_BOLD + "---[Win Conditions table per strategies]---" + ConsoleColors.RESET);
       System.out.println();
       this.catanMap.printStrategiesTable();
       System.out.println();
     }
+    // heatmap cluster proprity based on strategy, per each tile
     if ((flags & HEATMAP_CLUSTER_PROP) != 0) { 
-      System.out.println(ConsoleColors.GREEN_BOLD + "Showing heatmaps cluster proprity based on strategy, per each tile:" + ConsoleColors.RESET);
+      System.out.println(ConsoleColors.BLUE_BOLD + "---[Showing heatmaps cluster proprity based on strategy, per each tile]---" + ConsoleColors.RESET);
       // TODO
     }
+    // debugging used for Python visualization
     if ((flags & PYTHON_DEBUG) != 0) { 
-      System.out.println(ConsoleColors.GREEN_BOLD + "Debugging used for Python visualization:" + ConsoleColors.RESET);
+      System.out.println(ConsoleColors.BLUE_BOLD + "---[Debugging used for Python visualization]---" + ConsoleColors.RESET);
       // TODO
     }
+    // win conditions analysis results
     if ((flags & WIN_COND) != 0) { 
-      System.out.println(ConsoleColors.GREEN_BOLD + "Win Conditions Analysis Results:" + ConsoleColors.RESET);
+      System.out.println(ConsoleColors.BLUE_BOLD + "---[Win Conditions Analysis Results]---" + ConsoleColors.RESET);
       // TODO
     }
+    // connection between each town and its adjusted hex
     if ((flags & TOWN_HEX) != 0) { 
-      System.out.println(ConsoleColors.GREEN_BOLD + "connection between each town to its adjusted hex:" + ConsoleColors.RESET);
+      System.out.println(ConsoleColors.BLUE_BOLD + "---[Connection between each town and its adjusted hex]---" + ConsoleColors.RESET);
       catanTowns.printTownHex();
     }
+    // final optimal location values for each town
     if ((flags & FINAL_OPT) != 0) { 
-      System.out.println(ConsoleColors.GREEN_BOLD + "Show the finalOptLocation value for each town" + ConsoleColors.RESET);
+      System.out.println(ConsoleColors.BLUE_BOLD + "---[Final Optimal Location Values for Each Town]---" + ConsoleColors.RESET);
       catanTowns.printFinalOptLocation(3);
     }
+    // debugging the connection between indices in ConnectedComponentTile class and Tile Class
     if ((flags & TILES_DEBUG) != 0) { 
-      System.out.println(ConsoleColors.GREEN_BOLD + "debugging the connection between indices in ConnectedComponentTile class and Tile Class" + ConsoleColors.RESET);
+      System.out.println(ConsoleColors.BLUE_BOLD + "---[Debugging the connection between indices in ConnectedComponentTile class and Tile Class]---" + ConsoleColors.RESET);
       catanTowns.printTiles();
     }
     
