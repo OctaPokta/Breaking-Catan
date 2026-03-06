@@ -291,30 +291,39 @@ public class Towns {
         int WIN_RATE_NUMBER = 4;
 
         // tiles:
-
         Tile[] t = this.mapAnalysis.getMapTiles();
         
+        System.out.println("=== Starting Tiles Verification ===");
+
         for (int i = 0; i < this.TOTAL_TILES; i++) {
 
             int tileIndex = t[i].getTileIndex();
             int diceNumber = t[i].getDiceNumber();
             int resourceNumber = t[i].getResourceType();
             
-            System.out.println(tileIndex + " Dice: " + diceNumber + " ResourceType: " + resourceNumber + "\t" + "......");
+            System.out.println("......\t" + "Tile Index: " + tileIndex + "| Dice: " + diceNumber + " ResourceType: " + resourceNumber + " ......");
         }
 
         System.err.println("");
         // Connected component
 
+        System.out.println("=== Starting Connected Component Verification ===");
+
         // win condition
         for (int i = 0; i < WIN_CONDITION_NUMBER; i++) {
+
+            System.out.println("=== Win Condition: " + i + " ===");
             
             // win rate
             for (int j = 0; j < WIN_RATE_NUMBER; j++) {
                 
+                System.out.println("--- Win Rate: " + 1.0 / (j + 1) + " ---");
+
                 int COMPONENT_NUM = this.mapTilesData[i].get(j).size();
                 // component
                 for (int k = 0; k < COMPONENT_NUM; k++) {
+
+                    System.out.println("......" + "Component #" + k + ":");
                     
                     // tiles
                     int index = this.mapTilesData[i].get(j).get(k).getTileIndex();
@@ -323,9 +332,11 @@ public class Towns {
                     int diceNumber = t[index].getDiceNumber();
                     int resourceNumber = t[index].getResourceType();
 
-                    System.err.println(index + " Dice: " + diceNumber + " ResourceType: " + resourceNumber);
+                    System.err.println("\tTile Index: " + index + "| Dice: " + diceNumber + " ResourceType: " + resourceNumber);
                 }
             }
+
+            System.err.println("");
         }
     }
 

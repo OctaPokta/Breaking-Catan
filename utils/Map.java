@@ -1,8 +1,8 @@
 package CatanAnalysis.utils;
 
+import CatanAnalysis.CatanAnalysisEngine;
 import CatanAnalysis.entities.ConnectedComponentTile;
 import CatanAnalysis.entities.Tile;
-import CatanAnalysis.testing.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -20,13 +20,7 @@ public class Map
       private final Tile[] mapTiles = new Tile[this.NUM_OF_TILES_ON_MAP];
       
       // win condition names
-      private final String [] winConditionNames = {
-            "4 Cities + LR",
-            "2 Cities + 1 Settlement + LR & LA (Extra Brick & Wood)",
-            "3 cities + 2 settlements + LR",
-            "2 Cities + 3 Settlements + LR",
-            "1 City + 3 Settlements + LR & LA"
-      };
+      private final String [] WIN_COND_NAMES = CatanAnalysisEngine.WIN_COND_NAMES;
 
 
       // constructor 
@@ -57,9 +51,6 @@ public class Map
             and rank the biggest "Strongly Connected Component" on the graph with the best resources and dice numbers matching what we wanted.
             at the end, we'll output the most suitable areas for the start settelments for each of the win scenarios. */
             this.mapGroupData = StronglyConnectedComponentsSorting(this.winConditionPerTileScores);
-
-            Test test = new Test();
-            test.printAnalysisAndPythonData(this.mapGroupData, this.winConditionPerTileScores, this.winConditionNames, this.NUM_OF_TILES_ON_MAP);
       }
 
 
@@ -241,7 +232,8 @@ public class Map
             return this.mapTiles;
       }
 
-
+      
+      // Helper method to print the win condition per tile scores matrix
       public void printStrategiesTable() {
             // print matrix with
             System.out.println("Win Condition Per Tile Scores Matrix:");

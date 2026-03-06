@@ -4,10 +4,13 @@ import CatanAnalysis.handlers.CatanHandler;
 
 public class Main {
 
-    public static final int WIN_COND = 1; // 1
-    public static final int TOWN_HEX = 1 << 1; // 2
-    public static final int FINAL_OPT = 1 << 2; // 4
-    public static final int TILES_DEBUG = 1 << 3; // 8
+    public static final String [] WIN_COND_NAMES = {
+        "4 Cities + LR",
+        "2 Cities + 1 Settlement + LR & LA (Extra Brick & Wood)",
+        "3 cities + 2 settlements + LR",
+        "2 Cities + 3 Settlements + LR",
+        "1 City + 3 Settlements + LR & LA"
+    };
 
     public static void main(String[] args) {
 
