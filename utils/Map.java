@@ -1,6 +1,5 @@
 package CatanAnalysis.utils;
 
-import CatanAnalysis.CatanAnalysisEngine;
 import CatanAnalysis.entities.ConnectedComponentTile;
 import CatanAnalysis.entities.Tile;
 import java.util.ArrayList;
@@ -18,10 +17,6 @@ public class Map
       public final int NUM_OF_WIN_CONDITIONS; // example number of win conditions  
       private final int NUM_OF_TILES_ON_MAP = 19; // standard catan has 19 tiles including desert
       private final Tile[] mapTiles = new Tile[this.NUM_OF_TILES_ON_MAP];
-      
-      // win condition names
-      private final String [] WIN_COND_NAMES = CatanAnalysisEngine.WIN_COND_NAMES;
-
 
       // constructor 
       public Map(int[] mapResources, int[] mapDiceNumbers, ArrayList<int[][]> winConditionRelativeTokenScore, int NUM_OF_WIN_CONDITIONS) {
