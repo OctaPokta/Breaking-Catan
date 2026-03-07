@@ -57,6 +57,7 @@ public class CatanAnalysisEngine implements CatanHandler {
   // INTERFACE METHODS
 
   @Override
+  // interactive console for user to select debug options and view results
   public void runInteractiveConsole() {
     try (Scanner scanner = new Scanner(System.in)) {
       java.util.Map<Integer, Integer> optionMap = new java.util.HashMap<>();
@@ -82,30 +83,37 @@ public class CatanAnalysisEngine implements CatanHandler {
       System.out.println("Commands: 'r' to reset | [Empty Enter] to Run | 'q' to quit | '0' to select all");
 
       while (!readyToRun) {
+        // prompt user for input and update selection flags accordingly
         System.out.print("Current Selection [" + (selectionFlags + 1) + "] > ");
         String input = scanner.nextLine().trim().toLowerCase();
 
         if (input.isEmpty()) {
+          // if no options selected, prompt user to select at least one option before running
           if (selectionFlags == 0 && !readyToRun) {
             System.out.println("Nothing selected. Add options before running.");
             continue;
           }
           readyToRun = true;
         } else if (input.equals("r")) {
+          // reset selection
           selectionFlags = 0;
           System.out.println("Selection cleared.");
         } else if (input.equals("q")) {
+          // quit the console
           System.out.println("Exiting...");
           return;
         } else if (input.equals("0")) {
+          // select all options
           selectionFlags = 1 | 2 | 4 | 8 | 16 | 32 | 64 | 128 | 256;
           System.out.println("All options selected.");
         } else {
+          // parse user input for options and update selection flags
           selectionFlags = parseSelectionInput(input, selectionFlags, optionMap);
         }
       }
+      // run selected options
       System.out.println("");
-      runConsoleResults(selectionFlags);
+      printConsoleResults(selectionFlags);
     }
   }
 
@@ -189,7 +197,8 @@ public class CatanAnalysisEngine implements CatanHandler {
 
   //test method to print results for verification
   @Override
-  public void runConsoleResults(int flags) {
+  // method to print results based on selected flags in the interactive console
+  public void printConsoleResults(int flags) {
 
     final int SELECT_ALL = 0; // special flag to select all options
     final int WIN_COND_UPP_DICE_LOW_DICE = 1; // 1
