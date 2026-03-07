@@ -171,7 +171,7 @@ public class Towns {
     // others:
 
 
-    // getter best town based on strategy
+    // getter for best town based on strategy
     public int getBestTownIndex() {
 
         int topTownIndex = 0;

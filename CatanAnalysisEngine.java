@@ -67,8 +67,9 @@ public class CatanAnalysisEngine implements CatanHandler {
       optionMap.put(4, 8);   // option 4 -> flag 8
       optionMap.put(5, 16);  // option 5 -> flag 16 
       optionMap.put(6, 32); // option 6 -> flag 32 
-      optionMap.put(7, 64);   
-      optionMap.put(8, 128);   
+      optionMap.put(7, 64); // option 7 -> flag 64
+      optionMap.put(8, 128); // option 8 -> flag 128
+      optionMap.put(9, 256); // option 9 -> flag 256
       optionMap.put(0, 0); // option 0 -> flag 0 (select all)
       
       int selectionFlags = 0;
@@ -77,7 +78,7 @@ public class CatanAnalysisEngine implements CatanHandler {
       System.out.println("\n--- Debug Menu ---");
       System.out.println("Select options to add to the queue:");
       System.out.println("1: Win Conditions upper dice & lower dice table\n2: Win Conditions table per strategies\n3: Showing heatmaps cluster proprity based on strategy, per each tile\n4: Debugging used for Python visualization");
-      System.out.println("5: Win Conditions (WIP...)\n6: Connection between each town to its adjusted hex\n7: Final Optimal Location Values for Each Town\n8: Connection between indices in ConnectedComponentTile class and Tile Class");
+      System.out.println("5: Win Conditions (WIP...)\n6: Connection between each town to its adjusted hex\n7: Final Optimal Location Values for Each Town\n8: Connection between indices in ConnectedComponentTile class and Tile Class\n9: Final Optimal Town Location");
       System.out.println("Commands: 'r' to reset | [Empty Enter] to Run | 'q' to quit | '0' to select all");
 
       while (!readyToRun) {
@@ -97,7 +98,7 @@ public class CatanAnalysisEngine implements CatanHandler {
           System.out.println("Exiting...");
           return;
         } else if (input.equals("0")) {
-          selectionFlags = 1 | 2 | 4 | 8 | 16 | 32 | 64 | 128;
+          selectionFlags = 1 | 2 | 4 | 8 | 16 | 32 | 64 | 128 | 256;
           System.out.println("All options selected.");
         } else {
           selectionFlags = parseSelectionInput(input, selectionFlags, optionMap);
@@ -199,6 +200,7 @@ public class CatanAnalysisEngine implements CatanHandler {
     final int TOWN_HEX = 1 << 5; // 32
     final int FINAL_OPT = 1 << 6; // 64
     final int TILES_DEBUG = 1 << 7; // 128 
+    final int FINAL_OPT_TOWN = 1 << 8; // 256
 
     Test dataPerTile = new Test(this.catanMap.winConditionPerTileScores, this.catanMap.mapGroupData);
 
@@ -264,6 +266,15 @@ public class CatanAnalysisEngine implements CatanHandler {
       catanTowns.printTiles();
       System.out.println();
     }
+    // get the index of the best town location based on the optimal location values [Flag = 9]
+    if ((flags & FINAL_OPT_TOWN) != 0) {
+      System.out.println(ConsoleColors.BLUE_BOLD + "---[Final Optimal Town Location]---" + ConsoleColors.RESET);
+      System.out.println();
+      int bestTownIndex = catanTowns.getBestTownIndex();
+      System.out.println("Best Town Index: " + bestTownIndex);
+      System.out.println();
+    }
+    // to be added
     
   }
   
