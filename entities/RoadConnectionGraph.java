@@ -5,10 +5,10 @@ import java.util.ArrayList;
 public class RoadConnectionGraph 
 {
     // attributes
-
     public int TOWN_INDEX; // index of town out of 54 possible town locations
     public int TOWN_ADJUSTED_HEXAGONS; // there are only 3 ratios: 1 = 1:1, 2 = 1:2, 3 = 1:3 
     public ArrayList<ConnectedComponentTile> connectedHexagons; // list of all the connected hexagons of class "ConnectedComponentTile"
+    
     /**
      * 54x54 Adjacency Matrix representing the connection of each town to another.
      * 1 = connected by a road (edge).
@@ -71,6 +71,11 @@ public class RoadConnectionGraph
     };
 
 
+    public RoadConnectionGraph(int townIndex, int numOfHexagons) {
+        this.TOWN_INDEX = townIndex;
+        this.TOWN_ADJUSTED_HEXAGONS = numOfHexagons;
+        this.connectedHexagons = new ArrayList<>();
+    }
 
     // set methods
     public void setAdjustedHexagons(int numOfHexagons) {

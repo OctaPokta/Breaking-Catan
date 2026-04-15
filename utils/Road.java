@@ -30,7 +30,7 @@ public class Road {
     public Road(ArrayList<ArrayList<ConnectedComponentTile>> mapTilesData, double[][] townOptimalLocationValues) {
         this.mapTilesData = new ArrayList<>(mapTilesData);
         this.townOptimalLocationValues = townOptimalLocationValues;
-        this.roadConnectionGraph = new RoadConnectionGraph().getAdjacencyMatrix(); // initialize the road connection graph from the class
+        this.roadConnectionGraph = new RoadConnectionGraph(0, 0).getAdjacencyMatrix(); // initialize the road connection graph from the class
 
         /*
         TODO:
