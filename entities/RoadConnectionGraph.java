@@ -2,7 +2,7 @@ package CatanAnalysis.entities;
 import java.util.ArrayList;
 
 // Class representing Towns and their connected Hexagons
-public class TownConnectionGraph 
+public class RoadConnectionGraph 
 {
     // attributes
 
@@ -13,7 +13,7 @@ public class TownConnectionGraph
      * 54x54 Adjacency Matrix representing the connection of each town to another.
      * 1 = connected by a road (edge).
      * 0 = not connected. */
-    public static final int[][] adjacencyMatrix4Towns = {
+    public final int[][] adjacencyMatrix4Towns = {
             {0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //  Row 0
             {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //  Row 1
             {0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //  Row 2
@@ -70,12 +70,6 @@ public class TownConnectionGraph
             {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0} //  Row 53
     };
 
-    // constructor
-    public TownConnectionGraph (int townIndex, int townAdjustedHexagons) {
-        this.TOWN_INDEX = townIndex; // index of town
-        this.TOWN_ADJUSTED_HEXAGONS = townAdjustedHexagons; // num of adjusted hexagons
-        this.connectedHexagons = new ArrayList<>();
-    }
 
 
     // set methods
@@ -83,6 +77,9 @@ public class TownConnectionGraph
         this.TOWN_ADJUSTED_HEXAGONS = numOfHexagons;
     }
 
-
+    // get methods
+    public int[][] getAdjacencyMatrix() {
+        return this.adjacencyMatrix4Towns;
+    }
 
 }

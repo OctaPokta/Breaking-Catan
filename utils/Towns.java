@@ -2,14 +2,14 @@ package CatanAnalysis.utils;
 
 import CatanAnalysis.entities.ConnectedComponentTile;
 import CatanAnalysis.entities.Tile;
-import CatanAnalysis.entities.TownConnectionGraph;
+import CatanAnalysis.entities.RoadConnectionGraph;
 import java.util.ArrayList;
 
 // class to handle all town related data and operations, it holds the town objects and the optimal location values for each town and win condition, it also contains methods to connect the towns to the hexagons and to rate each town location based on the hexagons that touches it and the importance of the resources that those hexagons produce.
 public class Towns {
     
     // attributes:
-    public final TownConnectionGraph[] townArray = new TownConnectionGraph[this.TOTAL_TOWNS]; // array to hold all 54 towns
+    public final RoadConnectionGraph[] townArray = new RoadConnectionGraph[this.TOTAL_TOWNS]; // array to hold all 54 towns
     public double[][] townOptimalLocationValues; // 2D array to hold the optimal location values for each town and win condition, i = win condition, j = town index 
     public final ArrayList<ArrayList<ConnectedComponentTile>>[] mapTilesData; // array to hold all the 19 map tiles
 
@@ -79,7 +79,7 @@ public class Towns {
 
         // loading data into array
         for (int i = 0; i < this.TOTAL_TOWNS; i++) {
-            this.townArray[i] = new TownConnectionGraph(i, 0);
+            this.townArray[i] = new RoadConnectionGraph(i, 0);
         }
     }
 
@@ -123,7 +123,7 @@ public class Towns {
 
                     // link the town objects to this specific tile instance
                     for (int townIdx : townIndices) {
-                        TownConnectionGraph town = this.townArray[townIdx];
+                        RoadConnectionGraph town = this.townArray[townIdx];
                         
                         // Add the town to the tile's list  if not already present
                         if (!tile.connectedTowns.contains(town)) {
@@ -156,7 +156,7 @@ public class Towns {
                     winIndex = tile.TILE_VALUE; 
 
                     // loop through each town connected to this tile
-                    for (TownConnectionGraph town : tile.connectedTowns) {
+                    for (RoadConnectionGraph town : tile.connectedTowns) {
                         // calculate the optimal location value for this town and tile
                         double optLocationValue = calculateOptimalLocation(winConditionIndex, this.resImportanceTable, winIndex, clusterSizeFactor);
                         this.townOptimalLocationValues[winConditionIndex][town.TOWN_INDEX] += optLocationValue; // accumulate the optimal location value

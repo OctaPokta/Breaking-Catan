@@ -40,8 +40,7 @@ public class Main {
 
         catan.runMapAnalysis(); // run map analysis
         catan.pickOptTown(); // pick optimal town placement
-        
-        // pick best road placement
+        catan.pickOptRoad();// pick best road placement
         // pick the second town
         
         catan.runInteractiveConsole(); // run interactive console for user to select debug options
