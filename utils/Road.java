@@ -17,20 +17,23 @@ public class Road {
     private ArrayList<ArrayList<ConnectedComponentTile>> mapTilesData; // list of all the hexagons of the map, each hexagon is represented by a "ConnectedComponentTile" class, and they are grouped by the town they are connected to (54 possible town locations)
     private double[][] townOptimalLocationValues; // 54x5 matrix, each row is a town, each column is the value of placing a road in that town for a specific win condition
     private int[][] roadConnectionGraph = new int[54][54]; // graph representing the connection of each town to another, and the hexagons they are connected to, this is used to calculate the area of control of each town and the best road placement based on that
-
+    private final Towns catanTowns;
     // new data
-    double[][] roadWeights = new double[54][54]; // used to run dikstra's algorithm
+    private int topWinStrategy; // index of the top win strategy from the map analysis, used to pick the best town based on that strategy
+    private double[][] roadWeights = new double[54][54]; // used to run dikstra's algorithm
     private ArrayList<Integer> safeNodes; // list of nodes indices that we are closer to than the opponents, this is the area of control that we currently own
     private double dMax; // max distance of roads we wanna place from a starting town position, based on strategy and map state 
-
-
+    private double maxOptLocation; // max opt town location on the map
+    private double mu; // average opt location of the nodes in the safe space
 
 
     // constructor
-    public Road(ArrayList<ArrayList<ConnectedComponentTile>> mapTilesData, double[][] townOptimalLocationValues) {
+    public Road(ArrayList<ArrayList<ConnectedComponentTile>> mapTilesData, double[][] townOptimalLocationValues, Towns catanTowns) {
         this.mapTilesData = new ArrayList<>(mapTilesData);
         this.townOptimalLocationValues = townOptimalLocationValues;
         this.roadConnectionGraph = new RoadConnectionGraph(0, 0).getAdjacencyMatrix(); // initialize the road connection graph from the class
+        this.catanTowns = catanTowns;
+        this.topWinStrategy = catanTowns.topWinStrategy; // get the top win strategy from the town class
 
         /*
         TODO:
@@ -45,12 +48,45 @@ public class Road {
          */
     }
 
+
+    /* create adjusted optimal location values */
+    public void setAdjustedOptLocationValues() {
+        
+    }
     
+
+    /* Calculates 'mu' (u), the average heuristic value of all safe nodes. */
+    public void calculateMu() {
+
+        double totalOptValue = 0;
+
+        // sum up the OptLocation values for every node in our Safe Space 
+        for (int nodeIndex : this.safeNodes) {
+            // Access the specific town score from the 54x5 matrix
+            totalOptValue += this.catanTowns.townOptimalLocationValues[this.topWinStrategy][nodeIndex];
+        }
+
+        // calculate the average 
+        this.mu = totalOptValue / this.safeNodes.size();
+    }
+
+
+    // used to find the max opt location on the map, with the current best strategy
+    public void setMaxOptLocation() {
+
+        this.maxOptLocation = 0;
+        for (int i = 0; i < 10; i++) {
+            if (catanTowns.townOptimalLocationValues[this.topWinStrategy][i] > maxOptLocation) {
+                this.maxOptLocation = catanTowns.townOptimalLocationValues[this.topWinStrategy][i];
+            }
+        }
+    }
+
+
     /**
      * Calculates the "Safe Space" (Voronoi region equivalent) & Dmax for a given starting town position and current enemy occupied nodes.
-     * * @param townStartingIndex The index (0-53) of your current starting position.
-     * @param enemyOccupiedNodes A list of all town indices (0-53) where enemies currently have 
-     * settlements, cities, or the tips of their built roads.
+     * @param townStartingIndex The index (0-53) of your current starting position.
+     * @param enemyOccupiedNodes A list of all road indices (0-53) where enemies currently have placed a road,
      */
     public void findSafeSpace(int townStartingIndex, ArrayList<Integer> enemyOccupiedNodes) {
 

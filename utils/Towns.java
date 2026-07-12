@@ -1,8 +1,8 @@
 package CatanAnalysis.utils;
 
 import CatanAnalysis.entities.ConnectedComponentTile;
-import CatanAnalysis.entities.Tile;
 import CatanAnalysis.entities.RoadConnectionGraph;
+import CatanAnalysis.entities.Tile;
 import java.util.ArrayList;
 
 // class to handle all town related data and operations, it holds the town objects and the optimal location values for each town and win condition, it also contains methods to connect the towns to the hexagons and to rate each town location based on the hexagons that touches it and the importance of the resources that those hexagons produce.
@@ -13,7 +13,7 @@ public class Towns {
     public double[][] townOptimalLocationValues; // 2D array to hold the optimal location values for each town and win condition, i = win condition, j = town index 
     public final ArrayList<ArrayList<ConnectedComponentTile>>[] mapTilesData; // array to hold all the 19 map tiles
 
-    private final int topWinStrategy; // index of the top win strategy from the map analysis, used to pick the best town based on that strategy
+    public final int topWinStrategy; // index of the top win strategy from the map analysis, used to pick the best town based on that strategy
     private final int TOTAL_TOWNS = 54; // total number possible of town locations in the game
     private final int TOTAL_TILES = 19; // total number of tiles in the game
     private final int NUM_OF_RESOURCES = 5; // total resource num
