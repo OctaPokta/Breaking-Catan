@@ -2,18 +2,18 @@ package CatanAnalysis.entities;
 import java.util.ArrayList;
 
 // Class representing Towns and their connected Hexagons
-public class TownConnectionGraph 
+public class RoadConnectionGraph 
 {
     // attributes
-
     public int TOWN_INDEX; // index of town out of 54 possible town locations
     public int TOWN_ADJUSTED_HEXAGONS; // there are only 3 ratios: 1 = 1:1, 2 = 1:2, 3 = 1:3 
     public ArrayList<ConnectedComponentTile> connectedHexagons; // list of all the connected hexagons of class "ConnectedComponentTile"
+    
     /**
      * 54x54 Adjacency Matrix representing the connection of each town to another.
      * 1 = connected by a road (edge).
      * 0 = not connected. */
-    public static final int[][] adjacencyMatrix4Towns = {
+    public final int[][] adjacencyMatrix4Towns = {
             {0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //  Row 0
             {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //  Row 1
             {0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //  Row 2
@@ -70,19 +70,21 @@ public class TownConnectionGraph
             {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0} //  Row 53
     };
 
-    // constructor
-    public TownConnectionGraph (int townIndex, int townAdjustedHexagons) {
-        this.TOWN_INDEX = townIndex; // index of town
-        this.TOWN_ADJUSTED_HEXAGONS = townAdjustedHexagons; // num of adjusted hexagons
+
+    public RoadConnectionGraph(int townIndex, int numOfHexagons) {
+        this.TOWN_INDEX = townIndex;
+        this.TOWN_ADJUSTED_HEXAGONS = numOfHexagons;
         this.connectedHexagons = new ArrayList<>();
     }
-
 
     // set methods
     public void setAdjustedHexagons(int numOfHexagons) {
         this.TOWN_ADJUSTED_HEXAGONS = numOfHexagons;
     }
 
-
+    // get methods
+    public int[][] getAdjacencyMatrix() {
+        return this.adjacencyMatrix4Towns;
+    }
 
 }
