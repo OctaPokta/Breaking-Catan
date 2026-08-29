@@ -6,8 +6,10 @@ import CatanAnalysis.handlers.CatanHandler;
 import CatanAnalysis.handlers.ConsoleColors;
 import CatanAnalysis.testing.Test;
 import CatanAnalysis.utils.Map;
+import CatanAnalysis.utils.Road;
 import CatanAnalysis.utils.Towns;
 import CatanAnalysis.utils.WinConditions;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 // Engine class to run the Catan Analysis
@@ -153,7 +155,36 @@ public class CatanAnalysisEngine implements CatanHandler {
 
   @Override
   public void pickOptRoad() {
-    // WIP...
+    int bestTownIndex = catanTowns.getBestTownIndex();
+
+    // enemy-occupied (or otherwise unavailable) towns are marked in the input data with
+    // a sentinel value (<= 0) instead of a real OptLocation score - see findBlockedTowns()
+    ArrayList<Integer> enemyOccupiedNodes = findBlockedTowns();
+
+    Road road = new Road(
+        catanTowns.mapTilesData[catanTowns.topWinStrategy],
+        catanTowns.townOptimalLocationValues,
+        catanTowns
+    );
+
+    int direction = road.calculateOptimalRoad(bestTownIndex, enemyOccupiedNodes);
+    System.out.println("Place road: " + bestTownIndex + " -> " + direction);
+  }
+
+  // scans the current strategy's OptLocation row and collects every town index marked
+  // with a sentinel value (<= 0) - a real OptLocation score is always positive, so any
+  // town holding 0 or a negative "dummy" value is treated as already occupied/blocked
+  // (this is the convention the source document uses to mark opponent placements)
+  private ArrayList<Integer> findBlockedTowns() {
+    ArrayList<Integer> blockedTowns = new ArrayList<>();
+    double[] optLocationRow = catanTowns.townOptimalLocationValues[catanTowns.topWinStrategy];
+
+    for (int i = 0; i < optLocationRow.length; i++) {
+      if (optLocationRow[i] <= 0) {
+        blockedTowns.add(i);
+      }
+    }
+    return blockedTowns;
   }
 
   // MAIN METHODS
