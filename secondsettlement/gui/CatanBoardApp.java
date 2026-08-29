@@ -44,6 +44,11 @@ public class CatanBoardApp extends JFrame {
     private Tool currentTool = Tool.EDIT_HEX;
     private StrategyTable strategyTable;
 
+    // when checked, "Randomize Board" always keeps the desert on the single center hex
+    // (index 9 - the middle tile of the 3-4-5-4-3 layout) instead of placing it anywhere
+    private final javax.swing.JCheckBox forceDesertCenterCheckbox = new javax.swing.JCheckBox("Force desert at center", false);
+    private static final int CENTER_HEX_INDEX = 9;
+
     // standard Catan tile distribution (3 brick, 3 ore, 4 sheep, 4 wheat, 4 wood, 1 desert)
     // and the standard dice-number set, desert always kept at hex 9 (board center)
     private static final int[] DEFAULT_RESOURCES = { 2,4,2,0,0,3,4,3,1,5,2,1,4,2,1,3,4,0,3 };
@@ -122,6 +127,8 @@ public class CatanBoardApp extends JFrame {
         randomize.addActionListener(e -> randomizeBoard());
         panel.add(randomize);
 
+        panel.add(forceDesertCenterCheckbox);
+
         return panel;
     }
 
@@ -146,15 +153,31 @@ public class CatanBoardApp extends JFrame {
     // counts (3 brick, 3 ore, 4 sheep, 4 wheat, 4 wood, 1 desert) and the same fixed set of
     // 18 dice numbers, just placed on random hexes - resource type and dice number are
     // shuffled independently so a resource doesn't always end up with the same number.
+    // If forceDesertCenterCheckbox is checked, the desert is pinned to the center hex
+    // (index 9) instead of being placed anywhere, and only the other 18 hexes are shuffled.
     private void randomizeBoard() {
-        List<Integer> resources = new ArrayList<>();
-        for (int i = 0; i < 3; i++) resources.add(0); // brick
-        for (int i = 0; i < 3; i++) resources.add(1); // ore
-        for (int i = 0; i < 4; i++) resources.add(2); // sheep
-        for (int i = 0; i < 4; i++) resources.add(3); // wheat
-        for (int i = 0; i < 4; i++) resources.add(4); // wood
-        resources.add(5); // desert
-        Collections.shuffle(resources);
+        boolean forceCenter = forceDesertCenterCheckbox.isSelected();
+
+        List<Integer> nonDesertResources = new ArrayList<>();
+        for (int i = 0; i < 3; i++) nonDesertResources.add(0); // brick
+        for (int i = 0; i < 3; i++) nonDesertResources.add(1); // ore
+        for (int i = 0; i < 4; i++) nonDesertResources.add(2); // sheep
+        for (int i = 0; i < 4; i++) nonDesertResources.add(3); // wheat
+        for (int i = 0; i < 4; i++) nonDesertResources.add(4); // wood
+
+        List<Integer> resources;
+        if (forceCenter) {
+            Collections.shuffle(nonDesertResources); // 18 tiles, one per non-center hex
+            resources = new ArrayList<>();
+            int cursor = 0;
+            for (int h = 0; h < BoardGeometry.TOTAL_HEXES; h++) {
+                resources.add(h == CENTER_HEX_INDEX ? 5 : nonDesertResources.get(cursor++));
+            }
+        } else {
+            resources = new ArrayList<>(nonDesertResources);
+            resources.add(5); // desert can land anywhere, including the center
+            Collections.shuffle(resources);
+        }
 
         List<Integer> diceNumbers = new ArrayList<>(List.of(2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12));
         Collections.shuffle(diceNumbers);
