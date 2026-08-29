@@ -1,0 +1,10 @@
+# compiled Java output
+*.class
+testing/_build/
+
+# generated test visualizations (reproducible via testing/visualize_road_scenarios.py)
+testing/_road_scenario_plots/
+
+# Python cache
+__pycache__/
+*.pyc
