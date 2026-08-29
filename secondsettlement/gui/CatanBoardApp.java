@@ -10,6 +10,8 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -112,8 +114,12 @@ public class CatanBoardApp extends JFrame {
         panel.add(makeToolButton("Mark enemy road", Tool.ENEMY_ROAD, group, false));
         panel.add(makeToolButton("Erase", Tool.ERASE, group, false));
 
-        JButton randomize = new JButton("Reset to Default Board");
-        randomize.addActionListener(e -> resetBoard());
+        JButton reset = new JButton("Reset to Default Board");
+        reset.addActionListener(e -> resetBoard());
+        panel.add(reset);
+
+        JButton randomize = new JButton("Randomize Board");
+        randomize.addActionListener(e -> randomizeBoard());
         panel.add(randomize);
 
         return panel;
@@ -132,6 +138,34 @@ public class CatanBoardApp extends JFrame {
         }
         for (int t = 0; t < BoardGeometry.TOTAL_TOWNS; t++) boardPanel.setTownMark(t, BoardPanel.TownMark.NONE);
         for (int[] edge : BoardGeometry.EDGES) boardPanel.setRoadMark(edge[0], edge[1], BoardPanel.RoadMark.NONE);
+        boardPanel.clearResultOverlay();
+        resultsArea.setText("");
+    }
+
+    // shuffles the tiles into a fresh, still-valid standard board: the same fixed resource
+    // counts (3 brick, 3 ore, 4 sheep, 4 wheat, 4 wood, 1 desert) and the same fixed set of
+    // 18 dice numbers, just placed on random hexes - resource type and dice number are
+    // shuffled independently so a resource doesn't always end up with the same number.
+    private void randomizeBoard() {
+        List<Integer> resources = new ArrayList<>();
+        for (int i = 0; i < 3; i++) resources.add(0); // brick
+        for (int i = 0; i < 3; i++) resources.add(1); // ore
+        for (int i = 0; i < 4; i++) resources.add(2); // sheep
+        for (int i = 0; i < 4; i++) resources.add(3); // wheat
+        for (int i = 0; i < 4; i++) resources.add(4); // wood
+        resources.add(5); // desert
+        Collections.shuffle(resources);
+
+        List<Integer> diceNumbers = new ArrayList<>(List.of(2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12));
+        Collections.shuffle(diceNumbers);
+
+        int diceCursor = 0;
+        for (int h = 0; h < BoardGeometry.TOTAL_HEXES; h++) {
+            int resource = resources.get(h);
+            int dice = resource == 5 ? 0 : diceNumbers.get(diceCursor++); // desert has no dice number
+            boardPanel.setHex(h, resource, dice);
+        }
+
         boardPanel.clearResultOverlay();
         resultsArea.setText("");
     }
