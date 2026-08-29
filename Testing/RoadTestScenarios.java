@@ -105,6 +105,14 @@ public class RoadTestScenarios {
         System.out.println("BEST_TOWN: " + bestTownIndex);
         System.out.println("ROAD: " + bestTownIndex + " -> " + roadDirection);
 
+        int[] fullPath = road.getFullDijkstraPath();
+        System.out.print("FULL_PATH:");
+        for (int t : fullPath) System.out.print(" " + t);
+        System.out.println();
+        if (fullPath.length > 0) {
+            System.out.println("PATH_TARGET_COST: " + road.getDijkstraDistanceTo(fullPath[fullPath.length - 1]));
+        }
+
         System.out.print("OPT_VALUES:");
         for (double v : catanTowns.townOptimalLocationValues[topWinStrategyRank]) {
             System.out.print(" " + v);
