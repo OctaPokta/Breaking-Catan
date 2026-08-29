@@ -59,7 +59,13 @@ public class Road {
     }
 
 
-    /* create adjusted optimal location values */
+    /* create adjusted optimal location values
+       NOTE: normalized by maxOptLocation (mirroring the same MaxOpt-normalization already
+       applied to Danger(v) in the article) so AdjustedOpt(v) stays in the same [0, BaseCost]
+       currency as BaseCost, instead of an unbounded raw OptLocation value. Without this, a
+       decent-OptLocation neighbor immediately overwhelms BaseCost=1 and every reasonable edge
+       collapses onto the epsilon floor in buildRoadWeights(), erasing real differences between
+       neighbors (verified empirically - see the road-placement visualizations). */
     public void setAdjustedOptLocationValues() {
 
         this.adjustedOptLocation = new double[54];
@@ -70,7 +76,8 @@ public class Road {
                 this.adjustedOptLocation[v] = 0; // unreachable from our town - can't be a road target
                 continue;
             }
-            this.adjustedOptLocation[v] = optLocationRow[v] * Math.pow(this.gamma, this.playerDistances[v]);
+            double normalizedOpt = this.maxOptLocation > 0 ? optLocationRow[v] / this.maxOptLocation : 0;
+            this.adjustedOptLocation[v] = BASE_COST * normalizedOpt * Math.pow(this.gamma, this.playerDistances[v]);
         }
     }
 
