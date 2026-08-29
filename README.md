@@ -111,6 +111,22 @@ $$
 
 Finally, $\epsilon$ is a small positive floor that keeps every edge weight non-negative, since classic Dijkstra breaks down with negative weights. The **first edge** of the resulting shortest path, the immediate direction out of the settlement, is returned as the optimal road placement.
 
+### 5. Road Placement (Danger/Opportunity Graph & Dijkstra)
+Once the optimal settlement is chosen, the engine must pick a direction for the adjacent road. This is framed as a variant of the **Canadian Traveler Problem (CTP)**: the board is dynamic, and an opponent may block a promising route before it can be completed, so a purely greedy "shortest path to the best tile" heuristic is unsafe.
+
+Instead of weighting every edge equally, the algorithm builds a weighted **danger/opportunity graph** over the road network and runs Dijkstra's algorithm from the newly placed settlement. Each edge (u, v) is scored as:
+
+$$
+W(u,v) = \max\Big(\epsilon,\; BaseCost + Danger(v) - AdjustedOpt(v)\Big)
+$$
+
+* **`BaseCost`** — a fixed per-road cost, so Dijkstra naturally favors shorter routes unless a detour pays for itself.
+* **`Danger(v)`** — a penalty proportional to how close the nearest opponent is to node *v*, scaled by a risk-aversion coefficient **λ**. Rather than picking λ arbitrarily, it's derived from an **indifference-point** argument (game theory): the point where a risky-but-excellent road and a safe-but-average one are equally attractive.
+* **`AdjustedOpt(v)`** — the destination's `FinalOptLocation` score, discounted by a distance-decay factor **γ** so far-away tiles are worth less. γ itself is bounded by **`Dmax`**, the reach of the player's own "safe space" — the set of nodes closer to the player than to any opponent, computed via a multi-source BFS equivalent to a discrete **Voronoi partition** of the board.
+* **`ε`** — a small positive floor that keeps every edge weight non-negative, since classic Dijkstra breaks down with negative weights.
+
+The first edge of the resulting shortest path — i.e. the immediate direction out of the settlement — is returned as the optimal road placement.
+
 ## Technical Implementation
 
 * **Core Logic:** Java

@@ -6,6 +6,7 @@ import CatanAnalysis.entities.ConnectedComponentTile;
 import CatanAnalysis.entities.RoadConnectionGraph;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -59,7 +60,13 @@ public class Road {
     }
 
 
-    /* create adjusted optimal location values */
+    /* create adjusted optimal location values
+       NOTE: normalized by maxOptLocation (mirroring the same MaxOpt-normalization already
+       applied to Danger(v) in the article) so AdjustedOpt(v) stays in the same [0, BaseCost]
+       currency as BaseCost, instead of an unbounded raw OptLocation value. Without this, a
+       decent-OptLocation neighbor immediately overwhelms BaseCost=1 and every reasonable edge
+       collapses onto the epsilon floor in buildRoadWeights(), erasing real differences between
+       neighbors (verified empirically - see the road-placement visualizations). */
     public void setAdjustedOptLocationValues() {
 
         this.adjustedOptLocation = new double[54];
@@ -70,7 +77,8 @@ public class Road {
                 this.adjustedOptLocation[v] = 0; // unreachable from our town - can't be a road target
                 continue;
             }
-            this.adjustedOptLocation[v] = optLocationRow[v] * Math.pow(this.gamma, this.playerDistances[v]);
+            double normalizedOpt = this.maxOptLocation > 0 ? optLocationRow[v] / this.maxOptLocation : 0;
+            this.adjustedOptLocation[v] = BASE_COST * normalizedOpt * Math.pow(this.gamma, this.playerDistances[v]);
         }
     }
 
@@ -221,10 +229,9 @@ public class Road {
     }
 
 
-    /* Picks the reachable free town with the lowest cumulative Dijkstra cost,
-       then walks the path back to find its FIRST step - that step defines the
-       road direction: (startingTownIndex, returned index). */
-    public int findOptimalRoadDirection() {
+    /* Picks the reachable free town with the lowest cumulative Dijkstra cost - the
+       overall destination the whole path (and the road direction) is aimed at. */
+    private int findBestTarget() {
 
         int bestTarget = -1;
         double bestCost = Double.POSITIVE_INFINITY;
@@ -237,6 +244,17 @@ public class Road {
             }
         }
 
+        return bestTarget;
+    }
+
+
+    /* Picks the reachable free town with the lowest cumulative Dijkstra cost,
+       then walks the path back to find its FIRST step - that step defines the
+       road direction: (startingTownIndex, returned index). */
+    public int findOptimalRoadDirection() {
+
+        int bestTarget = findBestTarget();
+
         if (bestTarget == -1 || this.dijkstraPrevious[bestTarget] == -1) {
             return -1; // no reachable free town found
         }
@@ -247,6 +265,45 @@ public class Road {
         }
 
         return step;
+    }
+
+
+    /**
+     * Returns the FULL path Dijkstra found from the starting town to its overall best
+     * target - the same path findOptimalRoadDirection() only returns the first step of.
+     * Exposed for debugging/visualization; not used by the core algorithm itself.
+     * @return an ordered array of town indices from the starting town to the target
+     *         (inclusive of both ends), or an empty array if no target was reachable.
+     */
+    public int[] getFullDijkstraPath() {
+
+        int bestTarget = findBestTarget();
+
+        if (bestTarget == -1 || this.dijkstraPrevious[bestTarget] == -1) {
+            return new int[0];
+        }
+
+        ArrayList<Integer> path = new ArrayList<>();
+        int step = bestTarget;
+        path.add(step);
+        while (step != this.startingTownIndex) {
+            step = this.dijkstraPrevious[step];
+            path.add(step);
+        }
+        Collections.reverse(path);
+
+        int[] result = new int[path.size()];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = path.get(i);
+        }
+        return result;
+    }
+
+
+    /* Returns the cumulative Dijkstra cost to reach a given town - exposed for
+       debugging/visualization alongside getFullDijkstraPath(). */
+    public double getDijkstraDistanceTo(int town) {
+        return this.dijkstraDistances[town];
     }
 
 

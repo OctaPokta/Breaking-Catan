@@ -2,8 +2,12 @@
 *.class
 testing/_build/
 
-# generated test visualizations (reproducible via testing/visualize_road_scenarios.py)
+# generated test visualizations (reproducible via the testing/visualize_*.py scripts)
 testing/_road_scenario_plots/
+testing/_strategy_comparison_plots/
+testing/_best_case_multimap/
+testing/_dijkstra_path_plots/
+testing/_second_settlement_clusters/
 
 # Python cache
 __pycache__/

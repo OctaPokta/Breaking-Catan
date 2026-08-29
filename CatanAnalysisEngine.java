@@ -205,7 +205,14 @@ public class CatanAnalysisEngine implements CatanHandler {
   private void analyseHexagonsData() {
     this.catanMap = new Map(this.mapResources, this.mapDiceNumbers, winConditions.relativeTokenScoresResults, this.NUM_OF_WIN_CONDITIONS);
     this.catanMap.HexagonAnalyse(); // perform hexagon analysis
-    this.topWinStrategy = this.catanMap.topWinCondition; 
+
+    // NOTE: catanMap.topWinCondition is the ORIGINAL index of the best-scoring strategy
+    // (i.e. its position in winConditionsResources/WIN_COND_NAMES). But mapGroupData and
+    // townOptimalLocationValues are sorted by RANK (index 0 = the best strategy for this
+    // map, regardless of its original position) - so downstream code (Towns, Road) must
+    // index them by RANK, not by that original id. Since we always want the top-ranked
+    // strategy here, that rank is always 0.
+    this.topWinStrategy = 0;
   }
 
   // used to determine the optimal town locations for all towns on the map, based on the hexagon analysis and the map status, it rates each town location based on the hexagons that touches it and the importance of the resources that those hexagons produce.
