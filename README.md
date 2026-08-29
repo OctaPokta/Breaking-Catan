@@ -20,27 +20,96 @@ The system avoids iterative simulations. Instead, it calculates a deterministic 
 
 ## Methodology
 
-The solution pipeline consists of several distinct analytical stages:
+The solution pipeline consists of five distinct analytical stages:
 
 ### 1. Win Condition & Resource Weighting
-The engine evaluates distinct strategies (e.g., "4 Cities" vs. "Road Building") and assigns weighted importance to the five game resources based on the total cost to achieve victory. It calculates a **Weighted Need** by comparing these requirements against the map's natural resource distribution.
+For every candidate strategy *i* (e.g. "4 Cities + Longest Road"), each of the five resources *j* is weighted by how much the strategy needs it relative to how scarce it is on a standard board. First, each resource's natural **area probability** is its share of the 18 non-desert tiles:
+
+$$
+AreaProbability_j = \frac{Tiles_j}{18}
+$$
+
+The strategy's raw resource requirement is then inflated by scarcity into a **Weighted Need**, and normalized into a **Resource Importance** percentage (how much of the strategy's total weighted need this one resource represents):
+
+$$
+WeightedNeed_{i,j} = \frac{ResourceNeed_{i,j}}{AreaProbability_j}
+\qquad\qquad
+ResourceImportance_{i,j} = \frac{WeightedNeed_{i,j}}{\displaystyle\sum_{k=1}^{5} WeightedNeed_{i,k}}
+$$
 
 ### 2. Probability Scoring (Relative Token Score)
-The system cross-references the dice number tokens with resource importance. It calculates a "Relative Token Score" for each tile using the standard 2D6 normal distribution, applying specific error ranges (Exact, ±1, ±2) to grade the quality of every tile.
+`ResourceImportance` is converted into an **ideal dice pip count**. Since 2d6 sums are symmetric around 7 (a 6 and an 8 are equally likely), the engine derives one ideal number below 7 and its mirror above 7:
+
+$$
+RelativeToken^{low}_{i,j} = 6 - \frac{100\cdot\big(HighestIndex_i - ResourceImportance_{i,j}\big)}{3}
+\qquad\qquad
+RelativeToken^{high}_{i,j} = 7 + \left|\,RelativeToken^{low}_{i,j} - 7\,\right|
+$$
+
+where $HighestIndex_i = \max_j ResourceImportance_{i,j}$. Every tile is then graded by how close its *actual* dice number is to whichever of the two ideal numbers is nearest, using a stepped closeness function:
+
+$$
+WinIndex(tile) = ClosenessScore\Big(\min\big(|d - RelativeToken^{low}|,\; |d - RelativeToken^{high}|\big)\Big),\quad d = DiceNumber(tile)
+$$
+
+$$
+ClosenessScore(0)=1.0,\;\; ClosenessScore(1)=0.75,\;\; ClosenessScore(2)=0.5,\;\; ClosenessScore(3)=0.25,\;\; ClosenessScore(\geq4)=0
+$$
+
+This gives every tile a heatmap value in $[0,1]$ for the given strategy. It's the "pre-town" ranking used to color the board and to group tiles into **Connected Components** (tiles of equal `WinIndex` that touch each other, found via DFS and ranked by size) before any settlement is scored.
 
 ### 3. Bipartite Graph Construction
-To accurately score a settlement without "hopping" illegally between nodes, the system constructs a **Bipartite Graph**. This structure separates Settlement Nodes from Resource Nodes, allowing the algorithm to sum the value of adjacent resources (1, 2, or 3 hexes) directly into the settlement's score object.
+To score a settlement without illegally "hopping" between non-adjacent nodes, the system builds a **Bipartite Graph** between the 54 settlement spots (Set U) and the 19 resource hexes (Set V). Each settlement is linked only to the 1, 2, or 3 hexes it physically touches, so its score can be accumulated strictly from its own neighborhood.
 
 ### 4. The Optimization Formula (Tuning)
-The final score for any given settlement is derived from a tuned heuristic formula. It balances three factors: **Resource Weight** (strategy need), **Win Index** (dice probability), and **Cluster Size** (expansion potential).
-
-To simulate the economic concept of Diminishing Marginal Utility, the final score allows for "punishment" of redundant resources using a square root function:
+For a settlement touching a hex from a connected component of size $|Component|$, the component's relative footprint on the map is:
 
 $$
-FinalOptLocation = \sum_{i=1}^{5} \sqrt{OptLocation_{array}[i]}
+ClusterSizeFactor = \frac{|Component|}{19}
 $$
 
-*Note: The algorithm applies tuning parameters (&alpha;, &beta;, &gamma;) to weight the importance of the Win Index versus the Cluster Size depending on the selected strategy.*
+Each of the five resources contributes a per-resource score, weighted by the strategy's need for it ($ResourceImportance$), the tile's dice quality ($WinIndex$), and the size of the resource cluster it belongs to:
+
+$$
+OptLocation_{array}[k] = ResourceImportance_{i,k} \cdot WinIndex^{\beta} \cdot ClusterSizeFactor^{\gamma}
+$$
+
+with tuning exponents $\beta = 1.5$ (win-index emphasis) and $\gamma = 0.5$ (cluster-size emphasis). To simulate **Diminishing Marginal Utility**, so that stacking five mediocre resources doesn't outscore two excellent, diverse ones, each resource's contribution is square-root-smoothed before being summed, and accumulated additively across every hex the settlement touches:
+
+$$
+FinalOptLocation(town) = \sum_{k=1}^{5} \sqrt{OptLocation_{array}[k]}
+$$
+
+### 5. Road Placement (Danger/Opportunity Graph & Dijkstra)
+Once the optimal settlement is chosen, the engine picks a direction for the adjacent road. This is framed as a variant of the **Canadian Traveler Problem (CTP)**: the board is dynamic, and an opponent may block a promising route before it's completed, so a naive "shortest path to the best tile" heuristic is unsafe.
+
+Instead, the algorithm builds a weighted **danger/opportunity graph** over the road network and runs Dijkstra's algorithm from the newly placed settlement. Each edge $(u,v)$ is scored as:
+
+$$
+W(u,v) = \max\Big(\epsilon,\; BaseCost + Danger(v) - AdjustedOpt(v)\Big)
+$$
+
+**Danger** penalizes edges near an opponent, scaled by a risk-aversion coefficient $\lambda$ that isn't picked arbitrarily but derived from an **indifference-point** argument (game theory): the point at which a risky-but-excellent road and a safe-but-average one become equally attractive.
+
+$$
+Danger(v) = \frac{MaxOpt \cdot \lambda}{d_{opp}(v)^2}
+\qquad\qquad
+\lambda = d_{ref}^{\,2}\cdot\left(1 - \frac{u}{MaxOpt}\right)
+$$
+
+where $MaxOpt$ is the best `FinalOptLocation` still available on the board, $d_{opp}(v)$ is the distance from $v$ to the nearest opponent, $u$ is the average `FinalOptLocation` of the player's "safe" nodes, and $d_{ref}$ is the opponent's distance to the $MaxOpt$ node.
+
+**AdjustedOpt** discounts a destination's score by how far it is from the player, via a decay factor $\gamma$ (unrelated to the $\gamma$ in §4) that is itself bounded by $D_{max}$, the reach of the player's own **safe space**: the set of nodes strictly closer to the player than to any opponent, found via a multi-source BFS equivalent to a discrete **Voronoi partition** of the board.
+
+$$
+AdjustedOpt(v) = OptLocation(v)\cdot\gamma^{\,d_{us}(v)}
+\qquad\qquad
+\gamma = \sqrt[D_{max}]{\dfrac{\mu}{MaxOpt}}
+\qquad\qquad
+D_{max} = \max_{v\,\in\,SafeNodes} d_{us}(v)
+$$
+
+Finally, $\epsilon$ is a small positive floor that keeps every edge weight non-negative, since classic Dijkstra breaks down with negative weights. The **first edge** of the resulting shortest path, the immediate direction out of the settlement, is returned as the optimal road placement.
 
 ## Technical Implementation
 
