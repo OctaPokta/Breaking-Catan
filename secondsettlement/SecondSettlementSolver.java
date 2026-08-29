@@ -105,15 +105,20 @@ public class SecondSettlementSolver {
         catanTowns.setTownHexagonCounts();
         catanTowns.rateTownLocation();
 
-        // --- blocked town candidates: our own settlements + enemy settlements + their
-        // direct neighbors (distance rule: two settlements must be >= 2 roads apart) ---
+        // --- blocked town candidates: every existing settlement (ours AND enemy) plus their
+        // direct neighbors (distance rule: two settlements must be >= 2 roads apart - this
+        // applies universally, not just to enemies; our own settlements block their neighbors
+        // exactly the same way). ---
         LinkedHashSet<Integer> blockedTowns = new LinkedHashSet<>();
         blockedTowns.addAll(ourSettlements);
         blockedTowns.addAll(enemySettlements);
         int[][] townAdjacency = new RoadConnectionGraph(0, 0).getAdjacencyMatrix();
-        for (int enemyTown : enemySettlements) {
+        LinkedHashSet<Integer> allExistingSettlements = new LinkedHashSet<>();
+        allExistingSettlements.addAll(ourSettlements);
+        allExistingSettlements.addAll(enemySettlements);
+        for (int occupiedTown : allExistingSettlements) {
             for (int neighbor = 0; neighbor < BoardGeometry.TOTAL_TOWNS; neighbor++) {
-                if (townAdjacency[enemyTown][neighbor] == 1) {
+                if (townAdjacency[occupiedTown][neighbor] == 1) {
                     blockedTowns.add(neighbor);
                 }
             }
