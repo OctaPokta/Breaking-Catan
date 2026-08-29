@@ -308,6 +308,25 @@ public class Road {
 
 
     /**
+     * Removes specific edges from the internal road connection graph, marking them as
+     * unavailable for a NEW road - used when an opponent has already built a road on that
+     * exact edge (an edge can only be built on once, so we can't reuse it). This only
+     * removes the exact edges given - a road may still legally pass NEAR/THROUGH an
+     * opponent's settlement node (only settling there is illegal, not routing past it).
+     * Call this AFTER construction and BEFORE calculateOptimalRoad()/findSafeSpace().
+     * @param enemyRoadEdges list of {townA, townB} pairs already built by an opponent.
+     */
+    public void removeRoadEdges(ArrayList<int[]> enemyRoadEdges) {
+        for (int[] edge : enemyRoadEdges) {
+            int a = edge[0];
+            int b = edge[1];
+            this.roadConnectionGraph[a][b] = 0;
+            this.roadConnectionGraph[b][a] = 0;
+        }
+    }
+
+
+    /**
      * Runs the full road-placement algorithm end to end.
      * @return the neighboring town index that defines the optimal road:
      *         the road to place is (townStartingIndex, returned index).

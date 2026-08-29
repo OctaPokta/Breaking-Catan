@@ -1,0 +1,11 @@
+# Editable strategy (win condition) table for the Catan road/settlement algorithm.
+# Each row is one strategy: name, then how many of each resource it needs
+# (Brick, Ore, Sheep, Wheat, Wood). Feel free to edit the numbers, rename a
+# strategy, delete a row, or add a new one - the app reloads this file on startup.
+# Lines starting with '#' are comments and are ignored.
+name,brick,ore,sheep,wheat,wood
+4 Cities + LR,11,12,4,12,11
+2 Cities + 1 Settlement + LR & LA (Extra Brick & Wood),9,11,8,12,9
+3 Cities + 2 Settlements + LR,14,9,5,11,14
+2 Cities + 3 Settlements + LR,13,11,10,14,13
+1 City + 3 Settlements + LR & LA,14,8,10,12,14
