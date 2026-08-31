@@ -23,8 +23,14 @@ public class WinConditions {
   // Calculating important index table for each win condition
   public double[][] importantIndex(double[][] winConditionsResources, double[][] resourcesAvailability) {
     // Calculating total resources needed for each win condition on the last column of winConditionsResources & save in new array
+    //
+    // BUG FIX: this outer loop iterates over WIN CONDITIONS (rows of winConditionsResources),
+    // so it must be bounded by TOTAL_WIN_CONDITION_NUM, not TOTAL_RESOURCES (the resource-COLUMN
+    // count). The two constants happened to both equal 5 with the original 5-row strategy table,
+    // which silently masked this for every run of the algorithm to date - any row beyond index 4
+    // was never processed. Same fix applied to the two loops below.
     int sum;
-    for (int i = 0; i < this.TOTAL_RESOURCES; i++) {
+    for (int i = 0; i < this.TOTAL_WIN_CONDITION_NUM; i++) {
         sum = 0;
         for (int j = 0; j < this.TOTAL_RESOURCES; j++) {
             sum += winConditionsResources[i][j];
@@ -40,11 +46,15 @@ public class WinConditions {
     double areaProbability;
     double totalWeightedNeed;
 
-    for (int i = 0; i < this.TOTAL_RESOURCES; i++) {
-        resourceAreaCoverage = resourcesAvailability[i][0];
+    for (int i = 0; i < this.TOTAL_WIN_CONDITION_NUM; i++) {
         totalWeightedNeed = 0;
         for (int j = 0; j < this.TOTAL_RESOURCES; j++) {
 
+          // BUG FIX: area coverage must be looked up per RESOURCE (column j - brick/ore/sheep/
+          // wheat/wood), not per win-condition row (i). The original code fetched
+          // resourcesAvailability[i][0] once per row and applied that single (wrong) resource's
+          // coverage to all 5 resource columns of that row.
+          resourceAreaCoverage = resourcesAvailability[j][0];
           totalResourcesNumber = winConditionsResources[i][j];
           // calculate weighted need for each resource
           areaProbability = resourceAreaCoverage / 18;
@@ -58,9 +68,9 @@ public class WinConditions {
     }
 
 
-    // Calculate resource important index (resource wighted needs / Total weighted needs), 
+    // Calculate resource important index (resource wighted needs / Total weighted needs),
     // this gives us the percentage importance of each resource for each win condition
-    for (int i = 0; i < this.TOTAL_RESOURCES; i++) {
+    for (int i = 0; i < this.TOTAL_WIN_CONDITION_NUM; i++) {
         for (int j = 0; j < this.TOTAL_RESOURCES; j++) {
             // calculate resource importance index
             winConditionsResources[i][j] = winConditionsResources[i][j] / winConditionsResources[i][this.TOTAL_RESOURCES];
