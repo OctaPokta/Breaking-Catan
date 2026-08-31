@@ -33,6 +33,65 @@ public class SecondSettlementSolver {
         { 1, 5.3 }   // desert
     };
 
+    /** Everything computed from the board+strategy alone, before any settlement/road choice - shared by every solve method below so the strategy stays locked to whatever ranked best at the very start of the game (see class-level note in OurRegularPlayStrategy). */
+    private static class TownRatings {
+        final Towns catanTowns;
+        final Map catanMap;
+        final int topWinStrategyRank;
+        final int originalStrategyIndex;
+        final String strategyName;
+
+        TownRatings(Towns catanTowns, Map catanMap, int topWinStrategyRank, int originalStrategyIndex, String strategyName) {
+            this.catanTowns = catanTowns;
+            this.catanMap = catanMap;
+            this.topWinStrategyRank = topWinStrategyRank;
+            this.originalStrategyIndex = originalStrategyIndex;
+            this.strategyName = strategyName;
+        }
+    }
+
+    private TownRatings computeTownRatings() {
+        // ONE shared fresh copy, deliberately reused for both calls below (not two separate
+        // copies) - winConditionsCalculation() mutates it in place (via importantIndex()) into
+        // weighted-need form, and Towns' constructor is meant to receive exactly that already-
+        // weighted array, not the original raw resource counts - this matches the original
+        // solve()/RoadTestScenarios/CatanAnalysisEngine data flow exactly. Starting from a
+        // fresh copy of the untouched this.winConditionsResources each call is what makes this
+        // method safe to call repeatedly (mid-game), unlike the original single-shot solve().
+        double[][] freshWinConditionsResources = deepCopy(winConditionsResources);
+
+        WinConditions winConditions = new WinConditions(freshWinConditionsResources.length);
+        winConditions.winConditionsCalculation(RESOURCES_AVAILABILITY, freshWinConditionsResources);
+
+        Map catanMap = new Map(mapResources, mapDiceNumbers, winConditions.relativeTokenScoresResults, freshWinConditionsResources.length);
+        catanMap.HexagonAnalyse();
+
+        // rank 0 = the best-scoring strategy for THIS map (mapGroupData/townOptimalLocationValues
+        // are sorted by rank, not by original strategy index). Since this depends only on the
+        // fixed board (hex resources/dice), calling this again later in the game with the same
+        // board always returns the same strategy - the "locked at the start" requirement holds
+        // automatically, no extra bookkeeping needed.
+        int topWinStrategyRank = 0;
+        int originalStrategyIndex = (int) catanMap.winConditionPerTileScores[topWinStrategyRank][19];
+
+        Towns catanTowns = new Towns(catanMap, RESOURCES_AVAILABILITY, freshWinConditionsResources, topWinStrategyRank);
+        catanTowns.connectHexToTowns();
+        catanTowns.connectTownsToHexagons();
+        catanTowns.setTownHexagonCounts();
+        catanTowns.rateTownLocation();
+
+        String strategyName = (originalStrategyIndex >= 0 && originalStrategyIndex < strategyNames.length)
+            ? strategyNames[originalStrategyIndex] : "Unknown";
+
+        return new TownRatings(catanTowns, catanMap, topWinStrategyRank, originalStrategyIndex, strategyName);
+    }
+
+    private static double[] trimTileHeatmap(Map catanMap, int rank) {
+        // winConditionPerTileScores has a 20th column tacked on (the original strategy index) -
+        // trim it off so callers just get the 19 per-tile heatmap values.
+        return java.util.Arrays.copyOf(catanMap.winConditionPerTileScores[rank], BoardGeometry.TOTAL_HEXES);
+    }
+
     public static class SolveResult {
         public final int bestTownIndex;      // recommended new settlement location (-1 if none available)
         public final int roadDirection;      // the neighboring town that defines the recommended road (-1 if none)
@@ -88,22 +147,10 @@ public class SecondSettlementSolver {
     public SolveResult solve(ArrayList<Integer> ourSettlements, ArrayList<Integer> enemySettlements,
                               ArrayList<int[]> enemyRoadEdges) {
 
-        WinConditions winConditions = new WinConditions(winConditionsResources.length);
-        winConditions.winConditionsCalculation(RESOURCES_AVAILABILITY, winConditionsResources);
-
-        Map catanMap = new Map(mapResources, mapDiceNumbers, winConditions.relativeTokenScoresResults, winConditionsResources.length);
-        catanMap.HexagonAnalyse();
-
-        // rank 0 = the best-scoring strategy for THIS map (mapGroupData/townOptimalLocationValues
-        // are sorted by rank, not by original strategy index)
-        int topWinStrategyRank = 0;
-        int originalStrategyIndex = (int) catanMap.winConditionPerTileScores[topWinStrategyRank][19];
-
-        Towns catanTowns = new Towns(catanMap, RESOURCES_AVAILABILITY, winConditionsResources, topWinStrategyRank);
-        catanTowns.connectHexToTowns();
-        catanTowns.connectTownsToHexagons();
-        catanTowns.setTownHexagonCounts();
-        catanTowns.rateTownLocation();
+        TownRatings ratings = computeTownRatings();
+        Towns catanTowns = ratings.catanTowns;
+        Map catanMap = ratings.catanMap;
+        int topWinStrategyRank = ratings.topWinStrategyRank;
 
         // --- blocked town candidates: every existing settlement (ours AND enemy) plus their
         // direct neighbors (distance rule: two settlements must be >= 2 roads apart - this
@@ -136,22 +183,86 @@ public class SecondSettlementSolver {
             fullPath = road.getFullDijkstraPath();
         }
 
-        String strategyName = (originalStrategyIndex >= 0 && originalStrategyIndex < strategyNames.length)
-            ? strategyNames[originalStrategyIndex] : "Unknown";
-
-        // winConditionPerTileScores has a 20th column tacked on (the original strategy index) -
-        // trim it off so callers just get the 19 per-tile heatmap values.
-        double[] tileHeatmapValues = java.util.Arrays.copyOf(
-            catanMap.winConditionPerTileScores[topWinStrategyRank], BoardGeometry.TOTAL_HEXES);
-
         return new SolveResult(
             bestTownIndex,
             roadDirection,
             fullPath,
-            strategyName,
-            originalStrategyIndex,
+            ratings.strategyName,
+            ratings.originalStrategyIndex,
             catanTowns.townOptimalLocationValues[topWinStrategyRank],
-            tileHeatmapValues
+            trimTileHeatmap(catanMap, topWinStrategyRank)
         );
+    }
+
+    /**
+     * Chooses the best settlement to build NEXT, mid-game - not among "every unblocked town"
+     * (that free-for-all is only valid during the two initial placements), but strictly among
+     * the nodes JSettlers itself already knows are legal right now (adjacent to one of our
+     * built roads, and respecting the distance rule) - see the {@code SOCPlayer.getPotentialSettlements()}
+     * note in the article: "להתייחס ל-OptLocation שוב... לבחור את היישובים עם הדירוג הכי גבוה
+     * שנמצאים במקומות החוקיים". Uses the exact same locked strategy as every other call on this
+     * board (see {@link #computeTownRatings()}).
+     * @param legalCandidateTowns  our town indices that are legally buildable right now
+     * @return the highest-OptLocation-ranked one of those, or -1 if the list is empty
+     */
+    public SolveResult chooseNextSettlement(ArrayList<Integer> legalCandidateTowns) {
+        TownRatings ratings = computeTownRatings();
+        double[] optLocationRow = ratings.catanTowns.townOptimalLocationValues[ratings.topWinStrategyRank];
+
+        int bestTown = -1;
+        double bestValue = -1;
+        for (int candidate : legalCandidateTowns) {
+            if (optLocationRow[candidate] > bestValue) {
+                bestValue = optLocationRow[candidate];
+                bestTown = candidate;
+            }
+        }
+
+        return new SolveResult(
+            bestTown,
+            -1,             // road choice is a separate call (chooseNextRoad) - not tied 1:1 to a new settlement
+            new int[0],
+            ratings.strategyName,
+            ratings.originalStrategyIndex,
+            optLocationRow,
+            trimTileHeatmap(ratings.catanMap, ratings.topWinStrategyRank)
+        );
+    }
+
+    public static class RoadResult {
+        public final int originTown;    // one of ourTownIndices - the road to build is (originTown, direction)
+        public final int direction;     // the neighboring town that defines the recommended road (-1 if none)
+        public final int[] fullDijkstraPath;
+
+        public RoadResult(int originTown, int direction, int[] fullDijkstraPath) {
+            this.originTown = originTown;
+            this.direction = direction;
+            this.fullDijkstraPath = fullDijkstraPath;
+        }
+    }
+
+    /**
+     * Chooses the best road to build NEXT, mid-game, multi-source across every town we
+     * currently own at once (see {@link Road#calculateOptimalRoad(ArrayList, ArrayList)}) -
+     * not tied to a specific new settlement, just "which single edge best extends our network
+     * toward the strategy's best remaining opportunities right now".
+     * @param ourTownIndices    every town we currently own (settlements and cities)
+     * @param enemySettlements  opposing settlements - the Danger/opportunity BFS "opponent"
+     *                          source nodes, same role as in {@link #solve}
+     * @param enemyRoadEdges    edges already built by an opponent - can't be reused
+     * @param ourOwnRoadEdges   edges we've already built ourselves - also can't be built again
+     */
+    public RoadResult chooseNextRoad(ArrayList<Integer> ourTownIndices, ArrayList<Integer> enemySettlements,
+                                      ArrayList<int[]> enemyRoadEdges, ArrayList<int[]> ourOwnRoadEdges) {
+        TownRatings ratings = computeTownRatings();
+        Towns catanTowns = ratings.catanTowns;
+
+        Road road = new Road(catanTowns.mapTilesData[ratings.topWinStrategyRank], catanTowns.townOptimalLocationValues, catanTowns);
+        road.removeRoadEdges(enemyRoadEdges);
+        road.removeRoadEdges(ourOwnRoadEdges);
+        int direction = road.calculateOptimalRoad(ourTownIndices, enemySettlements);
+        int origin = road.getOptimalRoadOrigin();
+
+        return new RoadResult(origin, direction, road.getFullDijkstraPath());
     }
 }
