@@ -27,7 +27,8 @@ public class Road {
     private double dMax; // max distance of roads we wanna place from a starting town position, based on strategy and map state
     private double maxOptLocation; // max opt town location on the map
     private double mu; // average opt location of the nodes in the safe space
-    private int startingTownIndex; // the town index we already placed (0-53)
+    private int startingTownIndex; // the town index we already placed (0-53) - kept for backward compatibility; equals startingTownIndices.get(0) when there's only one
+    private ArrayList<Integer> startingTownIndices; // ALL of our currently-owned town indices (settlements/cities) - Dijkstra runs multi-source from all of them at once, for mid-game road choices where we may own several
     private ArrayList<Integer> enemyOccupiedNodes; // saved here so other methods can reuse it
     private int[] playerDistances; // BFS distance (in roads) from our town to every node
     private int[] opponentDistances; // BFS distance (in roads) from nearest opponent to every node
@@ -205,10 +206,12 @@ public class Road {
 
         Arrays.fill(this.dijkstraDistances, Double.POSITIVE_INFINITY);
         Arrays.fill(this.dijkstraPrevious, -1);
-        this.dijkstraDistances[this.startingTownIndex] = 0;
 
         PriorityQueue<Integer> queue = new PriorityQueue<>((a, b) -> Double.compare(this.dijkstraDistances[a], this.dijkstraDistances[b]));
-        queue.add(this.startingTownIndex);
+        for (int source : this.startingTownIndices) { // multi-source: every town we currently own starts at distance 0
+            this.dijkstraDistances[source] = 0;
+            queue.add(source);
+        }
 
         while (!queue.isEmpty()) {
             int current = queue.poll();
@@ -237,7 +240,7 @@ public class Road {
         double bestCost = Double.POSITIVE_INFINITY;
 
         for (int v = 0; v < 54; v++) {
-            if (v == this.startingTownIndex || this.enemyOccupiedNodes.contains(v)) continue;
+            if (this.startingTownIndices.contains(v) || this.enemyOccupiedNodes.contains(v)) continue;
             if (this.dijkstraDistances[v] < bestCost) {
                 bestCost = this.dijkstraDistances[v];
                 bestTarget = v;
@@ -250,7 +253,8 @@ public class Road {
 
     /* Picks the reachable free town with the lowest cumulative Dijkstra cost,
        then walks the path back to find its FIRST step - that step defines the
-       road direction: (startingTownIndex, returned index). */
+       road direction: (theOwnedTownItStartsFrom, returned index). With multiple
+       starting towns, the path may emanate from any one of them. */
     public int findOptimalRoadDirection() {
 
         int bestTarget = findBestTarget();
@@ -260,11 +264,24 @@ public class Road {
         }
 
         int step = bestTarget;
-        while (this.dijkstraPrevious[step] != this.startingTownIndex) {
+        while (! this.startingTownIndices.contains(this.dijkstraPrevious[step])) {
             step = this.dijkstraPrevious[step];
         }
 
         return step;
+    }
+
+    /**
+     * Which of our owned starting towns the optimal road path (as returned by
+     * {@link #findOptimalRoadDirection()}) actually starts from - the road to build is
+     * {@code (getOptimalRoadOrigin(), findOptimalRoadDirection())}. Only meaningful after
+     * calling {@link #calculateOptimalRoad}/{@link #findOptimalRoadDirection} first.
+     * @return the owned town the chosen road starts from, or -1 if no path was found
+     */
+    public int getOptimalRoadOrigin() {
+        int step = findOptimalRoadDirection();
+        if (step == -1) return -1;
+        return this.dijkstraPrevious[step];
     }
 
 
@@ -286,7 +303,7 @@ public class Road {
         ArrayList<Integer> path = new ArrayList<>();
         int step = bestTarget;
         path.add(step);
-        while (step != this.startingTownIndex) {
+        while (! this.startingTownIndices.contains(step)) {
             step = this.dijkstraPrevious[step];
             path.add(step);
         }
@@ -327,12 +344,26 @@ public class Road {
 
 
     /**
-     * Runs the full road-placement algorithm end to end.
+     * Runs the full road-placement algorithm end to end, from a single owned town.
      * @return the neighboring town index that defines the optimal road:
      *         the road to place is (townStartingIndex, returned index).
      */
     public int calculateOptimalRoad(int townStartingIndex, ArrayList<Integer> enemyOccupiedNodes) {
-        findSafeSpace(townStartingIndex, enemyOccupiedNodes);
+        ArrayList<Integer> single = new ArrayList<>();
+        single.add(townStartingIndex);
+        return calculateOptimalRoad(single, enemyOccupiedNodes);
+    }
+
+
+    /**
+     * Runs the full road-placement algorithm end to end, multi-source from every town we
+     * currently own (settlements and cities) - used mid-game, where we may own several towns
+     * at once and want the single best road to build this turn across our whole network.
+     * @return the neighboring town index that defines the optimal road: the road to place is
+     *         ({@link #getOptimalRoadOrigin()}, returned index).
+     */
+    public int calculateOptimalRoad(ArrayList<Integer> ourTownIndices, ArrayList<Integer> enemyOccupiedNodes) {
+        findSafeSpace(ourTownIndices, enemyOccupiedNodes);
         setMaxOptLocation();
         calculateMu();
         calculateDref();
@@ -346,25 +377,43 @@ public class Road {
 
 
     /**
-     * Calculates the "Safe Space" (Voronoi region equivalent) & Dmax for a given starting town position and current enemy occupied nodes.
+     * Calculates the "Safe Space" (Voronoi region equivalent) & Dmax for a single starting
+     * town position and current enemy occupied nodes. Convenience wrapper around the
+     * multi-source {@link #findSafeSpace(ArrayList, ArrayList)}.
      * @param townStartingIndex The index (0-53) of your current starting position.
      * @param enemyOccupiedNodes A list of all road indices (0-53) where enemies currently have placed a road,
      */
     public void findSafeSpace(int townStartingIndex, ArrayList<Integer> enemyOccupiedNodes) {
+        ArrayList<Integer> single = new ArrayList<>();
+        single.add(townStartingIndex);
+        findSafeSpace(single, enemyOccupiedNodes);
+    }
+
+
+    /**
+     * Calculates the "Safe Space" (Voronoi region equivalent) & Dmax, multi-source from every
+     * town we currently own at once (settlements and cities) and current enemy occupied nodes.
+     * @param ourTownIndices The indices (0-53) of every town we currently own.
+     * @param enemyOccupiedNodes A list of all road indices (0-53) where enemies currently have placed a road,
+     */
+    public void findSafeSpace(ArrayList<Integer> ourTownIndices, ArrayList<Integer> enemyOccupiedNodes) {
 
         this.safeNodes = new ArrayList<>(); // initialize the safe nodes list
-        this.startingTownIndex = townStartingIndex;
+        this.startingTownIndices = ourTownIndices;
+        this.startingTownIndex = ourTownIndices.isEmpty() ? -1 : ourTownIndices.get(0); // kept for backward compatibility
         this.enemyOccupiedNodes = enemyOccupiedNodes;
         int numNodes = 54; // total number of nodes (town locations)
-        
-        // STEP 1: Calculate Player Distances
+
+        // STEP 1: Calculate Player Distances (multi-source: every owned town starts at 0)
         int[] playerDistances = new int[numNodes];
         Arrays.fill(playerDistances, Integer.MAX_VALUE);
         Queue<Integer> playerQueue = new LinkedList<>();
-        
-        playerQueue.add(townStartingIndex);
-        playerDistances[townStartingIndex] = 0;
-        
+
+        for (int ourTown : ourTownIndices) {
+            playerQueue.add(ourTown);
+            playerDistances[ourTown] = 0;
+        }
+
         while (!playerQueue.isEmpty()) {
             int current = playerQueue.poll();
             
