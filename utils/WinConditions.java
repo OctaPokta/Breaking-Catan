@@ -13,8 +13,13 @@ public class WinConditions {
 
   // constructor
   public WinConditions(int totalWinConditionNum) {
-    this.oldTotal = new int[this.TOTAL_RESOURCES];
     this.TOTAL_WIN_CONDITION_NUM = totalWinConditionNum;
+    // BUG FIX: oldTotal is written as oldTotal[i] with i ranging over win-condition rows (see
+    // importantIndex()), so it must be sized TOTAL_WIN_CONDITION_NUM, not TOTAL_RESOURCES - same
+    // row/resource-count confusion as importantIndex() itself, masked the same way (both were 5
+    // for the original 5-row table). Never read back anywhere; harmless until a table with a
+    // different row count made it throw ArrayIndexOutOfBoundsException instead.
+    this.oldTotal = new int[this.TOTAL_WIN_CONDITION_NUM];
     this.relativeTokenScoreBottom = new int[this.TOTAL_WIN_CONDITION_NUM][this.TOTAL_RESOURCES];
     this.relativeTokenScoreUpper = new int[this.TOTAL_WIN_CONDITION_NUM][this.TOTAL_RESOURCES];
   }
@@ -82,7 +87,9 @@ public class WinConditions {
 
   // Calculate highest index for each win condition
   private double[] highestIndexCalculation(double[][] winConditionsResources) {
-    double[] highestindex = {0,0,0,0,0};
+    // BUG FIX: sized TOTAL_WIN_CONDITION_NUM (indexed by win-condition row below), not a
+    // hardcoded 5 - same masking as oldTotal/importantIndex() above.
+    double[] highestindex = new double[this.TOTAL_WIN_CONDITION_NUM];
     // loop through each win condition
     for (int i = 0; i < this.TOTAL_WIN_CONDITION_NUM; i++) {
 
