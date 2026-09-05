@@ -43,6 +43,8 @@ public class CatanBoardApp extends JFrame {
     private final JTextArea strategyArea = new JTextArea();
     private Tool currentTool = Tool.EDIT_HEX;
     private StrategyTable strategyTable;
+    private String strategyTablePath; // where loadStrategyTable() actually found strategies.csv, for display
+    private JLabel strategyLabel; // kept as a field so loadStrategyTable() can update it after resolving the path
 
     // when checked, "Randomize Board" always keeps the desert on the single center hex
     // (index 9 - the middle tile of the 3-4-5-4-3 layout) instead of placing it anywhere
@@ -83,15 +85,26 @@ public class CatanBoardApp extends JFrame {
 
     private void loadStrategyTable() {
         try {
-            strategyTable = StrategyTable.loadDefault();
+            String path = StrategyTable.resolveDefaultPath();
+            strategyTable = StrategyTable.load(path);
+            strategyTablePath = path;
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
-                "Could not load secondsettlement/strategies.csv (" + e.getMessage() + ").\n" +
-                "Run the app from the CatanAnalysis project root. Using no strategies for now.",
+                "Could not find secondsettlement/strategies.csv (" + e.getMessage() + ").\n" +
+                "It's looked for next to the app's own install folder, and in the current\n" +
+                "working directory. Using no strategies for now.",
                 "Strategy table not found", JOptionPane.WARNING_MESSAGE);
             strategyTable = new StrategyTable(new String[0], new double[0][]);
+            strategyTablePath = null;
         }
         refreshStrategyArea();
+        refreshStrategyLabel();
+    }
+
+    /** Updates the "Strategy table (...)" side-panel label with wherever it actually loaded from - a no-op before the side panel exists yet (first call, from the constructor). */
+    private void refreshStrategyLabel() {
+        if (strategyLabel == null) return;
+        strategyLabel.setText("Strategy table (" + (strategyTablePath != null ? strategyTablePath : "not found") + ")");
     }
 
     private void refreshStrategyArea() {
@@ -202,8 +215,9 @@ public class CatanBoardApp extends JFrame {
 
         side.add(buildLegend());
 
-        JLabel strategyLabel = new JLabel("Strategy table (secondsettlement/strategies.csv)");
+        strategyLabel = new JLabel("Strategy table");
         strategyLabel.setBorder(BorderFactory.createEmptyBorder(8, 8, 0, 8));
+        refreshStrategyLabel();
         side.add(strategyLabel);
 
         strategyArea.setEditable(false);

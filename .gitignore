@@ -12,3 +12,11 @@ testing/_second_settlement_clusters/
 # Python cache
 __pycache__/
 *.pyc
+
+# stray JVM crash dumps
+hs_err_pid*.log
+replay_pid*.log
+
+# packaged desktop app build output (reproducible via packaging/build-windows-app.ps1) -
+# distributed as GitHub Release assets instead, not tracked in the repo itself
+dist/
