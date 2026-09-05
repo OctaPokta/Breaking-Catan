@@ -1,21 +1,28 @@
 # Builds a self-contained Windows app (bundled Java runtime, no separate Java install needed)
-# for the Second-Settlement Planner desktop GUI, and zips it for distribution (e.g. as a
-# GitHub Release asset).
+# for the Second-Settlement Planner desktop GUI, and zips/packages it for distribution (e.g. as
+# a GitHub Release asset - see .github/workflows/release.yml, which calls this script with
+# -Type msi on every version tag push).
 #
 # Requirements: JDK 17+ on PATH (needs jpackage, bundled with the JDK since 14).
+# -Type exe/msi additionally requires the WiX Toolset v3 on PATH (jpackage's Windows installer
+# backend) - install with: winget install --id WiXToolset.WiXToolset -e (needs admin rights),
+# or on a GitHub Actions windows-latest runner: choco install wixtoolset -y (no prompt needed,
+# CI runs elevated already).
+#
 # Run from the CatanAnalysis project root:
-#   powershell -ExecutionPolicy Bypass -File packaging/build-windows-app.ps1
+#   powershell -ExecutionPolicy Bypass -File packaging/build-windows-app.ps1 [-Type app-image|exe|msi] [-Version 1.0.0]
 #
-# Output: dist/output/CatanSecondSettlementPlanner-win64-v<version>.zip
-#
-# Note: this produces an "app-image" (a folder with a native .exe launcher + bundled JRE,
-# just unzip and run) rather than a formal installer (.exe/.msi with a Setup wizard, Start
-# Menu entry, uninstaller). A real installer needs the WiX Toolset (jpackage's Windows
-# installer backend) and admin rights to install WiX itself - see the comment at the bottom
-# of this script for that upgrade path once WiX is available.
+# Output: dist/output/CatanSecondSettlementPlanner-win64-v<version>.zip (app-image), or
+#         dist/output/*.exe / *.msi (a real installer type - Setup wizard, Start Menu entry,
+#         desktop shortcut, uninstaller registered in "Add or Remove Programs").
+
+param(
+    [ValidateSet("app-image", "exe", "msi")]
+    [string]$Type = "app-image",
+    [string]$AppVersion = "1.0.0"
+)
 
 $ErrorActionPreference = "Stop"
-$AppVersion = "1.0.0"
 $AppName = "Catan Second-Settlement Planner"
 
 $root = Split-Path -Parent $PSScriptRoot
@@ -33,8 +40,11 @@ $jarExe = Join-Path $jdkBin "jar.exe"
 $jpackageExe = Join-Path $jdkBin "jpackage.exe"
 if (-not (Test-Path $jpackageExe)) { throw "jpackage not found at $jpackageExe - need a full JDK 14+, not a JRE." }
 
-Write-Host ">>> Cleaning dist/ ..."
-Remove-Item -Recurse -Force "dist" -ErrorAction SilentlyContinue
+Write-Host ">>> Cleaning dist/staging/ ..."
+# Only the staging (intermediate build) area, not dist/output - this script may be invoked more
+# than once with different -Type values to produce multiple artifacts from one CI run (see
+# .github/workflows/release.yml), and each invocation's output must survive the next one's run.
+Remove-Item -Recurse -Force "dist/staging" -ErrorAction SilentlyContinue
 
 Write-Host ">>> Compiling ..."
 $classesDir = "dist/staging/classes"
@@ -62,28 +72,43 @@ Push-Location $classesDir
 Pop-Location
 if ($LASTEXITCODE -ne 0) { throw "jar failed" }
 
-Write-Host ">>> Running jpackage (app-image) ..."
-& $jpackageExe `
-    --type app-image `
-    --input $inputDir `
-    --main-jar CatanSecondSettlementPlanner.jar `
-    --main-class CatanAnalysis.secondsettlement.gui.CatanBoardApp `
-    --name $AppName `
-    --app-version $AppVersion `
-    --vendor "OctaPokta" `
-    --description "Interactive desktop tool for the second-settlement placement algorithm" `
-    --add-modules java.desktop `
-    --dest dist/output
+if ($Type -eq "app-image") {
+    # jpackage refuses to run if its own output directory already exists (unlike -Type exe/msi,
+    # which just (re)writes a single installer file) - clear only that specific subpath so a
+    # repeated local run of the same -Type doesn't collide with a previous one.
+    Remove-Item -Recurse -Force "dist/output/$AppName" -ErrorAction SilentlyContinue
+}
+
+Write-Host ">>> Running jpackage (-Type $Type) ..."
+$jpackageArgs = @(
+    "--type", $Type,
+    "--input", $inputDir,
+    "--main-jar", "CatanSecondSettlementPlanner.jar",
+    "--main-class", "CatanAnalysis.secondsettlement.gui.CatanBoardApp",
+    "--name", $AppName,
+    "--app-version", $AppVersion,
+    "--vendor", "OctaPokta",
+    "--description", "Interactive desktop tool for the second-settlement placement algorithm",
+    "--add-modules", "java.desktop",
+    "--dest", "dist/output"
+)
+if ($Type -ne "app-image") {
+    # a real installer, not just an unzip-and-run folder: Start Menu entry, desktop shortcut,
+    # a directory-choice page, and (implicitly, via jpackage) an uninstaller registered in
+    # "Add or Remove Programs"
+    $jpackageArgs += @("--win-shortcut", "--win-menu", "--win-dir-chooser")
+}
+& $jpackageExe @jpackageArgs
 if ($LASTEXITCODE -ne 0) { throw "jpackage failed" }
 
-Write-Host ">>> Zipping ..."
-$zipPath = "dist/output/CatanSecondSettlementPlanner-win64-v$AppVersion.zip"
-Compress-Archive -Path "dist/output/$AppName" -DestinationPath $zipPath -Force
-
-Write-Host ">>> Done: $zipPath"
-
-# ---- Upgrade path: a real installer (.exe/.msi) instead of an app-image ----
-# 1. Install the WiX Toolset v3 (needs admin rights): winget install --id WiXToolset.WiXToolset -e
-# 2. Re-run jpackage with --type msi (or --type exe) instead of --type app-image, adding
-#    --win-shortcut --win-menu --win-dir-chooser for a normal Windows installer experience
-#    (Start Menu entry, desktop shortcut, uninstaller registered in "Add or Remove Programs").
+if ($Type -eq "app-image") {
+    Write-Host ">>> Zipping ..."
+    $zipPath = "dist/output/CatanSecondSettlementPlanner-win64-v$AppVersion.zip"
+    Compress-Archive -Path "dist/output/$AppName" -DestinationPath $zipPath -Force
+    Write-Host ">>> Done: $zipPath"
+} else {
+    # jpackage already produced a single installer file (.exe or .msi) directly in dist/output -
+    # nothing left to zip
+    $installer = Get-ChildItem "dist/output" -Filter "*.$Type" | Select-Object -First 1
+    Write-Host ">>> Done: $($installer.FullName)"
+}

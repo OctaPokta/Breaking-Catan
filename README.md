@@ -141,10 +141,15 @@ The first edge of the resulting shortest path — i.e. the immediate direction o
 The algorithm is designed to be strategy-agnostic. Users can input a custom list of required resources to define a specific strategy. For demonstration, the system currently visualizes:
 
 1.  **4 Cities + Longest Road**
-2.  **2 Cities + 1 Settlement + Longest Road + Largest Army**
-3.  **3 Cities + 2 Settlements + Longest Road**
-4.  **2 Cities + 3 Settlements + Largest Army**
-5.  **1 City + 3 Settlements + Longest Road + Largest Army**
+2.  **3 Cities + 2 Settlements + Longest Road**
+3.  **2 Cities + 4 Settlements + Longest Road**
+4.  **4 Cities + 2 Settlements** (no Longest Road)
+5.  **3 Cities + 4 Settlements** (no Longest Road)
+
+## Try It
+
+* **Download (no Java required):** grab the latest Windows build from the [Releases page](https://github.com/OctaPokta/Breaking-Catan/releases) — an installer (`.msi`, with a Start Menu entry and uninstaller) and a portable `.zip` (unzip and run) are both published there, built automatically by [GitHub Actions](.github/workflows/release.yml) every time a `v*` tag is pushed. A private, self-contained Java runtime is bundled in, so nothing else needs to be installed first.
+* **Desktop app from source:** an interactive Java Swing board — set up a map, mark existing settlements/roads, and run the algorithm to get the recommended next settlement + road, with a live heatmap overlay. See [`secondsettlement/README.md`](secondsettlement/README.md) to run it from source, or build the same Windows package yourself with `packaging/build-windows-app.ps1`.
 
 ## Credits
 

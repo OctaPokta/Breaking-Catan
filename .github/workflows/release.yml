@@ -1,0 +1,66 @@
+name: Release desktop app
+
+# Runs on GitHub's own hosted Windows runner - not this project's local dev environment - so it
+# can install the WiX Toolset (jpackage's Windows installer backend) without needing interactive
+# admin rights, which a local machine may not have. Triggered by pushing a version tag:
+#   git tag v1.0.0
+#   git push origin v1.0.0
+# That's the only step needed to publish a new build - this workflow does the rest, including
+# creating the GitHub Release itself.
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write # to create the Release and upload assets to it
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Extract version from tag
+        id: version
+        shell: bash
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          echo "version=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Install WiX Toolset (for a real .msi installer)
+        run: choco install wixtoolset -y --no-progress
+
+      - name: Put WiX on PATH for later steps
+        # a step's process environment doesn't automatically pick up what choco just changed in
+        # this same job - find wherever candle.exe landed and add it via GITHUB_PATH explicitly,
+        # rather than assuming a specific WiX version's fixed install path
+        shell: pwsh
+        run: |
+          $candle = Get-ChildItem "C:\Program Files*\WiX Toolset*\bin\candle.exe" -ErrorAction Stop | Select-Object -First 1
+          Add-Content $env:GITHUB_PATH $candle.DirectoryName
+
+      - name: Build the installer (.msi)
+        shell: pwsh
+        run: |
+          ./packaging/build-windows-app.ps1 -Type msi -AppVersion "${{ steps.version.outputs.version }}"
+
+      - name: Build the portable app-image (.zip, no Java/installer needed to try it)
+        shell: pwsh
+        run: |
+          ./packaging/build-windows-app.ps1 -Type app-image -AppVersion "${{ steps.version.outputs.version }}"
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Second-Settlement Planner ${{ github.ref_name }}"
+          generate_release_notes: true
+          files: |
+            dist/output/*.msi
+            dist/output/*.zip
