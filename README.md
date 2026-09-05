@@ -2,6 +2,8 @@
 
 This project implements a mathematical and graph-theory approach to solving the initial placement problem in *The Settlers of Catan*. Unlike traditional solvers that rely on Deep Reinforcement Learning or extensive Brute Force simulations, this algorithm utilizes heuristic analysis, bipartite mapping, and probability theory to determine the optimal game state in **deterministic constant time**.
 
+<img width="1156" height="778" alt="image" src="https://github.com/user-attachments/assets/1d250a06-ab8f-4b54-a683-163a5f520de1" />
+
 ## Overview
 
 The "Breaking Catan" algorithm converts the board game into a multi-layered graph model to solve complex resource management problems. The primary objective is to identify the most strategic locations for placing initial settlements based on pre-defined win conditions, resource scarcity, and map layout.
