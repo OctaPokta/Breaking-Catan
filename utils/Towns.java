@@ -173,11 +173,28 @@ public class Towns {
 
     // getter for best town based on strategy
     public int getBestTownIndex() {
+        return getBestTownIndex(new ArrayList<>());
+    }
 
-        int topTownIndex = 0;
+    /* Same as getBestTownIndex(), but skips every town index listed in blockedTownIndices.
+       Used when picking a SECOND (or later) settlement, where some spots are unavailable:
+       already-occupied towns (ours or an enemy's) and, per Catan's distance rule, every
+       town exactly one road away from an enemy settlement (two settlements must always be
+       at least two roads apart). Passing an empty list reproduces getBestTownIndex(). */
+    public int getBestTownIndex(ArrayList<Integer> blockedTownIndices) {
+
+        int topTownIndex = -1; // -1 = no available town found (every spot is blocked)
         double currentValue = 0.0;
-        
+
         for (int i = 0; i < this.townOptimalLocationValues[0].length; i++) {
+
+            if (blockedTownIndices.contains(i)) {
+                continue; // not an available spot
+            }
+
+            if (topTownIndex == -1) {
+                topTownIndex = i; // first available town - matches old default of "0" when nothing is blocked
+            }
 
             if (currentValue < this.townOptimalLocationValues[this.topWinStrategy][i]) {
                 currentValue = this.townOptimalLocationValues[this.topWinStrategy][i];

@@ -1,0 +1,26 @@
+# Editable strategy (win condition) table for the Catan road/settlement algorithm.
+# Each row is one strategy: name, then how many of each resource it needs
+# (Brick, Ore, Sheep, Wheat, Wood). Feel free to edit the numbers, rename a
+# strategy, delete a row, or add a new one - the app reloads this file on startup.
+# Lines starting with '#' are comments and are ignored.
+#
+# This table lists EVERY way to reach exactly 10 victory points using ONLY
+# settlements, cities, and Longest Road - no development cards at all (so no
+# Largest Army and no VP development cards). With the physical piece limits
+# (max 4 cities, max 5 settlements) there are exactly 5 such combinations:
+#   VP = 2*cities + 1*settlement + (2 if Longest Road)
+#
+# Resource requirements are the standard Catan build costs for however many
+# pieces that combination needs to place over the course of the game:
+#   settlement = 1 brick + 1 wood + 1 wheat + 1 sheep
+#   city       = 3 ore + 2 wheat (built by upgrading an existing settlement -
+#                the settlement itself still had to be built first)
+#   road       = 1 brick + 1 wood ; Longest Road assumes the rules-minimum of
+#                5 roads (in practice you may need more if opponents contest it -
+#                bump the brick/wood columns yourself if you want a safety margin)
+name,brick,ore,sheep,wheat,wood
+4 Cities + LR,9,12,4,12,9
+3 Cities + 2 Settlements + LR,10,9,5,11,10
+2 Cities + 4 Settlements + LR,11,6,6,10,11
+4 Cities + 2 Settlements (no LR),6,12,6,14,6
+3 Cities + 4 Settlements (no LR),7,9,7,13,7
