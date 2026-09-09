@@ -20,8 +20,16 @@ public class Towns {
     private final int NUM_OF_WIN_CONDITIONS; // number of win conditions from the map analysis
     private final Map mapAnalysis;
     private final double[][] resImportanceTable;
-    double CLUSTER_SIZE_EXPONENT = 0.5; // exponent for cluster size factor calculation, bigger value = more relaince on longer roads
-    
+    private final String[] strategyNames; // one per win condition, or null if not supplied (see the 4-arg constructor)
+
+    // exponent for cluster size factor calculation (bigger value = more reliance on large,
+    // contiguous land - i.e. more weight on being able to build a long, uninterrupted road).
+    // 0.75 when the win condition being scored is a "Longest Road" strategy (its name contains
+    // "+ LR" - see strategies.csv's naming convention), 0.5 otherwise - a road-heavy strategy
+    // benefits far more from settling in one large connected area than a city-heavy one does.
+    private static final double CLUSTER_SIZE_EXPONENT_LONGEST_ROAD = 0.75;
+    private static final double CLUSTER_SIZE_EXPONENT_DEFAULT = 0.5;
+
     // each rows represents a hexagon, from top to down, each hexagon contains the 6 town IDs that touches it
     private final int[][] hexToTownsMap = {
         // (Hexes 0, 1, 2)
@@ -58,19 +66,41 @@ public class Towns {
     /* constructor:
     @param mapAnalysis Map - Map object from the map analysis
     @param resourcesAvailability double[][] - 2D array of resource availability
-    @param winConditionsResources double[][] - 2D array of win conditions resources */
+    @param winConditionsResources double[][] - 2D array of win conditions resources
+    Backward-compatible overload for callers that don't have the strategy names on hand (older
+    scenario/test scripts working from a raw resource matrix, not a loaded StrategyTable) - the
+    Longest-Road-aware cluster size exponent falls back to the original fixed 0.5 for every win
+    condition, exactly matching this class's behavior before that exponent became name-aware. */
     public Towns(Map mapAnalysis, double[][] resourcesAvailability, double[][] winConditionsResources, int topWinStrategy) {
+        this(mapAnalysis, resourcesAvailability, winConditionsResources, topWinStrategy, null);
+    }
+
+    /* Same as above, but strategyNames[winConditionIndex] (typically StrategyTable.names) lets
+    the cluster size exponent be picked per win condition - 0.75 for a "Longest Road" strategy
+    (name contains "+ LR"), 0.5 otherwise. Pass null to always use 0.5, as before. */
+    public Towns(Map mapAnalysis, double[][] resourcesAvailability, double[][] winConditionsResources, int topWinStrategy, String[] strategyNames) {
 
         this.topWinStrategy = topWinStrategy;
         this.mapTilesData = mapAnalysis.mapGroupData;
         this.mapAnalysis = mapAnalysis;
         this.NUM_OF_WIN_CONDITIONS = mapAnalysis.getWinConitionsNumber();
+        this.strategyNames = strategyNames;
         this.townOptimalLocationValues = new double[this.NUM_OF_WIN_CONDITIONS][this.TOTAL_TOWNS]; // initialize the 2D array
 
         // load resource importance table
         WinConditions resImportance = new WinConditions(this.NUM_OF_WIN_CONDITIONS);
         this.resImportanceTable = resImportance.importantIndex(winConditionsResources, resourcesAvailability);
         createTownsArray(); // load info for the townArray
+    }
+
+    // the cluster size exponent for a given win condition - see CLUSTER_SIZE_EXPONENT_LONGEST_ROAD's comment
+    private double clusterSizeExponentFor(int winConditionIndex) {
+        if (strategyNames == null || winConditionIndex < 0 || winConditionIndex >= strategyNames.length) {
+            return CLUSTER_SIZE_EXPONENT_DEFAULT; // no name info available - unchanged old behavior
+        }
+        return strategyNames[winConditionIndex].contains("+ LR")
+            ? CLUSTER_SIZE_EXPONENT_LONGEST_ROAD
+            : CLUSTER_SIZE_EXPONENT_DEFAULT;
     }
 
 
@@ -216,7 +246,7 @@ public class Towns {
 
             // define alpha, beta, gamma values
             double beta = 1.5;
-            double gamma = this.CLUSTER_SIZE_EXPONENT;
+            double gamma = clusterSizeExponentFor(winConditionIndex);
 
             // calculate the optimal location value
             townOptLocation[i] += resImportanceTable[winConditionIndex][i] * Math.pow(winIndex, beta) * Math.pow(clusterSizeFactor, gamma); 
