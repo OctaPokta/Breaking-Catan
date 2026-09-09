@@ -74,7 +74,7 @@ public class SecondSettlementSolver {
         int topWinStrategyRank = 0;
         int originalStrategyIndex = (int) catanMap.winConditionPerTileScores[topWinStrategyRank][19];
 
-        Towns catanTowns = new Towns(catanMap, RESOURCES_AVAILABILITY, freshWinConditionsResources, topWinStrategyRank);
+        Towns catanTowns = new Towns(catanMap, RESOURCES_AVAILABILITY, freshWinConditionsResources, topWinStrategyRank, strategyNames);
         catanTowns.connectHexToTowns();
         catanTowns.connectTownsToHexagons();
         catanTowns.setTownHexagonCounts();
